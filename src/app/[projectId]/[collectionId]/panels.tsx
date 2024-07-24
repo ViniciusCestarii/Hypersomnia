@@ -1,20 +1,29 @@
 'use client'
 
 import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
-import useLocalStorage from '@/hooks/useLocalStorage'
+import useCookieStorage from '@/hooks/useCookieStorage'
 import useCollectionStore from '@/zustand/collection-store'
 import { ReactNode } from 'react'
 
-export default function Panels() {
-  const [requestCollectionPanelSize, setRequestCollectionPanelSize] =
-    useLocalStorage('rcps', 50)
+interface PanelsProps {
+  rcps?: number
+  rops?: number
+  rps?: number
+}
 
-  const [requestOptionPanelSize, setRequestOptionPanelSize] = useLocalStorage(
+export default function Panels({ rcps, rops, rps }: PanelsProps) {
+  const [requestCollectionPanelSize, setRequestCollectionPanelSize] =
+    useCookieStorage('rcps', rcps ?? 50)
+
+  const [requestOptionPanelSize, setRequestOptionPanelSize] = useCookieStorage(
     'rops',
-    50,
+    rops ?? 50,
   )
 
-  const [responsePanelSize, setResponsePanelSize] = useLocalStorage('rps', 50)
+  const [responsePanelSize, setResponsePanelSize] = useCookieStorage(
+    'rps',
+    rps ?? 50,
+  )
 
   const selectedCollection = useCollectionStore(
     (state) => state.selectedCollection,

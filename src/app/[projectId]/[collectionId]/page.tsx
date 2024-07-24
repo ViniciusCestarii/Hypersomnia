@@ -1,17 +1,9 @@
-'use client'
+import Panels from '@/app/[projectId]/[collectionId]/panels'
 import { ResizablePanelGroup } from '@/components/ui/resizable'
-import useCollectionStore from '@/zustand/collection-store'
-import dynamic from 'next/dynamic'
-import { useEffect } from 'react'
+import { getCookie } from '@/lib/get-cookie'
+import SetCollection from './set-collection'
 
-const Panels = dynamic(
-  () => import('@/app/[projectId]/[collectionId]/panels'),
-  {
-    ssr: false,
-  },
-)
-
-interface ApiToolProps {
+export interface ApiToolProps {
   params: {
     projectId: string
     collectionId: string
@@ -19,18 +11,17 @@ interface ApiToolProps {
 }
 
 export default function ApiTool({ params }: ApiToolProps) {
-  const selectCollection = useCollectionStore((state) => state.selectCollection)
-
-  useEffect(() => {
-    selectCollection(params.collectionId)
-  })
+  const rcps = getCookie('rcps')
+  const rops = getCookie('rops')
+  const rps = getCookie('rps')
 
   return (
     <ResizablePanelGroup
       direction="horizontal"
       className="flex flex-1 rounded-lg border"
     >
-      <Panels />
+      <SetCollection params={params} />
+      <Panels rcps={rcps} rops={rops} rps={rps} />
     </ResizablePanelGroup>
   )
 }
