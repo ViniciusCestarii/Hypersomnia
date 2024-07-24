@@ -12,7 +12,7 @@ type HypersomniaStore = {
 
 const initialProjects: Project[] = [
   {
-    id: '71366efe-2b3b-4087-ab1b-e00ea1ea805b',
+    id: 'project-1',
     title: 'Project 1',
     description: 'Description 1',
     collections: [
@@ -44,7 +44,7 @@ const initialProjects: Project[] = [
     ],
   },
   {
-    id: 'af7e7ef8-bf5e-4ba0-977d-36df84ba35c1',
+    id: 'project-2',
     title: 'Project 2',
     description: 'Description 2',
     collections: [
@@ -56,7 +56,7 @@ const initialProjects: Project[] = [
     ],
   },
   {
-    id: '31b94a56-00a4-4a8d-8a1e-471a6a1cd6e4',
+    id: 'project-3',
     title: 'Project 3',
     description: 'Description 3',
     collections: [],
@@ -72,9 +72,15 @@ const useHypersomniaStore = create<HypersomniaStore>((set) => ({
     })),
   createProject: (newProject: CreateProject) =>
     set((state) => {
+      const id = newProject.title.toLowerCase().replace(' ', '-')
+
+      if (state.projects.some((project) => project.id === id)) {
+        return { projects: state.projects }
+      }
+
       const newProjectWithId = {
         ...newProject,
-        id: state.projects.length.toString(),
+        id,
       }
 
       return {
