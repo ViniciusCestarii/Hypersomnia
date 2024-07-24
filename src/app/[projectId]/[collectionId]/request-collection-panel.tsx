@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { getMethodColor } from '@/lib/utils'
+import { filterNodes, getMethodColor } from '@/lib/utils'
 import {
   FileSystemNode as FileSystemNodeType,
   MethodType,
@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useQueryState } from 'nuqs'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const RequestCollectionPanel = () => {
   const selectedCollection = useCollectionStore(
@@ -26,6 +26,11 @@ const RequestCollectionPanel = () => {
   )
 
   const [filter, setFilter] = useQueryState('qr')
+
+  const filteredNodes = filterNodes(
+    selectedCollection?.fileSystem || [],
+    filter ?? '',
+  )
 
   return (
     <div className="flex flex-col">
@@ -58,8 +63,12 @@ const RequestCollectionPanel = () => {
         }
       />
       <div className="mt-4">
-        {selectedCollection?.fileSystem.map((node) => (
-          <FileSystemNode key={node.name} node={node} />
+        {filteredNodes.map((node) => (
+          <FileSystemNode
+            key={node.name}
+            node={node}
+            openFolders={!!filter && filter?.length > 0}
+          />
         ))}
       </div>
     </div>
@@ -68,10 +77,17 @@ const RequestCollectionPanel = () => {
 
 type FileSystemNodeProps = {
   node: FileSystemNodeType
+  openFolders: boolean
 }
 
-const FileSystemNode = ({ node }: FileSystemNodeProps) => {
-  const [isOpen, setIsOpen] = useState(false)
+const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
+  const [isOpen, setIsOpen] = useState(openFolders)
+
+  useEffect(() => {
+    setIsOpen(openFolders)
+  }, [openFolders])
+
+  // todo: animate open/close with framer-motion
 
   if (node.isFolder) {
     return (
@@ -87,7 +103,11 @@ const FileSystemNode = ({ node }: FileSystemNodeProps) => {
         {isOpen && (
           <div className="ml-4">
             {node.children?.map((childNode) => (
-              <FileSystemNode key={childNode.name} node={childNode} />
+              <FileSystemNode
+                key={childNode.name}
+                node={childNode}
+                openFolders={openFolders}
+              />
             ))}
           </div>
         )}

@@ -1,4 +1,7 @@
-import { MethodType } from '@/types/collection'
+import {
+  FileSystemNode as FileSystemNodeType,
+  MethodType,
+} from '@/types/collection'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -26,4 +29,28 @@ export function getMethodColor(method: MethodType): string {
     default:
       return ''
   }
+}
+
+export const filterNodes = (
+  nodes: FileSystemNodeType[],
+  filter: string,
+): FileSystemNodeType[] => {
+  if (!filter) return nodes
+
+  const lowercasedFilter = filter.toLowerCase()
+
+  return nodes
+    .filter((node) => {
+      if (node.isFolder) {
+        const filteredChildren = filterNodes(node.children ?? [], filter)
+        return filteredChildren.length > 0
+      }
+      return node.name.toLowerCase().includes(lowercasedFilter)
+    })
+    .map((node) => ({
+      ...node,
+      children: node.isFolder
+        ? filterNodes(node.children ?? [], filter)
+        : node.children,
+    }))
 }
