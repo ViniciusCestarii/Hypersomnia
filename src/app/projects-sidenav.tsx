@@ -1,7 +1,7 @@
 'use client'
 
 import TypographyH2 from '@/components/ui/typography-h2'
-import useHypersomniaStore from './zustand/hypersomnia-store'
+import useHypersomniaStore from '../zustand/hypersomnia-store'
 import { Button } from '@/components/ui/button'
 import { useQueryState } from 'nuqs'
 import { Input } from '@/components/ui/input'

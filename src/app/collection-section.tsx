@@ -1,14 +1,14 @@
 'use client'
 import TypographyH2 from '@/components/ui/typography-h2'
 import Collection from './collection'
-import useCollectionStore from './zustand/collection-store'
+import useCollectionStore from '../zustand/collection-store'
 import TypographyP from '@/components/ui/typography-p'
-import useIsClient from './hooks/useIsClient'
+import useIsClient from '../hooks/useIsClient'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Suspense } from 'react'
 import { useQueryState } from 'nuqs'
-import useHypersomniaStore from './zustand/hypersomnia-store'
+import useHypersomniaStore from '../zustand/hypersomnia-store'
 
 const CollectionSection = () => {
   return (

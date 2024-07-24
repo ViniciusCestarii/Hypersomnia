@@ -1,7 +1,7 @@
 import TypographyH2 from '@/components/ui/typography-h2'
 import React from 'react'
 import TypographyP from '@/components/ui/typography-p'
-import { Collection as CollectionType } from './types/collection'
+import { Collection as CollectionType } from '../types/collection'
 import { DropdownMenuDemo } from './collection-dropdown-menu'
 
 interface CollectionProps {
