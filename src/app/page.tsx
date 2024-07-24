@@ -1,7 +1,6 @@
 import TypographyH1 from '@/components/ui/typography-h1'
-import CollectionGrid from './collection-grid'
-import ProjectsList from './projects-list'
-import { Suspense } from 'react'
+import CollectionSection from './collection-section'
+import ProjectSidenav from './projects-sidenav'
 
 export default function Home() {
   return (
@@ -14,10 +13,8 @@ export default function Home() {
           gridTemplateColumns: 'minmax(160px, 1fr) 3fr',
         }}
       >
-        <Suspense fallback={<div className="w-full" />}>
-          <ProjectsList />
-        </Suspense>
-        <CollectionGrid />
+        <ProjectSidenav />
+        <CollectionSection />
       </div>
     </main>
   )
