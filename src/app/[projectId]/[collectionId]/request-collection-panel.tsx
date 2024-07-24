@@ -27,10 +27,6 @@ const RequestCollectionPanel = () => {
 
   const [filter, setFilter] = useQueryState('qr')
 
-  if (!selectedCollection) {
-    return null
-  }
-
   return (
     <div className="flex flex-col">
       <div className="flex items-center">
@@ -62,7 +58,7 @@ const RequestCollectionPanel = () => {
         }
       />
       <div className="mt-4">
-        {selectedCollection.fileSystem.map((node) => (
+        {selectedCollection?.fileSystem.map((node) => (
           <FileSystemNode key={node.name} node={node} />
         ))}
       </div>
