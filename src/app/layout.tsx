@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import TypographyH1 from '@/components/ui/typography-h1'
+import { ThemeProvider } from './theme-provider'
+import { ThemeToggleButton } from '@/components/ui/theme-toggle-button'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,12 +18,22 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <main className="flex min-h-screen flex-col">
-          <TypographyH1>Hypersomnia</TypographyH1>
-          {children}{' '}
-        </main>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <main className="flex min-h-screen flex-col">
+            <div className="flex justify-between items-center">
+              <TypographyH1>Hypersomnia</TypographyH1>
+              <ThemeToggleButton />
+            </div>
+            {children}{' '}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   )
