@@ -25,8 +25,9 @@ export function CollectionDropdownMenu() {
         <Button
           aria-label="more options"
           title="more options"
-          className="rounded-full size-8 p-2"
+          size="icon"
           variant="ghost"
+          className="p-1"
         >
           <Ellipsis />
         </Button>

@@ -1,8 +1,12 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
+import { Separator } from '@/components/ui/separator'
 import useCookieStorage from '@/hooks/useCookieStorage'
 import useCollectionStore from '@/zustand/collection-store'
+import { ChevronLeft } from 'lucide-react'
+import Link from 'next/link'
 import { ReactNode } from 'react'
 
 interface PanelsProps {
@@ -36,7 +40,20 @@ export default function Panels({ rcps, rops, rps }: PanelsProps) {
         defaultSize={requestCollectionPanelSize}
       >
         <PanelContentWrapper>
-          <span className="font-semibold">{selectedCollection?.title}</span>
+          <div className="flex items-center gap-2">
+            <Link href="/" passHref>
+              <Button
+                aria-label="return"
+                title="return"
+                size="icon"
+                variant="ghost"
+              >
+                <ChevronLeft size={20} />
+              </Button>
+            </Link>
+            <Separator orientation="vertical" />
+            <span className="font-semibold">{selectedCollection?.title}</span>
+          </div>
         </PanelContentWrapper>
       </ResizablePanel>
       <ResizableHandle />
