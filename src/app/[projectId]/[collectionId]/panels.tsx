@@ -1,13 +1,9 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
-import { Separator } from '@/components/ui/separator'
 import useCookieStorage from '@/hooks/useCookieStorage'
-import useCollectionStore from '@/zustand/collection-store'
-import { ChevronLeft } from 'lucide-react'
-import Link from 'next/link'
 import { ReactNode } from 'react'
+import RequestCollectionPanel from './request-collection-panel'
 
 interface PanelsProps {
   rcps?: number
@@ -29,10 +25,6 @@ export default function Panels({ rcps, rops, rps }: PanelsProps) {
     rps ?? 50,
   )
 
-  const selectedCollection = useCollectionStore(
-    (state) => state.selectedCollection,
-  )
-
   return (
     <>
       <ResizablePanel
@@ -40,20 +32,7 @@ export default function Panels({ rcps, rops, rps }: PanelsProps) {
         defaultSize={requestCollectionPanelSize}
       >
         <PanelContentWrapper>
-          <div className="flex items-center gap-2">
-            <Link href="/" passHref>
-              <Button
-                aria-label="return"
-                title="return"
-                size="icon"
-                variant="ghost"
-              >
-                <ChevronLeft size={20} />
-              </Button>
-            </Link>
-            <Separator orientation="vertical" />
-            <span className="font-semibold">{selectedCollection?.title}</span>
-          </div>
+          <RequestCollectionPanel />
         </PanelContentWrapper>
       </ResizablePanel>
       <ResizableHandle />
@@ -79,5 +58,5 @@ export default function Panels({ rcps, rops, rps }: PanelsProps) {
 }
 
 const PanelContentWrapper = ({ children }: { children: ReactNode }) => (
-  <div className="flex flex-col h-full p-6">{children}</div>
+  <div className="flex flex-col h-full">{children}</div>
 )
