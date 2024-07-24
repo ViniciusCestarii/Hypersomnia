@@ -14,7 +14,7 @@ export default function Home() {
           gridTemplateColumns: 'minmax(160px, 1fr) 3fr',
         }}
       >
-        <Suspense>
+        <Suspense fallback={<div className="w-full" />}>
           <ProjectsList />
         </Suspense>
         <CollectionGrid />
