@@ -22,7 +22,12 @@ export function DropdownMenuDemo() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="rounded-full size-8 p-2" variant="ghost">
+        <Button
+          aria-label="more options"
+          title="more options"
+          className="rounded-full size-8 p-2"
+          variant="ghost"
+        >
           <Ellipsis />
         </Button>
       </DropdownMenuTrigger>
