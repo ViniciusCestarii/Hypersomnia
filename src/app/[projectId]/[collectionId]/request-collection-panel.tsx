@@ -15,9 +15,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Folder,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useQueryState } from 'nuqs'
+import { parseAsBoolean, useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
 
 const RequestCollectionPanel = () => {
@@ -26,6 +28,7 @@ const RequestCollectionPanel = () => {
   )
 
   const [filter, setFilter] = useQueryState('qr')
+  const [expandAll, setExpandAll] = useQueryState('ea', parseAsBoolean)
 
   const filteredNodes = filterNodes(
     selectedCollection?.fileSystem || [],
@@ -50,24 +53,37 @@ const RequestCollectionPanel = () => {
         <span className="font-semibold">{selectedCollection?.title}</span>
       </div>
       <Separator />
-      <Label className="sr-only" htmlFor="request-filter">
-        Filter
-      </Label>
-      <Input
-        id="request-filter"
-        type="search"
-        placeholder="Filter"
-        value={filter ?? ''}
-        onChange={({ target }) =>
-          setFilter(target.value.length ? target.value : null)
-        }
-      />
+      <div className="flex items-center p-2 gap-2">
+        <Label className="sr-only" htmlFor="request-filter">
+          Filter
+        </Label>
+        <Input
+          id="request-filter"
+          type="search"
+          className="h-8 rounded-none"
+          placeholder="Filter"
+          value={filter ?? ''}
+          onChange={({ target }) =>
+            setFilter(target.value.length ? target.value : null)
+          }
+        />
+        <Button
+          onClick={() => setExpandAll(!expandAll)}
+          aria-label={expandAll ? 'collapse all' : 'expand all'}
+          title={expandAll ? 'collapse all' : 'expand all'}
+          size="icon"
+          variant="ghost"
+          className="rounded-none"
+        >
+          {expandAll ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+        </Button>
+      </div>
       <div className="mt-4">
         {filteredNodes.map((node) => (
           <FileSystemNode
             key={node.name}
             node={node}
-            openFolders={!!filter && filter?.length > 0}
+            openFolders={expandAll || (!!filter && filter?.length > 0)}
           />
         ))}
       </div>
