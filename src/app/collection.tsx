@@ -2,7 +2,7 @@ import TypographyH2 from '@/components/ui/typography-h2'
 import React from 'react'
 import TypographyP from '@/components/ui/typography-p'
 import { Collection as CollectionType } from '../types/collection'
-import { DropdownMenuDemo } from './collection-dropdown-menu'
+import { CollectionDropdownMenu } from './collection-dropdown-menu'
 import Link from 'next/link'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 
@@ -28,7 +28,7 @@ const Collection = ({ collection }: CollectionProps) => {
             {collection.title}
           </TypographyH2>
         </Link>
-        <DropdownMenuDemo />
+        <CollectionDropdownMenu />
       </header>
       <TypographyP>{collection.description}</TypographyP>
     </article>
