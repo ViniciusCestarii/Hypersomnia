@@ -5,11 +5,8 @@ import { Label } from '@/components/ui/label'
 import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
 import RequestBadge from '@/components/ui/panel/request-badge'
 import { Separator } from '@/components/ui/separator'
-import { filterNodes, getMethodColor } from '@/lib/utils'
-import {
-  FileSystemNode as FileSystemNodeType,
-  MethodType,
-} from '@/types/collection'
+import { filterNodes } from '@/lib/utils'
+import { FileSystemNode as FileSystemNodeType } from '@/types/collection'
 import useCollectionContext from '@/zustand/collection-store'
 import {
   AlertCircle,
@@ -26,7 +23,6 @@ import { useEffect, useState } from 'react'
 
 const RequestCollectionPanel = () => {
   const collection = useCollectionContext((state) => state.collection)
-  const selectRequest = useCollectionContext((state) => state.selectRequest)
 
   const [filter, setFilter] = useQueryState('qr')
   const [expandAll, setExpandAll] = useQueryState('ea', parseAsBoolean)
@@ -138,7 +134,7 @@ const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
         onClick={() => selectRequest(request)}
         className="ml-4 flex items-center"
       >
-        <RequestBadge method={request.method} />
+        <RequestBadge method={request.options.method} />
         <span className="ml-2">{node.name}</span>
       </button>
     )

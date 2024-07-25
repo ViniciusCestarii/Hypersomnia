@@ -17,12 +17,14 @@ export type MethodType =
   | 'CONNECT'
   | 'TRACE'
 
+type OverrideRequestInit = {
+  method: MethodType
+}
+
 export type Request = {
   id: string
-  method: MethodType
   url: string
-  headers?: Record<string, string>
-  body?: string
+  options: RequestInit & OverrideRequestInit
 }
 
 export type Collection = {

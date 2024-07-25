@@ -1,4 +1,4 @@
-[] Abandon next SSR for user data to ensure privacy
+[] Abandon Next.js SSR to ensure user data privacy
 
 [] Use Zustand [Slice Pattern](https://docs.pmnd.rs/zustand/guides/slices-pattern) for global state management
 

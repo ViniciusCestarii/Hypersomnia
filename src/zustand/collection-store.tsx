@@ -13,7 +13,11 @@ interface CollectionState extends CollectionStoreProps {
   project: Project | null
   collection: Collection | null
   selectedRequest: Request | null
+  sendTrigger: boolean
+  setResponse: (response: Response | null) => void
+  response: Response | null
   selectRequest: (request: Request | null) => void
+  sendRequest: () => void
   updateCollection: (collection: Collection) => void
   deleteCollection: () => void
 }
@@ -37,6 +41,13 @@ const createCollectionStore = (initProps: CollectionStoreProps) => {
     deleteCollection: () => set({ collection: null }),
     selectRequest: (selectedRequest) => set({ selectedRequest }),
     selectedRequest: initialRequest,
+    response: null,
+    sendTrigger: false,
+    sendRequest: () =>
+      set((state) => ({
+        sendTrigger: !state.sendTrigger,
+      })),
+    setResponse: (response) => set({ response }),
   }))
 }
 

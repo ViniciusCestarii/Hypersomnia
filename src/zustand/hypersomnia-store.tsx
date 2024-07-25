@@ -34,8 +34,10 @@ const initialProjects: Project[] = [
                     isFolder: false,
                     request: {
                       id: '1',
-                      method: 'GET',
                       url: 'https://jsonplaceholder.typicode.com/posts',
+                      options: {
+                        method: 'GET',
+                      },
                     },
                   },
                 ],
@@ -49,8 +51,10 @@ const initialProjects: Project[] = [
                     isFolder: false,
                     request: {
                       id: '2',
-                      method: 'GET',
                       url: 'https://jsonplaceholder.typicode.com/users',
+                      options: {
+                        method: 'GET',
+                      },
                     },
                   },
                 ],
@@ -70,13 +74,15 @@ const initialProjects: Project[] = [
                     isFolder: false,
                     request: {
                       id: '3',
-                      method: 'POST',
                       url: 'https://jsonplaceholder.typicode.com/posts',
-                      body: JSON.stringify({
-                        title: 'foo',
-                        body: 'bar',
-                        userId: 1,
-                      }),
+                      options: {
+                        method: 'POST',
+                        body: JSON.stringify({
+                          title: 'foo',
+                          body: 'bar',
+                          userId: 1,
+                        }),
+                      },
                     },
                   },
                 ],
@@ -86,13 +92,15 @@ const initialProjects: Project[] = [
                 isFolder: false,
                 request: {
                   id: '3',
-                  method: 'POST',
                   url: 'https://jsonplaceholder.typicode.com/posts',
-                  body: JSON.stringify({
-                    title: 'foo',
-                    body: 'bar',
-                    userId: 1,
-                  }),
+                  options: {
+                    method: 'POST',
+                    body: JSON.stringify({
+                      title: 'foo',
+                      body: 'bar',
+                      userId: 1,
+                    }),
+                  },
                 },
               },
               {
@@ -104,12 +112,14 @@ const initialProjects: Project[] = [
                     isFolder: false,
                     request: {
                       id: '4',
-                      method: 'POST',
                       url: 'https://jsonplaceholder.typicode.com/users',
-                      body: JSON.stringify({
-                        name: 'foo',
-                        email: 'bar',
-                      }),
+                      options: {
+                        method: 'POST',
+                        body: JSON.stringify({
+                          name: 'foo',
+                          email: 'bar',
+                        }),
+                      },
                     },
                   },
                 ],
@@ -121,14 +131,16 @@ const initialProjects: Project[] = [
             name: 'put',
             request: {
               id: '5',
-              method: 'PUT',
               url: 'https://jsonplaceholder.typicode.com/posts/1',
-              body: JSON.stringify({
-                id: 1,
-                title: 'foo',
-                body: 'bar',
-                userId: 1,
-              }),
+              options: {
+                method: 'PUT',
+                body: JSON.stringify({
+                  id: 1,
+                  title: 'foo',
+                  body: 'bar',
+                  userId: 1,
+                }),
+              },
             },
           },
         ],

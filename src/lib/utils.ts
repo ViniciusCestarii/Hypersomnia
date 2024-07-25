@@ -31,6 +31,14 @@ export function getMethodColor(method: MethodType): string {
   }
 }
 
+export function getStatusColor(status: number): string {
+  if (status < 200) return 'text-gray-500'
+  if (status < 300) return 'text-green-500'
+  if (status < 400) return 'text-blue-500'
+  if (status < 500) return 'text-yellow-500'
+  return 'text-red-500'
+}
+
 export const filterNodes = (
   nodes: FileSystemNodeType[],
   filter: string,
