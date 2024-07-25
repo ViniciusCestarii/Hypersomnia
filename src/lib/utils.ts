@@ -75,3 +75,7 @@ export const findFirstRequestNode = (
   }
   return null
 }
+
+export const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text)
+}

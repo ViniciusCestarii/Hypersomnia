@@ -1,5 +1,5 @@
 'use client'
-import { Button } from '@/components/ui/button'
+import ClipboardButton from '@/components/ui/panel/clipboard-button'
 import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import useIsClient from '@/hooks/useIsClient'
@@ -7,8 +7,7 @@ import { cn, getStatusColor } from '@/lib/utils'
 import { Request } from '@/types/collection'
 import useCollectionContext from '@/zustand/collection-store'
 import { useQuery } from '@tanstack/react-query'
-import { Copy } from 'lucide-react'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 const fetchRequestData = async (request: Request) => {
   const initialTime = performance.now()
@@ -24,13 +23,8 @@ const fetchRequestData = async (request: Request) => {
   return dataReturn
 }
 
-const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text)
-}
-
 const RequestResponsePanel = () => {
   const sendTrigger = useCollectionContext((state) => state.sendTrigger)
-  const setResponse = useCollectionContext((state) => state.setResponse)
   const request = useCollectionContext((state) => state.selectedRequest)
 
   const { data, error, isLoading, isRefetching, refetch } = useQuery({
@@ -66,16 +60,11 @@ const RequestResponsePanel = () => {
           </div>
         )}
         {jsonText && (
-          <Button
-            onClick={() => copyToClipboard(jsonText)}
-            aria-label="copy to clipboard"
-            title="copy to clipboard"
-            variant="ghost"
-            size="icon"
+          <ClipboardButton
+            label="Copy JSON"
+            text={jsonText}
             className="absolute top-1 right-2 bg-background"
-          >
-            <Copy size={16} />
-          </Button>
+          />
         )}
         {jsonText && <pre className="text-xs pr-2">{jsonText}</pre>}
         <ScrollBar orientation="vertical" />

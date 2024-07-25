@@ -72,6 +72,9 @@ const config = {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
+      fontSize: {
+        'extra-xs': ['0.625rem', { lineHeight: '1rem' }], // This is the new size below `text-xs`
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],
