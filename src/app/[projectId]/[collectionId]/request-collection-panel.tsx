@@ -8,7 +8,7 @@ import {
   FileSystemNode as FileSystemNodeType,
   MethodType,
 } from '@/types/collection'
-import useCollectionStore from '@/zustand/collection-store'
+import useCollectionContext from '@/zustand/collection-store'
 import {
   AlertCircle,
   ChevronDown,
@@ -23,17 +23,12 @@ import { parseAsBoolean, useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
 
 const RequestCollectionPanel = () => {
-  const selectedCollection = useCollectionStore(
-    (state) => state.selectedCollection,
-  )
+  const collection = useCollectionContext((state) => state.collection)
 
   const [filter, setFilter] = useQueryState('qr')
   const [expandAll, setExpandAll] = useQueryState('ea', parseAsBoolean)
 
-  const filteredNodes = filterNodes(
-    selectedCollection?.fileSystem || [],
-    filter ?? '',
-  )
+  const filteredNodes = filterNodes(collection?.fileSystem || [], filter ?? '')
 
   return (
     <div className="flex flex-col">
@@ -50,7 +45,7 @@ const RequestCollectionPanel = () => {
           </Button>
         </Link>
         <Separator orientation="vertical" className="mr-2" />
-        <span className="font-semibold">{selectedCollection?.title}</span>
+        <span className="font-semibold">{collection?.title}</span>
       </div>
       <Separator />
       <div className="flex items-center p-2 gap-2">

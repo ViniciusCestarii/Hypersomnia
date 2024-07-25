@@ -1,6 +1,6 @@
 'use client'
 import Collection from './collection'
-import useCollectionStore from '../zustand/collection-store'
+import useCollectionsStore from '../zustand/collections-store'
 import TypographyP from '@/components/ui/typography-p'
 import useIsClient from '../hooks/useIsClient'
 import { Label } from '@/components/ui/label'
@@ -10,7 +10,7 @@ import useHypersomniaStore from '../zustand/hypersomnia-store'
 import { useEffect } from 'react'
 
 const CollectionList = () => {
-  const collections = useCollectionStore((state) => state.collections)
+  const collections = useCollectionsStore((state) => state.collections)
   const selectedProject = useHypersomniaStore((state) => state.selectedProject)
 
   const [filter, setFilter] = useQueryState(`qc`)

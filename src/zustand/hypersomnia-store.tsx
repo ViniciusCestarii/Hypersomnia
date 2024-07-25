@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { CreateProject, Project } from '../types/project'
-import useCollectionStore from './collection-store'
+import useCollectionsStore from './collections-store'
 type HypersomniaStore = {
   projects: Project[]
   selectedProject: Project | null
@@ -20,7 +20,118 @@ const initialProjects: Project[] = [
         id: '7a73781d-5904-4aac-9c5a-c030f111885a',
         title: 'Collection 1',
         description: 'Description 1',
-        fileSystem: [],
+        fileSystem: [
+          {
+            name: 'get',
+            isFolder: true,
+            children: [
+              {
+                name: 'folder 1',
+                isFolder: true,
+                children: [
+                  {
+                    name: 'request 1',
+                    isFolder: false,
+                    request: {
+                      id: '1',
+                      method: 'GET',
+                      url: 'https://jsonplaceholder.typicode.com/posts',
+                    },
+                  },
+                ],
+              },
+              {
+                name: 'folder 2',
+                isFolder: true,
+                children: [
+                  {
+                    name: 'request 2',
+                    isFolder: false,
+                    request: {
+                      id: '2',
+                      method: 'GET',
+                      url: 'https://jsonplaceholder.typicode.com/users',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: 'post',
+            isFolder: true,
+            children: [
+              {
+                name: 'folder 3',
+                isFolder: true,
+                children: [
+                  {
+                    name: 'request 3',
+                    isFolder: false,
+                    request: {
+                      id: '3',
+                      method: 'POST',
+                      url: 'https://jsonplaceholder.typicode.com/posts',
+                      body: JSON.stringify({
+                        title: 'foo',
+                        body: 'bar',
+                        userId: 1,
+                      }),
+                    },
+                  },
+                ],
+              },
+              {
+                name: 'request 4',
+                isFolder: false,
+                request: {
+                  id: '3',
+                  method: 'POST',
+                  url: 'https://jsonplaceholder.typicode.com/posts',
+                  body: JSON.stringify({
+                    title: 'foo',
+                    body: 'bar',
+                    userId: 1,
+                  }),
+                },
+              },
+              {
+                name: 'folder 4',
+                isFolder: true,
+                children: [
+                  {
+                    name: 'request 4',
+                    isFolder: false,
+                    request: {
+                      id: '4',
+                      method: 'POST',
+                      url: 'https://jsonplaceholder.typicode.com/users',
+                      body: JSON.stringify({
+                        name: 'foo',
+                        email: 'bar',
+                      }),
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            isFolder: false,
+            name: 'put',
+            request: {
+              id: '5',
+              method: 'PUT',
+              url: 'https://jsonplaceholder.typicode.com/posts/1',
+              body: JSON.stringify({
+                id: 1,
+                title: 'foo',
+                body: 'bar',
+                userId: 1,
+              }),
+            },
+          },
+        ],
       },
       {
         id: '393c157c-7f3d-47f3-9a28-bd10f1ec563a',
@@ -97,7 +208,7 @@ const useHypersomniaStore = create<HypersomniaStore>((set) => ({
   selectProject: (id: string) =>
     set((state) => {
       const { updateCollections, selectCollection } =
-        useCollectionStore.getState()
+        useCollectionsStore.getState()
 
       const project = state.projects.find((project) => project.id === id)
 
