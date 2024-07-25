@@ -44,7 +44,7 @@ const RequestCollectionPanel = () => {
           </Button>
         </Link>
         <Separator orientation="vertical" className="mr-2" />
-        <span className="font-semibold">{collection?.title}</span>
+        <span className="font-semibold text-nowrap">{collection?.title}</span>
       </PanelHeaderContainer>
       <div className="flex items-center p-2 gap-2">
         <Label className="sr-only" htmlFor="request-filter">
@@ -109,7 +109,7 @@ const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
         >
           {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           <Folder size={16} className="ml-2" />
-          <span className="ml-2">{node.name}</span>
+          <span className="ml-2 text-nowrap">{node.name}</span>
         </button>
         {isOpen && (
           <div className="ml-4">
@@ -135,7 +135,7 @@ const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
         className="ml-4 flex items-center"
       >
         <RequestBadge method={request.options.method} />
-        <span className="ml-2">{node.name}</span>
+        <span className="ml-2 text-nowrap">{node.name}</span>
       </button>
     )
   }
