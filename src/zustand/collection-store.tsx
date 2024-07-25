@@ -1,7 +1,8 @@
 import { create, useStore } from 'zustand'
-import { Collection } from '../types/collection'
+import { Collection, Request } from '../types/collection'
 import { Project } from '@/types/project'
 import { createContext, useRef, useContext } from 'react'
+import { findFirstRequestNode } from '@/lib/utils'
 
 interface CollectionStoreProps {
   project: Project | null
@@ -11,6 +12,8 @@ interface CollectionStoreProps {
 interface CollectionState extends CollectionStoreProps {
   project: Project | null
   collection: Collection | null
+  selectedRequest: Request | null
+  selectRequest: (request: Request | null) => void
   updateCollection: (collection: Collection) => void
   deleteCollection: () => void
 }
@@ -21,11 +24,19 @@ const createCollectionStore = (initProps: CollectionStoreProps) => {
     collection: null,
   }
 
+  const { collection } = initProps
+
+  const initialRequest = collection
+    ? (findFirstRequestNode(collection?.fileSystem)?.request ?? null)
+    : null
+
   return create<CollectionState>((set) => ({
     ...DEFAULT_PROPS,
     ...initProps,
     updateCollection: (collection) => set({ collection }),
     deleteCollection: () => set({ collection: null }),
+    selectRequest: (selectedRequest) => set({ selectedRequest }),
+    selectedRequest: initialRequest,
   }))
 }
 
@@ -40,11 +51,20 @@ export function CollectionProvider({
   ...props
 }: CollectionProviderProps) {
   const storeRef = useRef<CollectionStore>()
+  const hasBeenCreatedWithPropsRef = useRef(false)
 
   const { project, collection } = props
 
-  if (!storeRef.current || (project && collection)) {
+  if (
+    !storeRef.current ||
+    (project && collection && !hasBeenCreatedWithPropsRef.current)
+  ) {
     storeRef.current = createCollectionStore(props)
+  }
+
+  if (project && collection && !hasBeenCreatedWithPropsRef.current) {
+    storeRef.current = createCollectionStore(props)
+    hasBeenCreatedWithPropsRef.current = true
   }
 
   return (

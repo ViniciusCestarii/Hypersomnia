@@ -11,7 +11,7 @@ interface CollectionPageContextProps extends ApiToolProps {
 
 const CollectionPageContext = ({
   params,
-  ...props
+  children,
 }: CollectionPageContextProps) => {
   const selectedProject = useHypersomniaStore((state) => state.selectedProject)
   const selectProject = useHypersomniaStore((state) => state.selectProject)
@@ -28,11 +28,9 @@ const CollectionPageContext = ({
     ) ?? null
 
   return (
-    <CollectionProvider
-      {...props}
-      project={selectedProject}
-      collection={collection}
-    />
+    <CollectionProvider project={selectedProject} collection={collection}>
+      {children}
+    </CollectionProvider>
   )
 }
 

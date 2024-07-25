@@ -54,3 +54,16 @@ export const filterNodes = (
         : node.children,
     }))
 }
+
+export const findFirstRequestNode = (
+  nodes: FileSystemNodeType[],
+): FileSystemNodeType | null => {
+  for (const node of nodes) {
+    if (node.isFolder) {
+      const childNode = findFirstRequestNode(node.children ?? [])
+      if (childNode) return childNode
+    }
+    if (node.request) return node
+  }
+  return null
+}

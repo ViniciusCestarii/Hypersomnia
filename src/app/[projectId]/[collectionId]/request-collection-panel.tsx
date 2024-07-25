@@ -2,6 +2,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
+import RequestBadge from '@/components/ui/panel/request-badge'
 import { Separator } from '@/components/ui/separator'
 import { filterNodes, getMethodColor } from '@/lib/utils'
 import {
@@ -24,6 +26,7 @@ import { useEffect, useState } from 'react'
 
 const RequestCollectionPanel = () => {
   const collection = useCollectionContext((state) => state.collection)
+  const selectRequest = useCollectionContext((state) => state.selectRequest)
 
   const [filter, setFilter] = useQueryState('qr')
   const [expandAll, setExpandAll] = useQueryState('ea', parseAsBoolean)
@@ -32,7 +35,7 @@ const RequestCollectionPanel = () => {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center">
+      <PanelHeaderContainer className="pl-0">
         <Link href="/" passHref>
           <Button
             aria-label="return"
@@ -46,8 +49,7 @@ const RequestCollectionPanel = () => {
         </Link>
         <Separator orientation="vertical" className="mr-2" />
         <span className="font-semibold">{collection?.title}</span>
-      </div>
-      <Separator />
+      </PanelHeaderContainer>
       <div className="flex items-center p-2 gap-2">
         <Label className="sr-only" htmlFor="request-filter">
           Filter
@@ -92,6 +94,8 @@ type FileSystemNodeProps = {
 }
 
 const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
+  const selectRequest = useCollectionContext((state) => state.selectRequest)
+
   const [isOpen, setIsOpen] = useState(openFolders)
 
   useEffect(() => {
@@ -126,12 +130,17 @@ const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
     )
   }
 
-  if (node.request) {
+  const { request } = node
+
+  if (request) {
     return (
-      <div className="ml-4 flex items-center">
-        <RequestBadge method={node.request?.method} />
+      <button
+        onClick={() => selectRequest(request)}
+        className="ml-4 flex items-center"
+      >
+        <RequestBadge method={request.method} />
         <span className="ml-2">{node.name}</span>
-      </div>
+      </button>
     )
   }
 
@@ -142,14 +151,6 @@ const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
       <AlertDescription>This node is invalid</AlertDescription>
     </Alert>
   )
-}
-
-interface RequestBadgeProps {
-  method: MethodType
-}
-
-const RequestBadge = ({ method }: RequestBadgeProps) => {
-  return <span className={getMethodColor(method)}>{method}</span>
 }
 
 export default RequestCollectionPanel

@@ -4,6 +4,8 @@ import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
 import useCookieStorage from '@/hooks/useCookieStorage'
 import { ReactNode } from 'react'
 import RequestCollectionPanel from './request-collection-panel'
+import RequestOptionPanel from './request-option-panel'
+import RequestResponsePanel from './request-response-panel'
 
 interface PanelsProps {
   rcps?: number
@@ -20,10 +22,8 @@ export default function Panels({ rcps, rops, rps }: PanelsProps) {
     rops ?? 50,
   )
 
-  const [responsePanelSize, setResponsePanelSize] = useCookieStorage(
-    'rps',
-    rps ?? 50,
-  )
+  const [requestResponsePanelSize, setrequestResponsePanelSize] =
+    useCookieStorage('rrps', rps ?? 50)
 
   return (
     <>
@@ -41,16 +41,16 @@ export default function Panels({ rcps, rops, rps }: PanelsProps) {
         defaultSize={requestOptionPanelSize}
       >
         <PanelContentWrapper>
-          <span className="font-semibold">Two</span>
+          <RequestOptionPanel />
         </PanelContentWrapper>
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel
-        onResize={(value) => setResponsePanelSize(value)}
-        defaultSize={responsePanelSize}
+        onResize={(value) => setrequestResponsePanelSize(value)}
+        defaultSize={requestResponsePanelSize}
       >
         <PanelContentWrapper>
-          <span className="font-semibold">Three</span>
+          <RequestResponsePanel />
         </PanelContentWrapper>
       </ResizablePanel>
     </>
