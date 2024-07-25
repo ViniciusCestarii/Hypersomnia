@@ -10,10 +10,10 @@ import RequestResponsePanel from './request-response-panel'
 interface PanelsProps {
   rcps?: number
   rops?: number
-  rps?: number
+  rrps?: number
 }
 
-export default function Panels({ rcps, rops, rps }: PanelsProps) {
+export default function Panels({ rcps, rops, rrps }: PanelsProps) {
   const [requestCollectionPanelSize, setRequestCollectionPanelSize] =
     useCookieStorage('rcps', rcps ?? 50)
 
@@ -23,7 +23,7 @@ export default function Panels({ rcps, rops, rps }: PanelsProps) {
   )
 
   const [requestResponsePanelSize, setrequestResponsePanelSize] =
-    useCookieStorage('rrps', rps ?? 50)
+    useCookieStorage('rrps', rrps ?? 50)
 
   return (
     <>

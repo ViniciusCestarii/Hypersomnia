@@ -13,7 +13,7 @@ export interface ApiToolProps {
 export default function ApiTool(props: ApiToolProps) {
   const rcps = getCookie('rcps')
   const rops = getCookie('rops')
-  const rps = getCookie('rps')
+  const rrps = getCookie('rrps')
 
   return (
     <ResizablePanelGroup
@@ -21,7 +21,7 @@ export default function ApiTool(props: ApiToolProps) {
       className="flex flex-1 rounded-lg border"
     >
       <CollectionPageContext {...props}>
-        <Panels rcps={rcps} rops={rops} rps={rps} />
+        <Panels rcps={rcps} rops={rops} rrps={rrps} />
       </CollectionPageContext>
     </ResizablePanelGroup>
   )
