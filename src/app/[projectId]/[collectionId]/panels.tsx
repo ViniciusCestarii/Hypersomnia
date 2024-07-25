@@ -19,16 +19,16 @@ export default function Panels({ rcps, rops, rrps }: PanelsProps) {
 
   const [requestOptionPanelSize, setRequestOptionPanelSize] = useCookieStorage(
     'rops',
-    rops ?? 50,
+    rops ?? 60,
   )
 
   const [requestResponsePanelSize, setrequestResponsePanelSize] =
-    useCookieStorage('rrps', rrps ?? 50)
+    useCookieStorage('rrps', rrps ?? 25)
 
   return (
     <>
       <ResizablePanel
-        maxSize={20}
+        maxSize={40}
         onResize={(value) => setRequestCollectionPanelSize(value)}
         defaultSize={requestCollectionPanelSize}
       >
@@ -48,7 +48,7 @@ export default function Panels({ rcps, rops, rrps }: PanelsProps) {
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel
-        maxSize={70}
+        maxSize={80}
         onResize={(value) => setrequestResponsePanelSize(value)}
         defaultSize={requestResponsePanelSize}
       >
