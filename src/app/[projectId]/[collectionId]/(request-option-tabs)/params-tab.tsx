@@ -1,17 +1,16 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { Button, ButtonProps } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import ClipboardButton from '@/components/ui/panel/clipboard-button'
-import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import TypographyH3 from '@/components/ui/Typography-h3'
 import { cn, getRequestWithQueryParams } from '@/lib/utils'
 import { QueryParameters } from '@/types/collection'
 import useCollectionContext from '@/zustand/collection-store'
-import { Plus, Trash, Trash2 } from 'lucide-react'
-import React from 'react'
+import { AlertTriangle, Plus, Trash } from 'lucide-react'
+import { useState } from 'react'
 
 const ParamsTab = () => {
   const request = useCollectionContext((state) => state.selectedRequest)
@@ -24,12 +23,12 @@ const ParamsTab = () => {
         <AlertTitle className="uppercase text-xs text-foreground/75 ">
           URL preview
         </AlertTitle>
-        <AlertDescription className="text-extra-xs break-words max-h-28 relative">
+        <AlertDescription className="text-extra-xs break-words pr-8 max-h-28 min-w-24 relative">
           {request ? (
             <>
               {requestUrlWithQuery}
               <ClipboardButton
-                label="Copy URL"
+                label="copy URL"
                 text={requestUrlWithQuery}
                 variant={'ghost'}
                 className="absolute right-0 bottom-0"
@@ -95,20 +94,24 @@ const QueryParametersSection = () => {
           onClick={handleAddParam}
           size="sm"
           variant="ghost"
+          aria-label="add query parameter"
+          title="add query parameter"
           className="rounded-none h-9 flex items-center"
         >
           <Plus size={12} className="mr-1" />
           Add
         </Button>
-        <Button
-          onClick={handleDeleteAllParams}
-          size="sm"
-          variant="ghost"
+        <DeleteConfirmationButton
+          disabled={
+            !request?.queryParameters || request.queryParameters.length === 0
+          }
+          onConfirm={handleDeleteAllParams}
+          text="Delete all"
+          aria-label="delete all query parameters"
+          title="delete all query parameters"
           className="rounded-none h-9 flex items-center"
-        >
-          <Trash2 size={12} className="mr-1" />
-          Delete All
-        </Button>
+          iconSize={12}
+        />
       </div>
       {request?.queryParameters?.map((param, index) => {
         const keyInputId = `param-key-${index}`
@@ -141,20 +144,25 @@ const QueryParametersSection = () => {
                 handleParamChange(index, 'value', e.target.value)
               }
             />
-            <Button
-              size="sm"
-              variant="ghost"
+            <DeleteConfirmationButton
+              onConfirm={() => handleDeleteParam(index)}
+              aria-label="delete query parameter"
+              title="delete query parameter"
               className="rounded-none h-9 flex items-center"
-              onClick={() => handleDeleteParam(index)}
-            >
-              <Trash size={12} />
-            </Button>
+              iconSize={12}
+            />
             <div className="rounded-none h-9 flex items-center hover:bg-accent px-3">
               <Label className="sr-only" htmlFor={checkboxId}>
                 Enabled
               </Label>
               <Checkbox
                 id={checkboxId}
+                aria-label={
+                  param.enabled ? 'disable query param' : 'enable query param'
+                }
+                title={
+                  param.enabled ? 'disable query param' : 'enable query param'
+                }
                 checked={param.enabled}
                 onCheckedChange={(checked) =>
                   handleParamChange(index, 'enabled', checked)
@@ -165,6 +173,55 @@ const QueryParametersSection = () => {
         )
       })}
     </>
+  )
+}
+
+const DeleteConfirmationButton = ({
+  onConfirm,
+  title,
+  'aria-label': ariaLabel,
+  iconSize = 12,
+  className,
+  text,
+  ...props
+}: ButtonProps & {
+  onConfirm: () => void
+  text?: string
+  iconSize?: number
+  className?: string
+}) => {
+  const [isConfirming, setIsConfirming] = useState(false)
+
+  const handleClick = () => {
+    if (isConfirming) {
+      onConfirm()
+      setIsConfirming(false)
+    } else {
+      setIsConfirming(true)
+      setTimeout(() => setIsConfirming(false), 2000)
+    }
+  }
+
+  return (
+    <Button
+      {...props}
+      size="sm"
+      variant="ghost"
+      aria-label={isConfirming ? 'confirm delete' : ariaLabel}
+      title={isConfirming ? 'confirm delete' : title}
+      className={cn(
+        className,
+        isConfirming && 'text-warning hover:text-warning',
+      )}
+      onClick={handleClick}
+    >
+      {isConfirming ? (
+        <AlertTriangle size={iconSize} className={text ? 'mr-1' : undefined} />
+      ) : (
+        <Trash size={iconSize} className={text ? 'mr-1' : undefined} />
+      )}
+      {isConfirming && text ? 'Confirm delete' : (text ?? '')}
+    </Button>
   )
 }
 

@@ -43,7 +43,7 @@ const RequestResponsePanel = () => {
         )}
         {jsonText && (
           <ClipboardButton
-            label="Copy JSON"
+            label="copy content"
             text={jsonText}
             className="absolute top-1 right-2 bg-background"
           />
