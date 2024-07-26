@@ -28,12 +28,12 @@ const ClipboardButton = ({ text, label, ...props }: ClipboardButtonProps) => {
 
   return (
     <Button
+      variant="ghost"
+      size="icon"
       {...props}
       onClick={handleClick}
       aria-label={label}
       title={hasCopied ? 'copied' : label}
-      variant="ghost"
-      size="icon"
     >
       {hasCopied ? <Check size={16} /> : <Clipboard size={16} />}
     </Button>

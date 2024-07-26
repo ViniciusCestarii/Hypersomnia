@@ -1,13 +1,11 @@
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import ClipboardButton from '@/components/ui/panel/clipboard-button'
 import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
 import RequestBadge from '@/components/ui/panel/request-badge'
 import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import useCollectionContext from '@/zustand/collection-store'
 import { parseAsString, useQueryState } from 'nuqs'
+import ParamsTab from './(request-option-tabs)/params-tab'
 
 const tabs = ['Params', 'Body', 'Auth', 'Headers', 'Scripts', 'Docs']
 
@@ -47,32 +45,11 @@ const RequestOptionPanel = () => {
           ))}
         </TabsList>
         <Separator className="w-full" />
-        <div className="p-2 pt-0">
-          <TabsContent value="Params">
-            <Alert className="bg-foreground/5 overflow-auto">
-              <AlertTitle className="uppercase text-xs text-foreground/75">
-                URL preview
-              </AlertTitle>
-              <AlertDescription className="text-extra-xs break-words max-h-28 relative">
-                {request ? (
-                  <>
-                    {request.url}
-                    <ClipboardButton
-                      label="Copy URL"
-                      text={request.url}
-                      className="absolute right-0 bottom-0 backdrop-blur-[100rem]"
-                    />
-                  </>
-                ) : (
-                  <Skeleton className="h-2 mt-2 mb-1 w-[40%]" />
-                )}
-              </AlertDescription>
-            </Alert>
-          </TabsContent>
-          <TabsContent value="Body"></TabsContent>
-        </div>
+        <TabsContent value="Params">
+          <ParamsTab />
+        </TabsContent>
+        <TabsContent value="Body"></TabsContent>
       </Tabs>
-      <div className="p-2 pt-0"></div>
     </div>
   )
 }

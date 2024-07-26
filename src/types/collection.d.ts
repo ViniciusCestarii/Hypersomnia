@@ -21,9 +21,16 @@ type OverrideRequestInit = {
   method: MethodType
 }
 
+export type QueryParameters = {
+  key?: string
+  value?: string
+  enabled: boolean
+}
+
 export type Request = {
   id: string
   url: string
+  queryParameters: QueryParameters[]
   options: RequestInit & OverrideRequestInit
 }
 

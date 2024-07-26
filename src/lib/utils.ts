@@ -1,6 +1,8 @@
 import {
+  FileSystemNode,
   FileSystemNode as FileSystemNodeType,
   MethodType,
+  Request,
 } from '@/types/collection'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
@@ -63,19 +65,91 @@ export const filterNodes = (
     }))
 }
 
+type FindResult = {
+  node: FileSystemNodeType | null
+  path: string[]
+}
+
 export const findFirstRequestNode = (
   nodes: FileSystemNodeType[],
-): FileSystemNodeType | null => {
+  currentPath: string[] = [],
+): FindResult => {
   for (const node of nodes) {
     if (node.isFolder) {
-      const childNode = findFirstRequestNode(node.children ?? [])
-      if (childNode) return childNode
+      const result = findFirstRequestNode(node.children ?? [], [
+        ...currentPath,
+        node.name,
+      ])
+      if (result.node) return result
     }
-    if (node.request) return node
+    if (node.request) return { node, path: [...currentPath, node.name] }
   }
-  return null
+  return { node: null, path: [] }
 }
 
 export const copyToClipboard = (text: string) => {
   navigator.clipboard.writeText(text)
+}
+
+export const findFileByPath = (
+  nodes: FileSystemNodeType[],
+  path: string[],
+): FileSystemNodeType | null => {
+  let currentNodes = nodes
+
+  for (const segment of path) {
+    const foundNode = currentNodes.find((node) => node.name === segment)
+    if (!foundNode) return null
+
+    if (foundNode.isFolder) {
+      currentNodes = foundNode.children ?? []
+    } else if (segment === path[path.length - 1]) {
+      return foundNode
+    } else {
+      return null
+    }
+  }
+
+  return null
+}
+
+export const updateRequestInFileSystem = (
+  fileSystem: FileSystemNode[],
+  path: string[],
+  updatedRequest: Request,
+): FileSystemNode[] => {
+  if (path.length === 0) return fileSystem
+
+  const [head, ...tail] = path
+
+  return fileSystem.map((node) => {
+    if (node.name === head) {
+      if (tail.length === 0 && node.request) {
+        return { ...node, request: updatedRequest }
+      } else if (node.isFolder && node.children) {
+        return {
+          ...node,
+          children: updateRequestInFileSystem(
+            node.children,
+            tail,
+            updatedRequest,
+          ),
+        }
+      }
+    }
+    return node
+  })
+}
+
+export const getRequestWithQueryParams = (request: Request): string => {
+  const url = new URL(request.url)
+  const params = new URLSearchParams(url.search)
+
+  request?.queryParameters?.forEach((param) => {
+    if (param.key && param.enabled) {
+      params.append(param.key, param.value ?? '')
+    }
+  })
+
+  return `${url.origin}${url.pathname}${params.size > 0 ? '?' + params.toString() : ''}`
 }

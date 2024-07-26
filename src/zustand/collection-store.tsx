@@ -2,7 +2,7 @@ import { create, useStore } from 'zustand'
 import { Collection, Request } from '../types/collection'
 import { Project } from '@/types/project'
 import { createContext, useRef, useContext } from 'react'
-import { findFirstRequestNode } from '@/lib/utils'
+import { findFirstRequestNode, updateRequestInFileSystem } from '@/lib/utils'
 
 interface CollectionStoreProps {
   project: Project | null
@@ -12,6 +12,7 @@ interface CollectionStoreProps {
 interface CollectionState extends CollectionStoreProps {
   project: Project | null
   collection: Collection | null
+  selectedRequestPath: string[] | null
   selectedRequest: Request | null
   sendTrigger: boolean
   setResponse: (response: Response | null) => void
@@ -19,6 +20,7 @@ interface CollectionState extends CollectionStoreProps {
   selectRequest: (request: Request | null) => void
   sendRequest: () => void
   updateCollection: (collection: Collection) => void
+  updateSelectedRequest: (request: Request) => void
   deleteCollection: () => void
 }
 
@@ -31,16 +33,17 @@ const createCollectionStore = (initProps: CollectionStoreProps) => {
   const { collection } = initProps
 
   const initialRequest = collection
-    ? (findFirstRequestNode(collection?.fileSystem)?.request ?? null)
+    ? (findFirstRequestNode(collection?.fileSystem) ?? null)
     : null
 
-  return create<CollectionState>((set) => ({
+  return create<CollectionState>((set, get) => ({
     ...DEFAULT_PROPS,
     ...initProps,
     updateCollection: (collection) => set({ collection }),
     deleteCollection: () => set({ collection: null }),
     selectRequest: (selectedRequest) => set({ selectedRequest }),
-    selectedRequest: initialRequest,
+    selectedRequest: initialRequest?.node?.request ?? null,
+    selectedRequestPath: initialRequest?.path ?? null,
     response: null,
     sendTrigger: false,
     sendRequest: () =>
@@ -48,6 +51,27 @@ const createCollectionStore = (initProps: CollectionStoreProps) => {
         sendTrigger: !state.sendTrigger,
       })),
     setResponse: (response) => set({ response }),
+    updateSelectedRequest: (updatedRequest) =>
+      set((state) => {
+        const { selectedRequestPath, collection } = state
+        if (!selectedRequestPath || !collection) return state
+
+        const updatedFileSystem = updateRequestInFileSystem(
+          collection.fileSystem,
+          selectedRequestPath,
+          updatedRequest,
+        )
+
+        const updatedCollection = {
+          ...collection,
+          fileSystem: updatedFileSystem,
+        }
+
+        return {
+          collection: updatedCollection,
+          selectedRequest: updatedRequest,
+        }
+      }),
   }))
 }
 

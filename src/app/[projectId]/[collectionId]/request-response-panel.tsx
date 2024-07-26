@@ -4,7 +4,7 @@ import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-contain
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import useFetch from '@/hooks/useFetch'
 import useIsClient from '@/hooks/useIsClient'
-import { cn, getStatusColor } from '@/lib/utils'
+import { cn, getRequestWithQueryParams, getStatusColor } from '@/lib/utils'
 import useCollectionContext from '@/zustand/collection-store'
 import { useEffect } from 'react'
 
@@ -14,6 +14,7 @@ const RequestResponsePanel = () => {
 
   const { data, response, error, loading, time, refetch } = useFetch({
     ...request,
+    url: request ? getRequestWithQueryParams(request) : undefined,
     enabled: false,
   })
 

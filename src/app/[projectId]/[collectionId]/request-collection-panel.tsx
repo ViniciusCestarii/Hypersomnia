@@ -18,14 +18,14 @@ import {
   Minimize2,
 } from 'lucide-react'
 import Link from 'next/link'
-import { parseAsBoolean, useQueryState } from 'nuqs'
+import { useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
 
 const RequestCollectionPanel = () => {
   const collection = useCollectionContext((state) => state.collection)
 
   const [filter, setFilter] = useQueryState('qr')
-  const [expandAll, setExpandAll] = useQueryState('ea', parseAsBoolean)
+  const [expandAll, setExpandAll] = useState(false) // todo: make this work properly
 
   const filteredNodes = filterNodes(collection?.fileSystem || [], filter ?? '')
 
@@ -44,7 +44,7 @@ const RequestCollectionPanel = () => {
           </Button>
         </Link>
         <Separator orientation="vertical" className="mr-2" />
-        <span className="font-semibold text-nowrap">{collection?.title}</span>
+        <h2 className="font-semibold text-nowrap">{collection?.title}</h2>
       </PanelHeaderContainer>
       <div className="flex items-center p-2 gap-2">
         <Label className="sr-only" htmlFor="request-filter">

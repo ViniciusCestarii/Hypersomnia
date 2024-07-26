@@ -30,6 +30,17 @@ const testCollection: Collection[] = [
                 request: {
                   id: '1',
                   url: 'https://jsonplaceholder.typicode.com/posts',
+                  queryParameters: [
+                    {
+                      key: 'userId',
+                      value: '1',
+                      enabled: true,
+                    },
+                    {
+                      key: 'today',
+                      enabled: false,
+                    },
+                  ],
                   options: {
                     method: 'GET',
                   },
@@ -47,6 +58,7 @@ const testCollection: Collection[] = [
                 request: {
                   id: '2',
                   url: 'https://jsonplaceholder.typicode.com/users',
+                  queryParameters: [],
                   options: {
                     method: 'GET',
                   },
@@ -70,6 +82,7 @@ const testCollection: Collection[] = [
                 request: {
                   id: '3',
                   url: 'https://jsonplaceholder.typicode.com/posts',
+                  queryParameters: [],
                   options: {
                     method: 'POST',
                     body: JSON.stringify({
@@ -88,6 +101,7 @@ const testCollection: Collection[] = [
             request: {
               id: '3',
               url: 'https://jsonplaceholder.typicode.com/posts',
+              queryParameters: [],
               options: {
                 method: 'POST',
                 body: JSON.stringify({
@@ -108,6 +122,7 @@ const testCollection: Collection[] = [
                 request: {
                   id: '4',
                   url: 'https://jsonplaceholder.typicode.com/users',
+                  queryParameters: [],
                   options: {
                     method: 'POST',
                     body: JSON.stringify({
@@ -127,6 +142,7 @@ const testCollection: Collection[] = [
         request: {
           id: '5',
           url: 'https://jsonplaceholder.typicode.com/posts/1',
+          queryParameters: [],
           options: {
             method: 'PUT',
             body: JSON.stringify({
@@ -162,12 +178,6 @@ const testCollection: Collection[] = [
     id: '50a98039-b705-4879-8c44-e0ebcbb063ab',
     title: 'Collection 5',
     description: 'Description 5',
-    fileSystem: [],
-  },
-  {
-    id: '74148c7b-2cbc-4593-aa2e-0d821b8aa1fb',
-    title: 'Collection 2',
-    description: 'Description 2',
     fileSystem: [],
   },
 ]
