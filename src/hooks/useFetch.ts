@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 interface UseFetchResult<T> {
   data: T | null
   time: string | null
-  response: Response | null
+  response: AxiosResponse<T> | null
   error: Error | null
   loading: boolean
   refetch: () => Promise<void>
@@ -11,9 +12,23 @@ interface UseFetchResult<T> {
 
 interface UseFetchProps {
   url?: string
-  options?: RequestInit
+  options?: AxiosRequestConfig
   enabled?: boolean
 }
+
+const customAxios = axios.create()
+
+customAxios.interceptors.request.use((config) => {
+  config.headers['request-startTime'] = new Date().getTime()
+  return config
+})
+
+customAxios.interceptors.response.use((response) => {
+  const currentTime = new Date().getTime()
+  const startTime = response.config.headers['request-startTime']
+  response.headers['request-duration'] = currentTime - startTime
+  return response
+})
 
 const useFetch = <T>({
   url,
@@ -24,24 +39,18 @@ const useFetch = <T>({
   const [time, setTime] = useState<string | null>(null)
   const [error, setError] = useState<Error | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
-  const [response, setResponse] = useState<Response | null>(null)
+  const [response, setResponse] = useState<AxiosResponse<T> | null>(null)
 
   const fetchData = useCallback(async () => {
-    if (!url) {
+    if (!url || !options) {
       return
     }
     setLoading(true)
     try {
-      const initialTime = performance.now()
-      const response = await fetch(url, options)
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`)
-      }
-      const finalTime = performance.now() - initialTime - 1
-      const result: T = await response.json()
+      const response = await customAxios(options)
 
-      setTime(finalTime.toFixed(0))
-      setData(result)
+      setTime(response.headers['request-duration'])
+      setData(response.data)
       setResponse(response)
     } catch (err) {
       setError(err as Error)

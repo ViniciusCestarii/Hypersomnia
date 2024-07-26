@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
-import RequestBadge from '@/components/ui/panel/request-badge'
+import RequestMethodBadge from '@/components/ui/panel/request-method-badge'
 import { Separator } from '@/components/ui/separator'
 import { filterNodes } from '@/lib/utils'
 import { FileSystemNode as FileSystemNodeType } from '@/types/collection'
@@ -134,7 +134,7 @@ const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
         onClick={() => selectRequest(request)}
         className="ml-4 flex items-center"
       >
-        <RequestBadge method={request.options.method} />
+        <RequestMethodBadge method={request.options.method} />
         <span className="ml-2 text-nowrap">{node.name}</span>
       </button>
     )

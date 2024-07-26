@@ -1,3 +1,5 @@
+import { AxiosRequestConfig } from 'axios'
+
 /* eslint-disable no-use-before-define */
 export type FileSystemNode = {
   name: string
@@ -7,17 +9,17 @@ export type FileSystemNode = {
 }
 
 export type MethodType =
-  | 'GET'
-  | 'POST'
-  | 'PUT'
-  | 'DELETE'
-  | 'PATCH'
-  | 'OPTIONS'
-  | 'HEAD'
-  | 'CONNECT'
-  | 'TRACE'
+  | 'get'
+  | 'post'
+  | 'put'
+  | 'delete'
+  | 'patch'
+  | 'options'
+  | 'head'
+  | 'connect'
+  | 'trace'
 
-type OverrideRequestInit = {
+type OverrideAxiosRequestConfig = {
   method: MethodType
 }
 
@@ -31,7 +33,7 @@ export type Request = {
   id: string
   url: string
   queryParameters: QueryParameters[]
-  options: RequestInit & OverrideRequestInit
+  options: AxiosRequestConfig & OverrideAxiosRequestConfig
 }
 
 export type Collection = {

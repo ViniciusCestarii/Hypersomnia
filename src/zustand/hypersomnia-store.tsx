@@ -47,7 +47,7 @@ const initialProjects: Project[] = [
                         },
                       ],
                       options: {
-                        method: 'GET',
+                        method: 'get',
                       },
                     },
                   },
@@ -65,7 +65,7 @@ const initialProjects: Project[] = [
                       url: 'https://jsonplaceholder.typicode.com/users',
                       queryParameters: [],
                       options: {
-                        method: 'GET',
+                        method: 'get',
                       },
                     },
                   },
@@ -89,12 +89,12 @@ const initialProjects: Project[] = [
                       url: 'https://jsonplaceholder.typicode.com/posts',
                       queryParameters: [],
                       options: {
-                        method: 'POST',
-                        body: JSON.stringify({
+                        method: 'post',
+                        data: {
                           title: 'foo',
                           body: 'bar',
                           userId: 1,
-                        }),
+                        },
                       },
                     },
                   },
@@ -108,12 +108,12 @@ const initialProjects: Project[] = [
                   url: 'https://jsonplaceholder.typicode.com/posts',
                   queryParameters: [],
                   options: {
-                    method: 'POST',
-                    body: JSON.stringify({
+                    method: 'post',
+                    data: {
                       title: 'foo',
                       body: 'bar',
                       userId: 1,
-                    }),
+                    },
                   },
                 },
               },
@@ -129,11 +129,11 @@ const initialProjects: Project[] = [
                       url: 'https://jsonplaceholder.typicode.com/users',
                       queryParameters: [],
                       options: {
-                        method: 'POST',
-                        body: JSON.stringify({
+                        method: 'post',
+                        data: {
                           name: 'foo',
                           email: 'bar',
-                        }),
+                        },
                       },
                     },
                   },
@@ -149,13 +149,13 @@ const initialProjects: Project[] = [
               url: 'https://jsonplaceholder.typicode.com/posts/1',
               queryParameters: [],
               options: {
-                method: 'PUT',
-                body: JSON.stringify({
+                method: 'put',
+                data: {
                   id: 1,
                   title: 'foo',
                   body: 'bar',
                   userId: 1,
-                }),
+                },
               },
             },
           },

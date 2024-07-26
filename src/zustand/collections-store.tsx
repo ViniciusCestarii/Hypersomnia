@@ -42,7 +42,7 @@ const testCollection: Collection[] = [
                     },
                   ],
                   options: {
-                    method: 'GET',
+                    method: 'get',
                   },
                 },
               },
@@ -60,7 +60,7 @@ const testCollection: Collection[] = [
                   url: 'https://jsonplaceholder.typicode.com/users',
                   queryParameters: [],
                   options: {
-                    method: 'GET',
+                    method: 'get',
                   },
                 },
               },
@@ -84,12 +84,12 @@ const testCollection: Collection[] = [
                   url: 'https://jsonplaceholder.typicode.com/posts',
                   queryParameters: [],
                   options: {
-                    method: 'POST',
-                    body: JSON.stringify({
+                    method: 'post',
+                    data: {
                       title: 'foo',
                       body: 'bar',
                       userId: 1,
-                    }),
+                    },
                   },
                 },
               },
@@ -103,12 +103,12 @@ const testCollection: Collection[] = [
               url: 'https://jsonplaceholder.typicode.com/posts',
               queryParameters: [],
               options: {
-                method: 'POST',
-                body: JSON.stringify({
+                method: 'post',
+                data: {
                   title: 'foo',
                   body: 'bar',
                   userId: 1,
-                }),
+                },
               },
             },
           },
@@ -124,11 +124,11 @@ const testCollection: Collection[] = [
                   url: 'https://jsonplaceholder.typicode.com/users',
                   queryParameters: [],
                   options: {
-                    method: 'POST',
-                    body: JSON.stringify({
+                    method: 'post',
+                    data: {
                       name: 'foo',
                       email: 'bar',
-                    }),
+                    },
                   },
                 },
               },
@@ -144,13 +144,13 @@ const testCollection: Collection[] = [
           url: 'https://jsonplaceholder.typicode.com/posts/1',
           queryParameters: [],
           options: {
-            method: 'PUT',
-            body: JSON.stringify({
+            method: 'put',
+            data: {
               id: 1,
               title: 'foo',
               body: 'bar',
               userId: 1,
-            }),
+            },
           },
         },
       },

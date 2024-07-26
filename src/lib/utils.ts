@@ -13,20 +13,20 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getMethodColor(method: MethodType): string {
   switch (method) {
-    case 'GET':
+    case 'get':
       return 'text-green-500'
-    case 'POST':
+    case 'post':
       return 'text-blue-500'
-    case 'PUT':
+    case 'put':
       return 'text-yellow-500'
-    case 'DELETE':
+    case 'delete':
       return 'text-red-500'
-    case 'PATCH':
+    case 'patch':
       return 'text-purple-500'
-    case 'OPTIONS':
-    case 'HEAD':
-    case 'CONNECT':
-    case 'TRACE':
+    case 'options':
+    case 'head':
+    case 'connect':
+    case 'trace':
       return 'text-gray-500'
     default:
       return ''

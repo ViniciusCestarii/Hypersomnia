@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
-import RequestBadge from '@/components/ui/panel/request-badge'
+import RequestMethodBadge from '@/components/ui/panel/request-method-badge'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import useCollectionContext from '@/zustand/collection-store'
@@ -21,7 +21,7 @@ const RequestOptionPanel = () => {
       <PanelHeaderContainer>
         {request && (
           <div className="flex relative max-w-full w-full">
-            <RequestBadge method={request.options.method} />{' '}
+            <RequestMethodBadge method={request.options.method} />{' '}
             <span className="font-semibold ml-2 shrink">{request.url}</span>
             <div className="px-2 bg-background absolute -right-2 -translate-y-1/2 top-1/2">
               <Button

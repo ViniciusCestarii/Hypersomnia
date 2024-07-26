@@ -36,7 +36,7 @@ const createCollectionStore = (initProps: CollectionStoreProps) => {
     ? (findFirstRequestNode(collection?.fileSystem) ?? null)
     : null
 
-  return create<CollectionState>((set, get) => ({
+  return create<CollectionState>((set) => ({
     ...DEFAULT_PROPS,
     ...initProps,
     updateCollection: (collection) => set({ collection }),

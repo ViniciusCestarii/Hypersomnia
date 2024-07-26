@@ -14,7 +14,10 @@ const RequestResponsePanel = () => {
 
   const { data, response, error, loading, time, refetch } = useFetch({
     ...request,
-    url: request ? getRequestWithQueryParams(request) : undefined,
+    options: {
+      ...request?.options,
+      url: request ? getRequestWithQueryParams(request) : '',
+    },
     enabled: false,
   })
 
@@ -55,6 +58,8 @@ const RequestResponsePanel = () => {
     )
   }
 
+  console.log('response', response)
+
   return (
     <div>
       <PanelHeaderContainer>
@@ -65,7 +70,9 @@ const RequestResponsePanel = () => {
             >
               {response.status}
             </span>
-            <span className="ml-2">{response.statusText}</span>
+            {response.statusText.length > 0 && (
+              <span className="ml-2">{response.statusText}</span>
+            )}
             <span className="ml-2">{time + 'ms'}</span>
           </>
         )}
