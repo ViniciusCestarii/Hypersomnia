@@ -5,24 +5,8 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import useFetch from '@/hooks/useFetch'
 import useIsClient from '@/hooks/useIsClient'
 import { cn, getStatusColor } from '@/lib/utils'
-import { Request } from '@/types/collection'
 import useCollectionContext from '@/zustand/collection-store'
-import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
-
-const fetchRequestData = async (request: Request) => {
-  const initialTime = performance.now()
-  const response = await fetch(request.url, request.options)
-  const finalTime = performance.now() - initialTime - 1
-
-  const dataReturn = {
-    response,
-    json: await response.json(),
-    time: finalTime.toFixed(0),
-  }
-
-  return dataReturn
-}
 
 const RequestResponsePanel = () => {
   const sendTrigger = useCollectionContext((state) => state.sendTrigger)
