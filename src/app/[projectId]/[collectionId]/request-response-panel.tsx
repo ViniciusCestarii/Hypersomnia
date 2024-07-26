@@ -2,6 +2,7 @@
 import ClipboardButton from '@/components/ui/panel/clipboard-button'
 import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import useFetch from '@/hooks/useFetch'
 import useIsClient from '@/hooks/useIsClient'
 import { cn, getStatusColor } from '@/lib/utils'
 import { Request } from '@/types/collection'
@@ -27,17 +28,15 @@ const RequestResponsePanel = () => {
   const sendTrigger = useCollectionContext((state) => state.sendTrigger)
   const request = useCollectionContext((state) => state.selectedRequest)
 
-  const { data, error, isLoading, isRefetching, refetch } = useQuery({
-    queryKey: [null],
-    queryFn: () => fetchRequestData(request as Request),
+  const { data, response, error, loading, time, refetch } = useFetch({
+    ...request,
     enabled: false,
-    gcTime: 0,
   })
 
   const isClient = useIsClient()
 
   useEffect(() => {
-    if (request && isClient) {
+    if (isClient) {
       refetch()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -48,13 +47,11 @@ const RequestResponsePanel = () => {
       return <div>Error fetching data: {error.message}</div>
     }
 
-    const jsonText = data?.json ? JSON.stringify(data?.json, null, 2) : null
-
-    const showLoading = isLoading || isRefetching
+    const jsonText = data ? JSON.stringify(data, null, 2) : null
 
     return (
       <ScrollArea type="auto" className="h-[800px] relative pr-4">
-        {showLoading && (
+        {loading && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center bg-background/35">
             Loading...
           </div>
@@ -73,8 +70,6 @@ const RequestResponsePanel = () => {
     )
   }
 
-  const response = data?.response
-
   return (
     <div>
       <PanelHeaderContainer>
@@ -86,7 +81,7 @@ const RequestResponsePanel = () => {
               {response.status}
             </span>
             <span className="ml-2">{response.statusText}</span>
-            <span className="ml-2">{data.time + 'ms'}</span>
+            <span className="ml-2">{time + 'ms'}</span>
           </>
         )}
       </PanelHeaderContainer>
