@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 
 interface UseFetchResult<T> {
   data: T | null
@@ -37,7 +37,7 @@ const useFetch = <T>({
 }: UseFetchProps): UseFetchResult<T> => {
   const [data, setData] = useState<T | null>(null)
   const [time, setTime] = useState<string | null>(null)
-  const [error, setError] = useState<Error | null>(null)
+  const [error, setError] = useState<AxiosError | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [response, setResponse] = useState<AxiosResponse<T> | null>(null)
 
@@ -52,8 +52,13 @@ const useFetch = <T>({
       setTime(response.headers['request-duration'])
       setData(response.data)
       setResponse(response)
+      setError(null)
     } catch (err) {
-      setError(err as Error)
+      if (axios.isAxiosError(err)) {
+        setData(null)
+        setResponse(err.response || null)
+        setError(err)
+      }
     } finally {
       setLoading(false)
     }

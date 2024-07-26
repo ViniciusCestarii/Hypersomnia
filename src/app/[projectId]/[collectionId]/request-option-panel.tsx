@@ -1,15 +1,46 @@
 import { Button } from '@/components/ui/button'
 import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
 import RequestMethodBadge from '@/components/ui/panel/request-method-badge'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { requestMethods } from '@/lib/utils'
 import useCollectionContext from '@/zustand/collection-store'
 import { parseAsString, useQueryState } from 'nuqs'
 import ParamsTab from './(request-option-tabs)/params-tab'
+import { Request } from '@/types/collection'
 
 const RequestOptionPanel = () => {
   const request = useCollectionContext((state) => state.selectedRequest)
   const sendRequest = useCollectionContext((state) => state.sendRequest)
+  const updateSelectedRequest = useCollectionContext(
+    (state) => state.updateSelectedRequest,
+  )
+
+  const handleRequestChange = (field: keyof Request, value: unknown) => {
+    if (!request) return
+    const requestCopy = { ...request, [field]: value }
+    updateSelectedRequest(requestCopy)
+  }
+
+  const handleRequestOptionChange = (
+    field: keyof Request['options'],
+    value: unknown,
+  ) => {
+    if (!request) return
+    const requestCopy = { ...request }
+    requestCopy.options = {
+      ...requestCopy.options,
+      [field]: value,
+    }
+    updateSelectedRequest(requestCopy)
+  }
 
   const [tab, setTab] = useQueryState(
     'tab',
@@ -18,11 +49,29 @@ const RequestOptionPanel = () => {
 
   return (
     <div className="flex flex-col">
-      <PanelHeaderContainer>
+      <PanelHeaderContainer className="pl-0">
         {request && (
-          <div className="flex relative max-w-full w-full">
-            <RequestMethodBadge method={request.options.method} />{' '}
-            <span className="font-semibold ml-2 shrink">{request.url}</span>
+          <div className="flex relative max-w-full w-full items-center">
+            <Select
+              value={request.options.method}
+              onValueChange={(value) =>
+                handleRequestOptionChange('method', value)
+              }
+            >
+              <SelectTrigger className="border-0 w-fit">
+                <RequestMethodBadge method={request.options.method} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {requestMethods.map((method) => (
+                    <SelectItem key={method} value={method}>
+                      <RequestMethodBadge method={method} />
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <span className="font-semibold shrink">{request.url}</span>
             <div className="px-2 bg-background absolute -right-2 -translate-y-1/2 top-1/2">
               <Button
                 onClick={sendRequest}

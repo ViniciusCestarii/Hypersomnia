@@ -153,3 +153,15 @@ export const getRequestWithQueryParams = (request: Request): string => {
 
   return `${url.origin}${url.pathname}${params.size > 0 ? '?' + params.toString() : ''}`
 }
+
+export const requestMethods: MethodType[] = [
+  'get',
+  'post',
+  'put',
+  'delete',
+  'patch',
+  'options',
+  'head',
+  'connect',
+  'trace',
+]

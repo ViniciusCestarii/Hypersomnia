@@ -31,10 +31,6 @@ const RequestResponsePanel = () => {
   }, [sendTrigger])
 
   const renderPanelBody = () => {
-    if (error) {
-      return <div>Error fetching data: {error.message}</div>
-    }
-
     const jsonText = data ? JSON.stringify(data, null, 2) : null
 
     return (
@@ -44,21 +40,20 @@ const RequestResponsePanel = () => {
             Loading...
           </div>
         )}
-        {jsonText && (
+        {!error && jsonText && (
           <ClipboardButton
             label="copy content"
             text={jsonText}
             className="absolute top-1 right-2 bg-background"
           />
         )}
-        {jsonText && <pre className="text-xs pr-2">{jsonText}</pre>}
+        {error && <span>Error fetching data: {error.message}</span>}
+        {!error && jsonText && <pre className="text-xs pr-2">{jsonText}</pre>}
         <ScrollBar orientation="vertical" />
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
     )
   }
-
-  console.log('response', response)
 
   return (
     <div>
