@@ -4,13 +4,10 @@ import { CollectionProvider } from '@/zustand/collection-store'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import React, { useEffect } from 'react'
 import { ApiToolProps } from './page'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 interface CollectionPageContextProps extends ApiToolProps {
   children: React.ReactNode
 }
-
-const queryClient = new QueryClient()
 
 const CollectionPageContext = ({
   params,
@@ -31,11 +28,9 @@ const CollectionPageContext = ({
     ) ?? null
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <CollectionProvider project={selectedProject} collection={collection}>
-        {children}
-      </CollectionProvider>
-    </QueryClientProvider>
+    <CollectionProvider project={selectedProject} collection={collection}>
+      {children}
+    </CollectionProvider>
   )
 }
 
