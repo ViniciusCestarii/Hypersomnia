@@ -15,6 +15,8 @@ import useCollectionContext from '@/zustand/collection-store'
 import { parseAsString, useQueryState } from 'nuqs'
 import ParamsTab from './(request-option-tabs)/params-tab'
 import { Request } from '@/types/collection'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 const RequestOptionPanel = () => {
   const request = useCollectionContext((state) => state.selectedRequest)
@@ -71,18 +73,26 @@ const RequestOptionPanel = () => {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <span className="font-semibold shrink">{request.url}</span>
-            <div className="px-2 bg-background absolute -right-2 -translate-y-1/2 top-1/2">
-              <Button
-                onClick={sendRequest}
-                aria-label="send"
-                title="send"
-                variant="default"
-                className="h-6"
-              >
-                Send
-              </Button>
-            </div>
+            <Label className="sr-only" htmlFor="request-url">
+              URL
+            </Label>
+            <Input
+              id="request-url"
+              onChange={({ target }) =>
+                handleRequestChange('url', target.value)
+              }
+              value={request.url}
+              className="font-semibold shrink mr-16 border-0 focus-visible:ring-0 pl-0"
+            />
+            <Button
+              onClick={sendRequest}
+              aria-label="send"
+              title="send"
+              variant="default"
+              className="h-6 absolute right-0 -translate-y-1/2 top-1/2"
+            >
+              Send
+            </Button>
           </div>
         )}
       </PanelHeaderContainer>

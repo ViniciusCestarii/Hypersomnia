@@ -142,8 +142,13 @@ export const updateRequestInFileSystem = (
 }
 
 export const getRequestWithQueryParams = (request: Request): string => {
-  const url = new URL(request.url)
-  const params = new URLSearchParams(url.search)
+  if (
+    !request.url &&
+    request.queryParameters.filter((param) => param.key && param.enabled)
+      .length === 0
+  )
+    return ''
+  const params = new URLSearchParams()
 
   request?.queryParameters?.forEach((param) => {
     if (param.key && param.enabled) {
@@ -151,7 +156,12 @@ export const getRequestWithQueryParams = (request: Request): string => {
     }
   })
 
-  return `${url.origin}${url.pathname}${params.size > 0 ? '?' + params.toString() : ''}`
+  const hasProtocol =
+    request.url.startsWith('http://') || request.url.startsWith('https://')
+
+  const addInterrogation = request.url.includes('?') ? '&' : '?'
+
+  return `${hasProtocol ? '' : 'http://'}${request.url}${params.size > 0 && request.url.length > 0 ? addInterrogation : ''}${params.toString()}`
 }
 
 export const requestMethods: MethodType[] = [

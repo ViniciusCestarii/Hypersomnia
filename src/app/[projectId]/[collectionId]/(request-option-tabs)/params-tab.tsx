@@ -16,6 +16,7 @@ const ParamsTab = () => {
   const request = useCollectionContext((state) => state.selectedRequest)
 
   const requestUrlWithQuery = request ? getRequestWithQueryParams(request) : ''
+  const isRequestUrlWithQueryEmpty = requestUrlWithQuery === ''
 
   return (
     <>
@@ -26,9 +27,10 @@ const ParamsTab = () => {
         <AlertDescription className="text-extra-xs break-words pr-8 max-h-28 min-w-24 relative">
           {request ? (
             <>
-              {requestUrlWithQuery}
+              {isRequestUrlWithQueryEmpty ? '...' : requestUrlWithQuery}
               <ClipboardButton
                 label="copy URL"
+                disabled={isRequestUrlWithQueryEmpty}
                 text={requestUrlWithQuery}
                 variant={'ghost'}
                 className="absolute right-0 bottom-0"
