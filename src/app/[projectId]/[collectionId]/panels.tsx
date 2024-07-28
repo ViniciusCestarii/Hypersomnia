@@ -28,7 +28,7 @@ export default function Panels({ rcps, rops, rrps }: PanelsProps) {
   return (
     <>
       <ResizablePanel
-        maxSize={40}
+        maxSize={60}
         onResize={(value) => setRequestCollectionPanelSize(value)}
         defaultSize={requestCollectionPanelSize}
       >
