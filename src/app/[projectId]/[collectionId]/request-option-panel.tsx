@@ -14,35 +14,19 @@ import { requestMethods } from '@/lib/utils'
 import useCollectionContext from '@/zustand/collection-store'
 import { parseAsString, useQueryState } from 'nuqs'
 import ParamsTab from './(request-option-tabs)/params-tab'
-import { Request } from '@/types/collection'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 const RequestOptionPanel = () => {
   const request = useCollectionContext((state) => state.selectedRequest)
   const sendRequest = useCollectionContext((state) => state.sendRequest)
-  const updateSelectedRequest = useCollectionContext(
-    (state) => state.updateSelectedRequest,
+  const updateRequestField = useCollectionContext(
+    (state) => state.updateRequestField,
   )
-
-  const handleRequestChange = (field: keyof Request, value: unknown) => {
-    if (!request) return
-    const requestCopy = { ...request, [field]: value }
-    updateSelectedRequest(requestCopy)
-  }
-
-  const handleRequestOptionChange = (
-    field: keyof Request['options'],
-    value: unknown,
-  ) => {
-    if (!request) return
-    const requestCopy = { ...request }
-    requestCopy.options = {
-      ...requestCopy.options,
-      [field]: value,
-    }
-    updateSelectedRequest(requestCopy)
-  }
+  const updateRequestOptionField = useCollectionContext(
+    (state) => state.updateRequestOptionField,
+  )
 
   const [tab, setTab] = useQueryState(
     'tab',
@@ -57,7 +41,7 @@ const RequestOptionPanel = () => {
             <Select
               value={request.options.method}
               onValueChange={(value) =>
-                handleRequestOptionChange('method', value)
+                updateRequestOptionField('method', value)
               }
             >
               <SelectTrigger className="border-0 w-fit">
@@ -78,9 +62,7 @@ const RequestOptionPanel = () => {
             </Label>
             <Input
               id="request-url"
-              onChange={({ target }) =>
-                handleRequestChange('url', target.value)
-              }
+              onChange={({ target }) => updateRequestField('url', target.value)}
               value={request.url}
               className="font-semibold shrink mr-16 border-0 focus-visible:ring-0 pl-0"
             />
@@ -97,26 +79,29 @@ const RequestOptionPanel = () => {
         )}
       </PanelHeaderContainer>
       <Tabs value={tab}>
-        <TabsList className="flex justify-start">
-          <TabsTrigger value="params" onClick={() => setTab('params')}>
-            params ({request?.queryParameters.length ?? 0})
-          </TabsTrigger>
-          <TabsTrigger value="body" onClick={() => setTab('body')}>
-            body
-          </TabsTrigger>
-          <TabsTrigger value="auth" onClick={() => setTab('auth')}>
-            auth
-          </TabsTrigger>
-          <TabsTrigger value="headers" onClick={() => setTab('headers')}>
-            headers
-          </TabsTrigger>
-          <TabsTrigger value="scripts" onClick={() => setTab('scripts')}>
-            scripts
-          </TabsTrigger>
-          <TabsTrigger value="docs" onClick={() => setTab('docs')}>
-            docs
-          </TabsTrigger>
-        </TabsList>
+        <ScrollArea type="hover">
+          <TabsList className="flex justify-start">
+            <TabsTrigger value="params" onClick={() => setTab('params')}>
+              params ({request?.queryParameters.length ?? 0})
+            </TabsTrigger>
+            <TabsTrigger value="body" onClick={() => setTab('body')}>
+              body
+            </TabsTrigger>
+            <TabsTrigger value="auth" onClick={() => setTab('auth')}>
+              auth
+            </TabsTrigger>
+            <TabsTrigger value="headers" onClick={() => setTab('headers')}>
+              headers
+            </TabsTrigger>
+            <TabsTrigger value="scripts" onClick={() => setTab('scripts')}>
+              scripts
+            </TabsTrigger>
+            <TabsTrigger value="docs" onClick={() => setTab('docs')}>
+              docs
+            </TabsTrigger>
+            <ScrollBar orientation="horizontal" />
+          </TabsList>
+        </ScrollArea>
         <Separator className="w-full" />
         <TabsContent value="params">
           <ParamsTab />

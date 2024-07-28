@@ -1,5 +1,5 @@
 import { create, useStore } from 'zustand'
-import { Collection, Request } from '../types/collection'
+import { Collection, Request, QueryParameters } from '../types/collection'
 import { Project } from '@/types/project'
 import { createContext, useRef, useContext } from 'react'
 import { findFirstRequestNode, updateRequestInFileSystem } from '@/lib/utils'
@@ -22,6 +22,19 @@ interface CollectionState extends CollectionStoreProps {
   updateCollection: (collection: Collection) => void
   updateSelectedRequest: (request: Request) => void
   deleteCollection: () => void
+  addQueryParam: () => void
+  updateQueryParamField: (
+    index: number,
+    field: keyof QueryParameters,
+    value: unknown,
+  ) => void
+  deleteQueryParam: (index: number) => void
+  deleteAllParams: () => void
+  updateRequestField: (field: keyof Request, value: unknown) => void
+  updateRequestOptionField: (
+    field: keyof Request['options'],
+    value: unknown,
+  ) => void
 }
 
 const createCollectionStore = (initProps: CollectionStoreProps) => {
@@ -71,6 +84,65 @@ const createCollectionStore = (initProps: CollectionStoreProps) => {
           collection: updatedCollection,
           selectedRequest: updatedRequest,
         }
+      }),
+    addQueryParam: () =>
+      set((state) => {
+        if (!state.selectedRequest) return state
+        const params = [...state.selectedRequest.queryParameters]
+        params.push({ key: '', value: '', enabled: true })
+        state.updateRequestField('queryParameters', params)
+        return {}
+      }),
+    updateQueryParamField: (index, field, value) =>
+      set((state) => {
+        if (!state.selectedRequest) return state
+        const params = [...state.selectedRequest.queryParameters]
+        params[index] = { ...params[index], [field]: value }
+        state.updateRequestField('queryParameters', params)
+        return {}
+      }),
+    deleteQueryParam: (index) =>
+      set((state) => {
+        if (!state.selectedRequest) return state
+        const params = [...state.selectedRequest.queryParameters]
+        params.splice(index, 1)
+        state.updateRequestField('queryParameters', params)
+        return {}
+      }),
+    deleteAllParams: () =>
+      set((state) => {
+        if (!state.selectedRequest) return state
+        state.updateRequestField('queryParameters', [])
+        return {}
+      }),
+    updateRequestField: (field, value) =>
+      set((state) => {
+        const { selectedRequest } = state
+        if (!selectedRequest) return state
+
+        const updatedRequest = {
+          ...selectedRequest,
+          [field]: value,
+        }
+
+        state.updateSelectedRequest(updatedRequest)
+        return {}
+      }),
+    updateRequestOptionField: (field, value) =>
+      set((state) => {
+        const { selectedRequest } = state
+        if (!selectedRequest) return state
+
+        const updatedRequest = {
+          ...selectedRequest,
+          options: {
+            ...selectedRequest.options,
+            [field]: value,
+          },
+        }
+
+        state.updateSelectedRequest(updatedRequest)
+        return {}
       }),
   }))
 }

@@ -7,7 +7,6 @@ import ClipboardButton from '@/components/ui/panel/clipboard-button'
 import { Skeleton } from '@/components/ui/skeleton'
 import TypographyH3 from '@/components/ui/Typography-h3'
 import { cn, getRequestWithQueryParams } from '@/lib/utils'
-import { QueryParameters } from '@/types/collection'
 import useCollectionContext from '@/zustand/collection-store'
 import { AlertTriangle, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
@@ -48,52 +47,21 @@ const ParamsTab = () => {
 
 const QueryParametersSection = () => {
   const request = useCollectionContext((state) => state.selectedRequest)
-  const updateSelectedRequest = useCollectionContext(
-    (state) => state.updateSelectedRequest,
+  const addQueryParam = useCollectionContext((state) => state.addQueryParam)
+  const updateQueryParamField = useCollectionContext(
+    (state) => state.updateQueryParamField,
   )
-
-  const handleAddParam = () => {
-    if (!request) return
-    const requestCopy = { ...request }
-    requestCopy.queryParameters = requestCopy.queryParameters || []
-    requestCopy.queryParameters.push({ key: '', value: '', enabled: true })
-    updateSelectedRequest(requestCopy)
-  }
-
-  const handleParamChange = (
-    index: number,
-    field: keyof QueryParameters,
-    value: unknown,
-  ) => {
-    if (!request) return
-    const requestCopy = { ...request }
-    const params = [...requestCopy.queryParameters]
-    params[index] = { ...params[index], [field]: value }
-    requestCopy.queryParameters = params
-    updateSelectedRequest(requestCopy)
-  }
-
-  const handleDeleteParam = (index: number) => {
-    if (!request) return
-    const requestCopy = { ...request }
-    const params = requestCopy.queryParameters.filter((_, i) => i !== index)
-    requestCopy.queryParameters = params
-    updateSelectedRequest(requestCopy)
-  }
-
-  const handleDeleteAllParams = () => {
-    if (!request) return
-    const requestCopy = { ...request }
-    requestCopy.queryParameters = []
-    updateSelectedRequest(requestCopy)
-  }
+  const deleteQueryParam = useCollectionContext(
+    (state) => state.deleteQueryParam,
+  )
+  const deleteAllParams = useCollectionContext((state) => state.deleteAllParams)
 
   return (
     <>
       <TypographyH3 className="pt-4 px-2">Query Parameters</TypographyH3>
       <div className="flex">
         <Button
-          onClick={handleAddParam}
+          onClick={addQueryParam}
           size="sm"
           variant="ghost"
           aria-label="add query parameter"
@@ -107,7 +75,7 @@ const QueryParametersSection = () => {
           disabled={
             !request?.queryParameters || request.queryParameters.length === 0
           }
-          onConfirm={handleDeleteAllParams}
+          onConfirm={deleteAllParams}
           text="Delete all"
           aria-label="delete all query parameters"
           title="delete all query parameters"
@@ -132,7 +100,9 @@ const QueryParametersSection = () => {
               type="text"
               value={param.key ?? ''}
               className="h-9 rounded-none border-none"
-              onChange={(e) => handleParamChange(index, 'key', e.target.value)}
+              onChange={(e) =>
+                updateQueryParamField(index, 'key', e.target.value)
+              }
             />
             <Label className="sr-only" htmlFor={valueInputId}>
               Value
@@ -143,11 +113,11 @@ const QueryParametersSection = () => {
               value={param.value ?? ''}
               className="h-9 rounded-none border-none"
               onChange={(e) =>
-                handleParamChange(index, 'value', e.target.value)
+                updateQueryParamField(index, 'value', e.target.value)
               }
             />
             <DeleteConfirmationButton
-              onConfirm={() => handleDeleteParam(index)}
+              onConfirm={() => deleteQueryParam(index)}
               aria-label="delete query parameter"
               title="delete query parameter"
               className="rounded-none h-9 flex items-center"
@@ -167,7 +137,7 @@ const QueryParametersSection = () => {
                 }
                 checked={param.enabled}
                 onCheckedChange={(checked) =>
-                  handleParamChange(index, 'enabled', checked)
+                  updateQueryParamField(index, 'enabled', checked)
                 }
               />
             </div>
