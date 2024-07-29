@@ -11,7 +11,11 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { BodyType } from '@/types/collection'
 import useCollectionContext from '@/zustand/collection-store'
-import { Boxes, Code2, MoreHorizontal } from 'lucide-react' // Import relevant icons
+import { Boxes, Code2, MoreHorizontal } from 'lucide-react'
+import Editor, { EditorProps } from '@monaco-editor/react'
+import { useTheme } from 'next-themes'
+import { useCallback, useMemo } from 'react'
+import { Label } from '@/components/ui/label'
 
 interface BodyTypeOption {
   value: BodyType
@@ -41,36 +45,81 @@ const groupIcons: Record<string, React.ElementType> = {
   Other: MoreHorizontal,
 }
 
-const renderBodyInput = (bodyType: BodyType) => {
-  switch (bodyType) {
-    case 'json':
-      return <Input placeholder="Enter JSON body" />
-    case 'xml':
-      return <Input placeholder="Enter XML body" />
-    case 'yaml':
-      return <Input placeholder="Enter YAML body" />
-    case 'plain-text':
-      return <Input placeholder="Enter plain text body" />
-    case 'file':
-      return <Input placeholder="Select file" />
-    default:
-      return null
-  }
-}
-
 const BodyTab = () => {
   const request = useCollectionContext((state) => state.selectedRequest)
   const updateRequestField = useCollectionContext(
     (state) => state.updateRequestField,
   )
+
+  const theme = useTheme()
+
+  const editorDefaultProps: EditorProps = useMemo(
+    () => ({
+      theme: theme.theme === 'dark' ? 'vs-dark' : 'light',
+      height: '80vh',
+      options: {
+        minimap: { enabled: false },
+      },
+      onChange: (value) => updateRequestField('bodyContent', value),
+    }),
+    [theme.theme, updateRequestField],
+  )
+
+  const bodyType = request?.bodyType ?? 'none'
+  const bodyContent = request?.bodyContent ?? ''
+
+  const renderBodyInput = () => {
+    switch (bodyType) {
+      case 'json':
+        return (
+          <Editor {...editorDefaultProps} language="json" value={bodyContent} />
+        )
+      case 'xml':
+        return (
+          <Editor {...editorDefaultProps} language="xml" value={bodyContent} />
+        )
+      case 'yaml':
+        return (
+          <Editor {...editorDefaultProps} language="yaml" value={bodyContent} />
+        )
+      case 'plain-text':
+        return (
+          <Editor
+            {...editorDefaultProps}
+            language="plaintext"
+            value={bodyContent}
+          />
+        )
+      case 'file':
+        return (
+          <Input
+            type="file"
+            className="border-none"
+            placeholder="Select file"
+          />
+        )
+      default:
+        return null
+    }
+  }
+
   return (
     <>
+      <Label className="sr-only" htmlFor="request-body-type">
+        Body type
+      </Label>
       <Select
-        value={request?.bodyType ?? 'none'}
-        onValueChange={(value) => updateRequestField('bodyType', value)}
+        value={bodyType}
+        onValueChange={(value) => {
+          updateRequestField('bodyType', value)
+        }}
       >
-        <SelectTrigger className="border-0 w-fit">
-          <SelectValue placeholder="No Body" />
+        <SelectTrigger
+          aria-label="request body type"
+          id="request-body-type"
+          className="border-0 w-fit"
+        >
+          <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {Object.entries(bodyTypes).map(([group, options]) => {
@@ -96,7 +145,7 @@ const BodyTab = () => {
         </SelectContent>
       </Select>
       <Separator />
-      {renderBodyInput(request?.bodyType ?? 'none')}
+      {renderBodyInput()}
     </>
   )
 }

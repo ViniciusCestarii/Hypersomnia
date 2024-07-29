@@ -26,7 +26,6 @@ const testCollection: Collection[] = [
             children: [
               {
                 name: 'request 1',
-                isFolder: false,
                 request: {
                   id: '1',
                   url: 'https://jsonplaceholder.typicode.com/posts',
@@ -54,7 +53,6 @@ const testCollection: Collection[] = [
             children: [
               {
                 name: 'request 2',
-                isFolder: false,
                 request: {
                   id: '2',
                   url: 'https://jsonplaceholder.typicode.com/users',
@@ -78,7 +76,6 @@ const testCollection: Collection[] = [
             children: [
               {
                 name: 'request 3',
-                isFolder: false,
                 request: {
                   id: '3',
                   url: 'https://jsonplaceholder.typicode.com/posts',
@@ -97,18 +94,14 @@ const testCollection: Collection[] = [
           },
           {
             name: 'request 4',
-            isFolder: false,
             request: {
               id: '3',
               url: 'https://jsonplaceholder.typicode.com/posts',
+              bodyType: 'json',
+              bodyContent: '{"title": "foo", "body": "bar", "userId": 1}',
               queryParameters: [],
               options: {
                 method: 'post',
-                data: {
-                  title: 'foo',
-                  body: 'bar',
-                  userId: 1,
-                },
               },
             },
           },
@@ -118,7 +111,6 @@ const testCollection: Collection[] = [
             children: [
               {
                 name: 'request 4',
-                isFolder: false,
                 request: {
                   id: '4',
                   url: 'https://jsonplaceholder.typicode.com/users',
@@ -137,7 +129,6 @@ const testCollection: Collection[] = [
         ],
       },
       {
-        isFolder: false,
         name: 'put',
         request: {
           id: '5',

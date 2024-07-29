@@ -87,6 +87,24 @@ export const findFirstRequestNode = (
   return { node: null, path: [] }
 }
 
+export const findRequestPath = (
+  nodes: FileSystemNodeType[],
+  targetRequest: Request,
+  currentPath: string[] = [],
+): string[] | null => {
+  for (const node of nodes) {
+    if (node.isFolder) {
+      const result = findRequestPath(node.children ?? [], targetRequest, [
+        ...currentPath,
+        node.name,
+      ])
+      if (result) return result
+    }
+    if (node.request === targetRequest) return [...currentPath, node.name]
+  }
+  return null
+}
+
 export const copyToClipboard = (text: string) => {
   navigator.clipboard.writeText(text)
 }
@@ -176,7 +194,7 @@ export const requestMethods: MethodType[] = [
   'trace',
 ]
 
-const httpStatusCodes: { [key: number]: string } = {
+export const httpStatusCodes: { [key: number]: string } = {
   100: 'Continue',
   101: 'Switching Protocols',
   102: 'Processing',
@@ -241,4 +259,17 @@ const httpStatusCodes: { [key: number]: string } = {
   511: 'Network Authentication Required',
 }
 
-export default httpStatusCodes
+type GetBodyData = Pick<Request, 'bodyType' | 'bodyContent'>
+
+export const getBodyData = ({ bodyType, bodyContent }: GetBodyData) => {
+  if (bodyContent === undefined) return undefined
+
+  if (bodyType === 'json') {
+    try {
+      return JSON.parse(bodyContent)
+    } catch (e) {
+      return bodyContent
+    }
+  }
+  return bodyContent
+}

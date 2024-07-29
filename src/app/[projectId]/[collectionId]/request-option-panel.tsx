@@ -39,13 +39,20 @@ const RequestOptionPanel = () => {
       <PanelHeaderContainer className="pl-0">
         {request && (
           <div className="flex relative max-w-full w-full items-center">
+            <Label className="sr-only" htmlFor="request-method">
+              Method
+            </Label>
             <Select
               value={request.options.method}
               onValueChange={(value) =>
                 updateRequestOptionField('method', value)
               }
             >
-              <SelectTrigger className="border-0 w-fit">
+              <SelectTrigger
+                aria-label="request method"
+                id="request-method"
+                className="border-0 w-fit"
+              >
                 <RequestMethodBadge method={request.options.method} />
               </SelectTrigger>
               <SelectContent>

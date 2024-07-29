@@ -4,10 +4,12 @@ import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-contain
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import useFetch from '@/hooks/useFetch'
 import useIsClient from '@/hooks/useIsClient'
-import httpStatusCodes, {
+import {
   cn,
+  getBodyData,
   getRequestWithQueryParams,
   getStatusColor,
+  httpStatusCodes,
 } from '@/lib/utils'
 import useCollectionContext from '@/zustand/collection-store'
 import { useEffect } from 'react'
@@ -28,10 +30,12 @@ const RequestResponsePanel = () => {
   const sendTrigger = useCollectionContext((state) => state.sendTrigger)
   const request = useCollectionContext((state) => state.selectedRequest)
 
+  // todo: memoize values to prevent unnecessary re-renders
   const { data, response, error, loading, time, refetch } = useFetch({
     ...request,
     options: {
       ...request?.options,
+      data: request ? getBodyData({ ...request }) : '',
       url: request ? getRequestWithQueryParams(request) : '',
     },
     enabled: false,
@@ -48,6 +52,8 @@ const RequestResponsePanel = () => {
 
   const renderPanelBody = () => {
     const jsonText = getDataText(data)
+
+    // todo: use monaco-editor to display content formatted (JSON, HTML, XML, etc)
 
     return (
       <ScrollArea type="auto" className="h-[800px] relative pr-4">

@@ -2,7 +2,11 @@ import { create, useStore } from 'zustand'
 import { Collection, Request, QueryParameters } from '../types/collection'
 import { Project } from '@/types/project'
 import { createContext, useRef, useContext } from 'react'
-import { findFirstRequestNode, updateRequestInFileSystem } from '@/lib/utils'
+import {
+  findFirstRequestNode,
+  findRequestPath,
+  updateRequestInFileSystem,
+} from '@/lib/utils'
 
 interface CollectionStoreProps {
   project: Project | null
@@ -54,7 +58,17 @@ const createCollectionStore = (initProps: CollectionStoreProps) => {
     ...initProps,
     updateCollection: (collection) => set({ collection }),
     deleteCollection: () => set({ collection: null }),
-    selectRequest: (selectedRequest) => set({ selectedRequest }),
+    selectRequest: (selectedRequest) => {
+      if (!selectedRequest) {
+        set({ selectedRequest: null, selectedRequestPath: null })
+        return
+      }
+      const path = findRequestPath(
+        collection?.fileSystem ?? [],
+        selectedRequest,
+      )
+      set({ selectedRequest, selectedRequestPath: path })
+    },
     selectedRequest: initialRequest?.node?.request ?? null,
     selectedRequestPath: initialRequest?.path ?? null,
     response: null,

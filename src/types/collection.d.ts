@@ -4,7 +4,7 @@ import { AxiosRequestConfig } from 'axios'
 export type FileSystemNode = {
   name: string
   children?: FileSystemNode[]
-  isFolder: boolean
+  isFolder?: boolean
   request?: Request
 }
 
@@ -40,7 +40,8 @@ export type QueryParameters = {
 export type Request = {
   id: string
   url: string
-  bodyType: BodyType
+  bodyType?: BodyType
+  bodyContent?: string
   queryParameters: QueryParameters[]
   options: AxiosRequestConfig & OverrideAxiosRequestConfig
 }
