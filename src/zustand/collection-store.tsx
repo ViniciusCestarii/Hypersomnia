@@ -1,12 +1,12 @@
-import { create, useStore } from 'zustand'
-import { Collection, Request, QueryParameters } from '../types/collection'
-import { Project } from '@/types/project'
-import { createContext, useRef, useContext } from 'react'
 import {
   findFirstRequestNode,
-  findRequestPath,
+  findSystemNodeByPath,
   updateRequestInFileSystem,
 } from '@/lib/utils'
+import { Project } from '@/types/project'
+import { createContext, useContext, useRef } from 'react'
+import { create, useStore } from 'zustand'
+import { Collection, QueryParameters, Request } from '../types/collection'
 
 interface CollectionStoreProps {
   project: Project | null
@@ -21,7 +21,7 @@ interface CollectionState extends CollectionStoreProps {
   sendTrigger: boolean
   setResponse: (response: Response | null) => void
   response: Response | null
-  selectRequest: (request: Request | null) => void
+  selectRequest: (path: string[]) => void
   sendRequest: () => void
   updateCollection: (collection: Collection) => void
   updateSelectedRequest: (request: Request) => void
@@ -58,16 +58,15 @@ const createCollectionStore = (initProps: CollectionStoreProps) => {
     ...initProps,
     updateCollection: (collection) => set({ collection }),
     deleteCollection: () => set({ collection: null }),
-    selectRequest: (selectedRequest) => {
-      if (!selectedRequest) {
-        set({ selectedRequest: null, selectedRequestPath: null })
-        return
-      }
-      const path = findRequestPath(
-        collection?.fileSystem ?? [],
-        selectedRequest,
-      )
-      set({ selectedRequest, selectedRequestPath: path })
+    selectRequest: (path) => {
+      set((state) => {
+        if (!state.collection) return state
+        const selectedRequest =
+          findSystemNodeByPath(state.collection?.fileSystem, path)?.request ??
+          null
+
+        return { selectedRequest, selectedRequestPath: path }
+      })
     },
     selectedRequest: initialRequest?.node?.request ?? null,
     selectedRequestPath: initialRequest?.path ?? null,

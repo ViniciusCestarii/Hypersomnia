@@ -1,35 +1,50 @@
 'use client'
-import ClipboardButton from '@/components/ui/panel/clipboard-button'
+import Editor from '@/components/ui/panel/editor'
 import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import useFetch from '@/hooks/useFetch'
 import useIsClient from '@/hooks/useIsClient'
 import {
   cn,
+  formatHtmlContent,
   getBodyData,
   getRequestWithQueryParams,
   getStatusColor,
   httpStatusCodes,
 } from '@/lib/utils'
+import { BodyTypeText } from '@/types/collection'
 import useCollectionContext from '@/zustand/collection-store'
 import { useEffect } from 'react'
 
-const noContent = 'No content'
+interface BodyDataType {
+  text: string
+  type: BodyTypeText | 'html'
+}
 
-const getDataText = (data: unknown) => {
+const getDataText = (data: unknown): BodyDataType | undefined => {
   if (typeof data === 'string' && data.length > 0) {
-    return JSON.stringify(data, null, 2)
+    if (data.trimStart().startsWith('<!DOCTYPE html>')) {
+      return {
+        text: formatHtmlContent(data),
+        type: 'html',
+      }
+    }
+
+    return {
+      text: data,
+      type: 'plain-text',
+    }
   }
   if (typeof data === 'object' && data) {
-    return JSON.stringify(data, null, 2)
+    return {
+      text: JSON.stringify(data, null, 2),
+      type: 'json',
+    }
   }
-  return noContent
 }
 
 const RequestResponsePanel = () => {
   const sendTrigger = useCollectionContext((state) => state.sendTrigger)
   const request = useCollectionContext((state) => state.selectedRequest)
-
   // todo: memoize values to prevent unnecessary re-renders
   const { data, response, error, loading, time, refetch } = useFetch({
     ...request,
@@ -51,29 +66,27 @@ const RequestResponsePanel = () => {
   }, [sendTrigger])
 
   const renderPanelBody = () => {
-    const jsonText = getDataText(data)
+    const dataText = getDataText(data)
 
     // todo: use monaco-editor to display content formatted (JSON, HTML, XML, etc)
-
     return (
-      <ScrollArea type="auto" className="h-[800px] relative pr-4">
+      <div className="relative h-[80vh]">
         {loading && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center bg-background/35">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center bg-background/35 z-50">
             Loading...
           </div>
         )}
-        {!error && jsonText && jsonText !== noContent && (
-          <ClipboardButton
-            label="copy content"
-            text={jsonText}
-            className="absolute top-1 right-2 bg-background"
+        {!error && dataText && (
+          <Editor
+            language={dataText.type}
+            value={dataText.text}
+            options={{
+              readOnly: true,
+              domReadOnly: true,
+            }}
           />
         )}
-        {error && <span>Error fetching data: {error.message}</span>}
-        {!error && jsonText && <pre className="text-xs pr-2">{jsonText}</pre>}
-        <ScrollBar orientation="vertical" />
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
     )
   }
 

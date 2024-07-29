@@ -16,8 +16,6 @@ export type MethodType =
   | 'patch'
   | 'options'
   | 'head'
-  | 'connect'
-  | 'trace'
 
 export type BodyTypeStructured = 'form-data' | 'x-www-form-urlencoded'
 
@@ -38,7 +36,6 @@ export type QueryParameters = {
 }
 
 export type Request = {
-  id: string
   url: string
   bodyType?: BodyType
   bodyContent?: string

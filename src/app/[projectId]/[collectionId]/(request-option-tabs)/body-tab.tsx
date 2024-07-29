@@ -1,4 +1,6 @@
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import Editor from '@/components/ui/panel/editor'
 import {
   Select,
   SelectContent,
@@ -11,11 +13,9 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { BodyType } from '@/types/collection'
 import useCollectionContext from '@/zustand/collection-store'
+import { EditorProps } from '@monaco-editor/react'
 import { Boxes, Code2, MoreHorizontal } from 'lucide-react'
-import Editor, { EditorProps } from '@monaco-editor/react'
-import { useTheme } from 'next-themes'
-import { useCallback, useMemo } from 'react'
-import { Label } from '@/components/ui/label'
+import { useMemo } from 'react'
 
 interface BodyTypeOption {
   value: BodyType
@@ -51,18 +51,11 @@ const BodyTab = () => {
     (state) => state.updateRequestField,
   )
 
-  const theme = useTheme()
-
-  const editorDefaultProps: EditorProps = useMemo(
+  const editorProps: EditorProps = useMemo(
     () => ({
-      theme: theme.theme === 'dark' ? 'vs-dark' : 'light',
-      height: '80vh',
-      options: {
-        minimap: { enabled: false },
-      },
       onChange: (value) => updateRequestField('bodyContent', value),
     }),
-    [theme.theme, updateRequestField],
+    [updateRequestField],
   )
 
   const bodyType = request?.bodyType ?? 'none'
@@ -71,24 +64,14 @@ const BodyTab = () => {
   const renderBodyInput = () => {
     switch (bodyType) {
       case 'json':
-        return (
-          <Editor {...editorDefaultProps} language="json" value={bodyContent} />
-        )
+        return <Editor {...editorProps} language="json" value={bodyContent} />
       case 'xml':
-        return (
-          <Editor {...editorDefaultProps} language="xml" value={bodyContent} />
-        )
+        return <Editor {...editorProps} language="xml" value={bodyContent} />
       case 'yaml':
-        return (
-          <Editor {...editorDefaultProps} language="yaml" value={bodyContent} />
-        )
+        return <Editor {...editorProps} language="yaml" value={bodyContent} />
       case 'plain-text':
         return (
-          <Editor
-            {...editorDefaultProps}
-            language="plaintext"
-            value={bodyContent}
-          />
+          <Editor {...editorProps} language="plaintext" value={bodyContent} />
         )
       case 'file':
         return (

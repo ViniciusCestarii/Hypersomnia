@@ -7,6 +7,8 @@ import {
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
+import { html as beautifyHtml } from 'js-beautify'
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -25,8 +27,6 @@ export function getMethodColor(method: MethodType): string {
       return 'text-purple-500'
     case 'options':
     case 'head':
-    case 'connect':
-    case 'trace':
       return 'text-gray-500'
     default:
       return ''
@@ -87,28 +87,6 @@ export const findFirstRequestNode = (
   return { node: null, path: [] }
 }
 
-export const findRequestPath = (
-  nodes: FileSystemNodeType[],
-  targetRequest: Request,
-  currentPath: string[] = [],
-): string[] | null => {
-  for (const node of nodes) {
-    if (node.isFolder) {
-      const result = findRequestPath(node.children ?? [], targetRequest, [
-        ...currentPath,
-        node.name,
-      ])
-      if (result) return result
-    }
-    if (node.request === targetRequest) return [...currentPath, node.name]
-  }
-  return null
-}
-
-export const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text)
-}
-
 export const findFileByPath = (
   nodes: FileSystemNodeType[],
   path: string[],
@@ -159,6 +137,38 @@ export const updateRequestInFileSystem = (
   })
 }
 
+export const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text)
+}
+
+export const findSystemNodeByPath = (
+  fileSystem: FileSystemNode[],
+  path: string[],
+): FileSystemNode | undefined => {
+  const findNode = (
+    nodes: FileSystemNode[],
+    path: string[],
+  ): FileSystemNode | undefined => {
+    if (path.length === 0) return undefined
+
+    const [head, ...tail] = path
+
+    for (const node of nodes) {
+      if (node.name === head) {
+        if (tail.length === 0) return node
+
+        if (node.isFolder && node.children) {
+          return findNode(node.children, tail)
+        }
+      }
+    }
+
+    return undefined
+  }
+
+  return findNode(fileSystem, path)
+}
+
 export const getRequestWithQueryParams = (request: Request): string => {
   if (
     !request.url &&
@@ -190,8 +200,6 @@ export const requestMethods: MethodType[] = [
   'patch',
   'options',
   'head',
-  'connect',
-  'trace',
 ]
 
 export const httpStatusCodes: { [key: number]: string } = {
@@ -273,3 +281,22 @@ export const getBodyData = ({ bodyType, bodyContent }: GetBodyData) => {
   }
   return bodyContent
 }
+
+interface GenerateEditorDefaultProps {
+  theme?: string
+}
+
+export const generateEditorDefaultProps = ({
+  theme,
+}: GenerateEditorDefaultProps) => ({
+  theme: theme === 'dark' ? 'vs-dark' : 'light',
+  height: '80vh',
+  options: {
+    minimap: { enabled: false },
+    formatOnPaste: true,
+    fontSize: 12,
+  },
+})
+
+export const formatHtmlContent = (content: string, tabSize = 2): string =>
+  beautifyHtml(content, { indent_size: tabSize })
