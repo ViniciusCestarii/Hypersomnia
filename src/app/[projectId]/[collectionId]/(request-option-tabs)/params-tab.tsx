@@ -99,7 +99,8 @@ const QueryParametersSection = () => {
               id={keyInputId}
               type="text"
               value={param.key ?? ''}
-              className="h-9 rounded-none border-none"
+              className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
+              placeholder="key"
               onChange={(e) =>
                 updateQueryParamField(index, 'key', e.target.value)
               }
@@ -111,7 +112,8 @@ const QueryParametersSection = () => {
               id={valueInputId}
               type="text"
               value={param.value ?? ''}
-              className="h-9 rounded-none border-none"
+              className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
+              placeholder="value"
               onChange={(e) =>
                 updateQueryParamField(index, 'value', e.target.value)
               }

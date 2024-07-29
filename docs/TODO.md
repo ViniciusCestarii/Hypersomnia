@@ -8,4 +8,4 @@
 
 [ ] Storage data in local storage using server SECRET_KEY for extra security (add key versioning to be able to update it)
 
-[ ] Show code with status text on the response panel
+[x] Show code with status text on the response panel
