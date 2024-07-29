@@ -7,6 +7,8 @@ import {
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
+import { html as beautifyHtml } from 'js-beautify'
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -295,3 +297,6 @@ export const generateEditorDefaultProps = ({
     fontSize: 12,
   },
 })
+
+export const formatHtmlContent = (content: string, tabSize = 2): string =>
+  beautifyHtml(content, { indent_size: tabSize })

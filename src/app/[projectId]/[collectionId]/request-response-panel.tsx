@@ -1,10 +1,11 @@
 'use client'
+import Editor from '@/components/ui/panel/editor'
 import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
-import ReadOnlyEditor from '@/components/ui/panel/read-only-editor'
 import useFetch from '@/hooks/useFetch'
 import useIsClient from '@/hooks/useIsClient'
 import {
   cn,
+  formatHtmlContent,
   getBodyData,
   getRequestWithQueryParams,
   getStatusColor,
@@ -23,7 +24,7 @@ const getDataText = (data: unknown): BodyDataType | undefined => {
   if (typeof data === 'string' && data.length > 0) {
     if (data.trimStart().startsWith('<!DOCTYPE html>')) {
       return {
-        text: data,
+        text: formatHtmlContent(data),
         type: 'html',
       }
     }
@@ -76,7 +77,14 @@ const RequestResponsePanel = () => {
           </div>
         )}
         {!error && dataText && (
-          <ReadOnlyEditor language={dataText.type} value={dataText.text} />
+          <Editor
+            language={dataText.type}
+            value={dataText.text}
+            options={{
+              readOnly: true,
+              domReadOnly: true,
+            }}
+          />
         )}
       </div>
     )
