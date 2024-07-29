@@ -273,3 +273,19 @@ export const getBodyData = ({ bodyType, bodyContent }: GetBodyData) => {
   }
   return bodyContent
 }
+
+interface GenerateEditorDefaultProps {
+  theme?: string
+}
+
+export const generateEditorDefaultProps = ({
+  theme,
+}: GenerateEditorDefaultProps) => ({
+  theme: theme === 'dark' ? 'vs-dark' : 'light',
+  height: '80vh',
+  options: {
+    minimap: { enabled: false },
+    formatOnPaste: true,
+    fontSize: 12,
+  },
+})

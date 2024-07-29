@@ -16,19 +16,9 @@ interface UseFetchProps {
   enabled?: boolean
 }
 
-const customAxios = axios.create()
-
-customAxios.interceptors.request.use((config) => {
-  config.headers['request-startTime'] = new Date().getTime()
-  return config
-})
-
-customAxios.interceptors.response.use((response) => {
-  const currentTime = new Date().getTime()
-  const startTime = response.config.headers['request-startTime']
-  response.headers['request-duration'] = currentTime - startTime
-  return response
-})
+const calculateTimeTaken = (startTime: number) => {
+  return (performance.now() - startTime).toFixed(0)
+}
 
 const useFetch = <T>({
   url,
@@ -46,15 +36,17 @@ const useFetch = <T>({
       return
     }
     setLoading(true)
+    const startTime = performance.now()
     try {
-      const response = await customAxios(options)
+      const response = await axios(options)
 
-      setTime(response.headers['request-duration'])
+      setTime(calculateTimeTaken(startTime))
       setData(response.data)
       setResponse(response)
       setError(null)
     } catch (err) {
       if (axios.isAxiosError(err)) {
+        setTime(calculateTimeTaken(startTime))
         setData(null)
         setResponse(err.response || null)
         setError(err)
