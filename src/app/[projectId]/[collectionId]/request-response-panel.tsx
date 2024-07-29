@@ -77,7 +77,10 @@ const RequestResponsePanel = () => {
         {response && (
           <>
             <span
-              className={cn('font-semibold', getStatusColor(response.status))}
+              className={cn(
+                'font-semibold text-nowrap',
+                getStatusColor(response.status),
+              )}
             >
               {response.status} {httpStatusCodes[response.status]}
             </span>
