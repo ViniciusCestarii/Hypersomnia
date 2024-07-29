@@ -19,6 +19,14 @@ export type MethodType =
   | 'connect'
   | 'trace'
 
+export type BodyTypeStructured = 'form-data' | 'x-www-form-urlencoded'
+
+export type BodyTypeText = 'json' | 'xml' | 'yaml' | 'plain-text'
+
+export type BodyTypeOther = 'file' | 'none'
+
+export type BodyType = BodyTypeStructured | BodyTypeText | BodyTypeOther
+
 type OverrideAxiosRequestConfig = {
   method: MethodType
 }
@@ -32,6 +40,7 @@ export type QueryParameters = {
 export type Request = {
   id: string
   url: string
+  bodyType: BodyType
   queryParameters: QueryParameters[]
   options: AxiosRequestConfig & OverrideAxiosRequestConfig
 }

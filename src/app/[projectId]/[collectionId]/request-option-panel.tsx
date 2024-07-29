@@ -17,6 +17,7 @@ import ParamsTab from './(request-option-tabs)/params-tab'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import BodyTab from './(request-option-tabs)/body-tab'
 
 const RequestOptionPanel = () => {
   const request = useCollectionContext((state) => state.selectedRequest)
@@ -106,8 +107,8 @@ const RequestOptionPanel = () => {
         <TabsContent value="params">
           <ParamsTab />
         </TabsContent>
-        <TabsContent value="body">
-          {/* Your BodyTab component or content goes here */}
+        <TabsContent value="body" className="mt-0">
+          <BodyTab />
         </TabsContent>
         <TabsContent value="auth">
           {/* Your AuthTab component or content goes here */}
