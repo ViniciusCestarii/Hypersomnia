@@ -27,7 +27,6 @@ const testCollection: Collection[] = [
               {
                 name: 'request 1',
                 request: {
-                  id: '1',
                   url: 'https://jsonplaceholder.typicode.com/posts',
                   queryParameters: [
                     {
@@ -54,7 +53,6 @@ const testCollection: Collection[] = [
               {
                 name: 'request 2',
                 request: {
-                  id: '2',
                   url: 'https://jsonplaceholder.typicode.com/users',
                   queryParameters: [],
                   options: {
@@ -77,7 +75,6 @@ const testCollection: Collection[] = [
               {
                 name: 'request 3',
                 request: {
-                  id: '3',
                   url: 'https://jsonplaceholder.typicode.com/posts',
                   queryParameters: [],
                   options: {
@@ -95,7 +92,6 @@ const testCollection: Collection[] = [
           {
             name: 'request 4',
             request: {
-              id: '3',
               url: 'https://jsonplaceholder.typicode.com/posts',
               bodyType: 'json',
               bodyContent: '{"title": "foo", "body": "bar", "userId": 1}',
@@ -112,7 +108,6 @@ const testCollection: Collection[] = [
               {
                 name: 'request 4',
                 request: {
-                  id: '4',
                   url: 'https://jsonplaceholder.typicode.com/users',
                   queryParameters: [],
                   options: {
@@ -131,7 +126,6 @@ const testCollection: Collection[] = [
       {
         name: 'put',
         request: {
-          id: '5',
           url: 'https://jsonplaceholder.typicode.com/posts/1',
           queryParameters: [],
           options: {

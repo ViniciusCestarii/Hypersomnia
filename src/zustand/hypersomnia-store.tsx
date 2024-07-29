@@ -32,7 +32,6 @@ const initialProjects: Project[] = [
                   {
                     name: 'request 1',
                     request: {
-                      id: '1',
                       url: 'https://jsonplaceholder.typicode.com/posts',
                       queryParameters: [
                         {
@@ -59,7 +58,6 @@ const initialProjects: Project[] = [
                   {
                     name: 'request 2',
                     request: {
-                      id: '2',
                       url: 'https://jsonplaceholder.typicode.com/users',
                       queryParameters: [],
                       options: {
@@ -82,7 +80,6 @@ const initialProjects: Project[] = [
                   {
                     name: 'request 3',
                     request: {
-                      id: '3',
                       url: 'https://jsonplaceholder.typicode.com/posts',
                       queryParameters: [],
                       options: {
@@ -100,7 +97,6 @@ const initialProjects: Project[] = [
               {
                 name: 'request 4',
                 request: {
-                  id: '3',
                   url: 'https://jsonplaceholder.typicode.com/posts',
                   bodyType: 'json',
                   bodyContent: '{"title": "foo", "body": "bar", "userId": 1}',
@@ -117,7 +113,6 @@ const initialProjects: Project[] = [
                   {
                     name: 'request 4',
                     request: {
-                      id: '4',
                       url: 'https://jsonplaceholder.typicode.com/users',
                       queryParameters: [],
                       options: {
@@ -136,7 +131,6 @@ const initialProjects: Project[] = [
           {
             name: 'put',
             request: {
-              id: '5',
               url: 'https://jsonplaceholder.typicode.com/posts/1',
               queryParameters: [],
               options: {

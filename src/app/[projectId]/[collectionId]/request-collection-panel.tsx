@@ -76,6 +76,7 @@ const RequestCollectionPanel = () => {
           <FileSystemNode
             key={node.name}
             node={node}
+            path={[node.name]}
             openFolders={expandAll || (!!filter && filter?.length > 0)}
           />
         ))}
@@ -86,10 +87,11 @@ const RequestCollectionPanel = () => {
 
 type FileSystemNodeProps = {
   node: FileSystemNodeType
+  path: string[]
   openFolders: boolean
 }
 
-const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
+const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
   const selectRequest = useCollectionContext((state) => state.selectRequest)
 
   const [isOpen, setIsOpen] = useState(openFolders)
@@ -99,6 +101,12 @@ const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
   }, [openFolders])
 
   // todo: animate open/close with framer-motion
+
+  const handleSelectRequest = () => {
+    if (node.request) {
+      selectRequest(path)
+    }
+  }
 
   if (node.isFolder) {
     return (
@@ -117,6 +125,7 @@ const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
               <FileSystemNode
                 key={childNode.name}
                 node={childNode}
+                path={[...path, childNode.name]}
                 openFolders={openFolders}
               />
             ))}
@@ -126,15 +135,10 @@ const FileSystemNode = ({ node, openFolders }: FileSystemNodeProps) => {
     )
   }
 
-  const { request } = node
-
-  if (request) {
+  if (node.request) {
     return (
-      <button
-        onClick={() => selectRequest(request)}
-        className="ml-4 flex items-center"
-      >
-        <RequestMethodBadge method={request.options.method} />
+      <button onClick={handleSelectRequest} className="ml-4 flex items-center">
+        <RequestMethodBadge method={node.request.options.method} />
         <span className="ml-2 text-nowrap">{node.name}</span>
       </button>
     )
