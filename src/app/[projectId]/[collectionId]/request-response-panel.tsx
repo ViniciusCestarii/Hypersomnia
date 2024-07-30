@@ -11,17 +11,18 @@ import {
   getRequestWithQueryParams,
   getStatusColor,
   httpStatusCodes,
+  timeAgo,
 } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { parseAsString, useQueryState } from 'nuqs'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import ResponseBodyTab from './(request-response-tabs)/response-body-tab'
 import ResponseHeadersTab from './(request-response-tabs)/response-headers-tab'
 
 const RequestResponsePanel = () => {
   const sendTrigger = useHypersomniaStore((state) => state.sendTrigger)
   const request = useHypersomniaStore((state) => state.selectedRequest)
-  const { time, response } =
+  const { timeTaken, requestStartTime, response } =
     useHypersomniaStore((state) => state.requestFetchResult) ?? {}
 
   const [tab, setTab] = useQueryState(
@@ -62,7 +63,13 @@ const RequestResponsePanel = () => {
             >
               {response.status} {httpStatusCodes[response.status]}
             </span>
-            <span className="ml-2">{time + 'ms'}</span>
+            <span className="mx-2 text-nowrap">{timeTaken + 'ms'}</span>
+            {requestStartTime && (
+              <>
+                <Separator orientation="vertical" className="ml-auto" />
+                <TimeAgo requestStartTime={requestStartTime} />
+              </>
+            )}
           </>
         )}
       </PanelHeaderContainer>
@@ -103,6 +110,39 @@ const RequestResponsePanel = () => {
       </Tabs>
     </div>
   )
+}
+
+interface TimeAgoProps {
+  requestStartTime: number
+}
+
+const TimeAgo = ({ requestStartTime }: TimeAgoProps) => {
+  const [timeSince, setTimeSince] = useState<string>('Just now')
+
+  useEffect(() => {
+    if (!requestStartTime) return
+
+    const updateTime = () => {
+      setTimeSince(timeAgo(requestStartTime))
+    }
+
+    updateTime()
+
+    const now = new Date().getTime()
+    const elapsedTime = now - requestStartTime
+
+    // Set interval to 1 hour after the first hour
+    let intervalTime = 60000
+    if (elapsedTime >= 3600000) {
+      intervalTime = 3600000
+    }
+
+    const intervalId = setInterval(updateTime, intervalTime)
+
+    return () => clearInterval(intervalId)
+  }, [requestStartTime])
+
+  return <span className="text-nowrap pl-2">{timeSince}</span>
 }
 
 export default RequestResponsePanel

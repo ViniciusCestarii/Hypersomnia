@@ -8,8 +8,32 @@ interface UseFetchProps {
 }
 
 const calculateTimeTaken = (startTime: number) => {
-  return (performance.now() - startTime).toFixed(0)
+  return (new Date().getTime() - startTime).toFixed(0)
 }
+
+const customAxios = axios.create()
+
+customAxios.interceptors.request.use((config) => {
+  config.headers['request-startTime'] = new Date().getTime()
+  return config
+})
+
+customAxios.interceptors.response.use(
+  (response) => {
+    const startTime = response.config.headers['request-startTime']
+    response.headers['request-duration'] = calculateTimeTaken(startTime)
+    response.headers['request-startTime'] = startTime
+    return response
+  },
+  (error) => {
+    const startTime = error.config?.headers['request-startTime']
+    if (startTime) {
+      error.response.headers['request-duration'] = calculateTimeTaken(startTime)
+      error.response.headers['request-startTime'] = startTime
+    }
+    return Promise.reject(error)
+  },
+)
 
 const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
   const setRequestFetchResult = useHypersomniaStore(
@@ -25,24 +49,33 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
     }
     setRequestFetchResult({ ...requestFetchResult, loading: true })
 
-    const startTime = performance.now()
     try {
-      const response = await axios(options)
+      const response = await customAxios(options)
+      const timeTaken = response.headers['request-duration']
+      const requestStartTime = response.headers['request-startTime']
+      delete response.headers['request-duration']
+      delete response.headers['request-startTime']
       setRequestFetchResult({
         data: response.data,
         error: null,
         loading: false,
         response,
-        time: calculateTimeTaken(startTime),
+        timeTaken,
+        requestStartTime,
       })
     } catch (err) {
       if (axios.isAxiosError(err)) {
+        const timeTaken = err.response?.headers['request-duration']
+        const requestStartTime = err.response?.headers['request-startTime']
+        delete err.response?.headers['request-duration']
+        delete err.response?.headers['request-startTime']
         setRequestFetchResult({
           data: null,
           error: err,
           loading: false,
           response: err.response || null,
-          time: calculateTimeTaken(startTime),
+          timeTaken,
+          requestStartTime,
         })
       }
     }
