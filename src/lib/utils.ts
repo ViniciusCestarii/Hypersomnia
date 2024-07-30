@@ -8,6 +8,7 @@ import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
 import { html as beautifyHtml } from 'js-beautify'
+import { EditorProps } from '@monaco-editor/react'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -288,13 +289,16 @@ interface GenerateEditorDefaultProps {
 
 export const generateEditorDefaultProps = ({
   theme,
-}: GenerateEditorDefaultProps) => ({
-  theme: theme === 'dark' ? 'vs-dark' : 'light',
+}: GenerateEditorDefaultProps): EditorProps => ({
+  theme: theme === 'dark' ? 'dark' : 'light',
   height: '80vh',
   options: {
     minimap: { enabled: false },
     formatOnPaste: true,
     fontSize: 12,
+    readOnlyMessage: {
+      value: 'Editor is read-only 👀',
+    },
   },
 })
 
