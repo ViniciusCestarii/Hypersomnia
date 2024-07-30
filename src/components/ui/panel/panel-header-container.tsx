@@ -8,7 +8,10 @@ export const PanelHeaderContainer = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <>
-    <div {...props} className={cn('flex items-center h-8 px-2', className)}>
+    <div
+      {...props}
+      className={cn('flex items-center h-8 min-h-8 px-2', className)}
+    >
       {children}
     </div>
     <Separator />

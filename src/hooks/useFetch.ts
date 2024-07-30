@@ -1,15 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
-
-interface UseFetchResult<T> {
-  data: T | null
-  time: string | null
-  response: AxiosResponse<T> | null
-  error: Error | null
-  loading: boolean
-  refetch: () => Promise<void>
-}
-
+import { RequestFetchResult } from '@/types/collection'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
 interface UseFetchProps {
   url?: string
   options?: AxiosRequestConfig
@@ -20,41 +12,42 @@ const calculateTimeTaken = (startTime: number) => {
   return (performance.now() - startTime).toFixed(0)
 }
 
-const useFetch = <T>({
-  url,
-  options,
-  enabled = true,
-}: UseFetchProps): UseFetchResult<T> => {
-  const [data, setData] = useState<T | null>(null)
-  const [time, setTime] = useState<string | null>(null)
-  const [error, setError] = useState<AxiosError | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [response, setResponse] = useState<AxiosResponse<T> | null>(null)
+const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
+  const setRequestFetchResult = useHypersomniaStore(
+    (state) => state.setRequestFetchResult,
+  )
+  const requestFetchResult = useHypersomniaStore(
+    (state) => state.requestFetchResult,
+  )
 
   const fetchData = useCallback(async () => {
     if (!url || !options) {
       return
     }
-    setLoading(true)
+    setRequestFetchResult({ ...requestFetchResult, loading: true })
+
     const startTime = performance.now()
     try {
       const response = await axios(options)
-
-      setTime(calculateTimeTaken(startTime))
-      setData(response.data)
-      setResponse(response)
-      setError(null)
+      setRequestFetchResult({
+        data: response.data,
+        error: null,
+        loading: false,
+        response,
+        time: calculateTimeTaken(startTime),
+      })
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        setTime(calculateTimeTaken(startTime))
-        setData(null)
-        setResponse(err.response || null)
-        setError(err)
+        setRequestFetchResult({
+          data: null,
+          error: err,
+          loading: false,
+          response: err.response || null,
+          time: calculateTimeTaken(startTime),
+        })
       }
-    } finally {
-      setLoading(false)
     }
-  }, [url, options])
+  }, [url, options, setRequestFetchResult, requestFetchResult])
 
   useEffect(() => {
     if (enabled) {
@@ -62,7 +55,7 @@ const useFetch = <T>({
     }
   }, [fetchData, enabled])
 
-  return { data, error, loading, response, time, refetch: fetchData }
+  return fetchData
 }
 
 export default useFetch

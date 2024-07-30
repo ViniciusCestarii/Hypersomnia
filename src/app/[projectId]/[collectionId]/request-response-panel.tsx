@@ -12,7 +12,7 @@ import {
   httpStatusCodes,
 } from '@/lib/utils'
 import { BodyTypeText } from '@/types/collection'
-import useCollectionContext from '@/zustand/collection-store'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { useEffect } from 'react'
 
 interface BodyDataType {
@@ -43,10 +43,12 @@ const getDataText = (data: unknown): BodyDataType | undefined => {
 }
 
 const RequestResponsePanel = () => {
-  const sendTrigger = useCollectionContext((state) => state.sendTrigger)
-  const request = useCollectionContext((state) => state.selectedRequest)
+  const sendTrigger = useHypersomniaStore((state) => state.sendTrigger)
+  const request = useHypersomniaStore((state) => state.selectedRequest)
+  const { data, time, response, error, loading } =
+    useHypersomniaStore((state) => state.requestFetchResult) ?? {}
   // todo: memoize values to prevent unnecessary re-renders
-  const { data, response, error, loading, time, refetch } = useFetch({
+  const refetch = useFetch({
     ...request,
     options: {
       ...request?.options,
@@ -59,7 +61,7 @@ const RequestResponsePanel = () => {
   const isClient = useIsClient()
 
   useEffect(() => {
-    if (isClient) {
+    if (isClient && typeof sendTrigger !== 'undefined') {
       refetch()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
