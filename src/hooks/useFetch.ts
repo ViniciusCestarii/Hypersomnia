@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { RequestFetchResult } from '@/types/collection'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
+import axios, { AxiosRequestConfig } from 'axios'
+import { useCallback, useEffect } from 'react'
 interface UseFetchProps {
   url?: string
   options?: AxiosRequestConfig

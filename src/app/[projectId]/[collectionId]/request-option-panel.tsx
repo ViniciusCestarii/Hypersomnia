@@ -31,7 +31,7 @@ const RequestOptionPanel = () => {
   )
 
   const [tab, setTab] = useQueryState(
-    'tab',
+    'option-tab',
     parseAsString.withDefault('params'),
   )
 

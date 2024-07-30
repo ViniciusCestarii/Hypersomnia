@@ -5,20 +5,25 @@ import {
   useMonaco,
 } from '@monaco-editor/react'
 import { useTheme } from 'next-themes'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 
 const Editor = (props: EditorProps) => {
   const theme = useTheme()
   const monaco = useMonaco()
 
-  monaco?.editor.defineTheme('dark', {
-    base: 'vs-dark',
-    inherit: true,
-    rules: [],
-    colors: {
-      'editor.background': '#0A0A0A',
-    },
-  })
+  const isThemeDefined = useRef<boolean>(false)
+
+  if (monaco && !isThemeDefined.current) {
+    monaco.editor.defineTheme('dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [],
+      colors: {
+        'editor.background': '#0A0A0A',
+      },
+    })
+    isThemeDefined.current = true
+  }
 
   const editorDefaultProps: EditorProps = useMemo(
     () =>
