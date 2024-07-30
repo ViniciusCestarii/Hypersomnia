@@ -1,6 +1,10 @@
-import { create } from 'zustand'
+import { create, StateCreator } from 'zustand'
+import { createJSONStorage, devtools, persist } from 'zustand/middleware'
 import { CreateProject, Project } from '../types/project'
 import useCollectionsStore from './collections-store'
+import { Collection, QueryParameters, Request } from '@/types/collection'
+import { findSystemNodeByPath, updateRequestInFileSystem } from '@/lib/utils'
+
 type HypersomniaStore = {
   projects: Project[]
   selectedProject: Project | null
@@ -8,6 +12,29 @@ type HypersomniaStore = {
   createProject: (newProject: CreateProject) => void
   updateProjects: (projects: Project[]) => void
   selectProject: (id: string) => void
+  selectedCollection: Collection | null
+  updateCollection: (collection: Collection) => void
+  selectedRequestPath: string[] | null
+  selectedRequest: Request | null
+  sendTrigger: boolean
+  response: Response | null
+  setResponse: (response: Response | null) => void
+  selectRequest: (path: string[]) => void
+  sendRequest: () => void
+  updateSelectedRequest: (request: Request) => void
+  addQueryParam: () => void
+  updateQueryParamField: (
+    index: number,
+    field: keyof QueryParameters,
+    value: unknown,
+  ) => void
+  deleteQueryParam: (index: number) => void
+  deleteAllParams: () => void
+  updateRequestField: (field: keyof Request, value: unknown) => void
+  updateRequestOptionField: (
+    field: keyof Request['options'],
+    value: unknown,
+  ) => void
 }
 
 const initialProjects: Project[] = [
@@ -193,9 +220,15 @@ const initialProjects: Project[] = [
   },
 ]
 
-const useHypersomniaStore = create<HypersomniaStore>((set) => ({
+const hpersomniaStateCreator: StateCreator<
+  HypersomniaStore,
+  [['zustand/persist', unknown]]
+> = (set) => ({
   projects: initialProjects,
   selectedProject: null,
+  selectedCollection: null,
+  selectedRequest: null,
+  selectedRequestPath: null,
   deleteProject: (id: string) =>
     set((state) => ({
       projects: state.projects.filter((project) => project.id !== id),
@@ -235,6 +268,111 @@ const useHypersomniaStore = create<HypersomniaStore>((set) => ({
         selectedProject: project ?? null,
       }
     }),
-}))
+  updateCollection: (collection) => set({ selectedCollection: collection }),
+  selectRequest: (path) => {
+    set((state) => {
+      if (!state.selectedCollection) return state
+      const selectedRequest =
+        findSystemNodeByPath(state.selectedCollection?.fileSystem, path)
+          ?.request ?? null
+
+      return { selectedRequest, selectedRequestPath: path }
+    })
+  },
+  response: null,
+  sendTrigger: false,
+  sendRequest: () =>
+    set((state) => ({
+      sendTrigger: !state.sendTrigger,
+    })),
+  setResponse: (response) => set({ response }),
+  updateSelectedRequest: (updatedRequest) =>
+    set((state) => {
+      const { selectedRequestPath, selectedCollection } = state
+      if (!selectedRequestPath || !selectedCollection) return state
+
+      const updatedFileSystem = updateRequestInFileSystem(
+        selectedCollection.fileSystem,
+        selectedRequestPath,
+        updatedRequest,
+      )
+
+      const updatedCollection = {
+        ...selectedCollection,
+        fileSystem: updatedFileSystem,
+      }
+
+      return {
+        selectedCollection: updatedCollection,
+        selectedRequest: updatedRequest,
+      }
+    }),
+  addQueryParam: () =>
+    set((state) => {
+      if (!state.selectedRequest) return state
+      const params = [...state.selectedRequest.queryParameters]
+      params.push({ key: '', value: '', enabled: true })
+      state.updateRequestField('queryParameters', params)
+      return {}
+    }),
+  updateQueryParamField: (index, field, value) =>
+    set((state) => {
+      if (!state.selectedRequest) return state
+      const params = [...state.selectedRequest.queryParameters]
+      params[index] = { ...params[index], [field]: value }
+      state.updateRequestField('queryParameters', params)
+      return {}
+    }),
+  deleteQueryParam: (index) =>
+    set((state) => {
+      if (!state.selectedRequest) return state
+      const params = [...state.selectedRequest.queryParameters]
+      params.splice(index, 1)
+      state.updateRequestField('queryParameters', params)
+      return {}
+    }),
+  deleteAllParams: () =>
+    set((state) => {
+      if (!state.selectedRequest) return state
+      state.updateRequestField('queryParameters', [])
+      return {}
+    }),
+  updateRequestField: (field, value) =>
+    set((state) => {
+      const { selectedRequest } = state
+      if (!selectedRequest) return state
+
+      const updatedRequest = {
+        ...selectedRequest,
+        [field]: value,
+      }
+
+      state.updateSelectedRequest(updatedRequest)
+      return {}
+    }),
+  updateRequestOptionField: (field, value) =>
+    set((state) => {
+      const { selectedRequest } = state
+      if (!selectedRequest) return state
+
+      const updatedRequest = {
+        ...selectedRequest,
+        options: {
+          ...selectedRequest.options,
+          [field]: value,
+        },
+      }
+
+      state.updateSelectedRequest(updatedRequest)
+      return {}
+    }),
+})
+
+export const useHypersomniaStore = create<HypersomniaStore>()(
+  persist(hpersomniaStateCreator, {
+    name: 'hypersomnia-store',
+    storage: createJSONStorage(() => sessionStorage),
+  }),
+)
 
 export default useHypersomniaStore
