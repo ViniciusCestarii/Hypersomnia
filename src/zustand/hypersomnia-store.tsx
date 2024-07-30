@@ -1,6 +1,14 @@
-import { create } from 'zustand'
+import { findSystemNodeByPath, updateRequestInFileSystem } from '@/lib/utils'
+import {
+  Collection,
+  QueryParameters,
+  Request,
+  RequestFetchResult,
+} from '@/types/collection'
+import { create, StateCreator } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { CreateProject, Project } from '../types/project'
-import useCollectionsStore from './collections-store'
+
 type HypersomniaStore = {
   projects: Project[]
   selectedProject: Project | null
@@ -8,6 +16,30 @@ type HypersomniaStore = {
   createProject: (newProject: CreateProject) => void
   updateProjects: (projects: Project[]) => void
   selectProject: (id: string) => void
+  selectedCollection: Collection | null
+  updateCollection: (collection: Collection) => void
+  selectCollection: (id: string) => void
+  selectedRequestPath: string[] | null
+  selectedRequest: Request | null
+  sendTrigger: boolean | undefined
+  requestFetchResult: RequestFetchResult | null
+  setRequestFetchResult: (requestFetchResult: RequestFetchResult | null) => void
+  selectRequest: (path: string[]) => void
+  sendRequest: () => void
+  updateSelectedRequest: (request: Request) => void
+  addQueryParam: () => void
+  updateQueryParamField: (
+    index: number,
+    field: keyof QueryParameters,
+    value: unknown,
+  ) => void
+  deleteQueryParam: (index: number) => void
+  deleteAllParams: () => void
+  updateRequestField: (field: keyof Request, value: unknown) => void
+  updateRequestOptionField: (
+    field: keyof Request['options'],
+    value: unknown,
+  ) => void
 }
 
 const initialProjects: Project[] = [
@@ -193,9 +225,12 @@ const initialProjects: Project[] = [
   },
 ]
 
-const useHypersomniaStore = create<HypersomniaStore>((set) => ({
+const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
   projects: initialProjects,
   selectedProject: null,
+  selectedCollection: null,
+  selectedRequest: null,
+  selectedRequestPath: null,
   deleteProject: (id: string) =>
     set((state) => ({
       projects: state.projects.filter((project) => project.id !== id),
@@ -220,21 +255,147 @@ const useHypersomniaStore = create<HypersomniaStore>((set) => ({
   updateProjects: (projects: Project[]) => set({ projects }),
   selectProject: (id: string) =>
     set((state) => {
-      const { updateCollections, selectCollection } =
-        useCollectionsStore.getState()
+      const selectedProject = state.projects.find(
+        (project) => project.id === id,
+      )
+      return { selectedProject }
+    }),
+  selectCollection: (id) =>
+    set((state) => {
+      if (!state.selectedProject) return state
+      const selectedCollection = state.selectedProject.collections.find(
+        (collection) => collection.id === id,
+      )
+      return { selectedCollection }
+    }),
+  updateCollection: (collection) => set({ selectedCollection: collection }),
+  selectRequest: (path) => {
+    set((state) => {
+      if (!state.selectedCollection) return state
+      const selectedRequest =
+        findSystemNodeByPath(state.selectedCollection?.fileSystem, path)
+          ?.request ?? null
 
-      const project = state.projects.find((project) => project.id === id)
+      return { selectedRequest, selectedRequestPath: path }
+    })
+  },
+  requestFetchResult: null,
+  sendTrigger: undefined,
+  sendRequest: () =>
+    set((state) => ({
+      sendTrigger: !state.sendTrigger,
+    })),
+  setRequestFetchResult: (requestFetchResult) => set({ requestFetchResult }),
+  updateSelectedRequest: (updatedRequest) =>
+    set((state) => {
+      const {
+        selectedRequestPath,
+        selectedCollection,
+        projects,
+        selectedProject,
+      } = state
+      if (!selectedRequestPath || !selectedCollection || !selectedProject)
+        return state
 
-      if (project) {
-        updateCollections(project.collections)
-        const hasCollections = project.collections.length > 0
-        selectCollection(hasCollections ? project.collections[0].id : null)
+      const updatedFileSystem = updateRequestInFileSystem(
+        selectedCollection.fileSystem,
+        selectedRequestPath,
+        updatedRequest,
+      )
+
+      const updatedCollection = {
+        ...selectedCollection,
+        fileSystem: updatedFileSystem,
+      }
+
+      const updatedProject = {
+        ...selectedProject,
+        collections: selectedProject.collections.map((collection) =>
+          collection.id === selectedCollection.id
+            ? updatedCollection
+            : collection,
+        ),
       }
 
       return {
-        selectedProject: project ?? null,
+        projects: projects.map((project) =>
+          project.id === selectedProject.id ? updatedProject : project,
+        ),
+        selectedCollection: updatedCollection,
+        selectedRequest: updatedRequest,
       }
     }),
-}))
+  addQueryParam: () =>
+    set((state) => {
+      if (!state.selectedRequest) return state
+      const params = [...state.selectedRequest.queryParameters]
+      params.push({ key: '', value: '', enabled: true })
+      state.updateRequestField('queryParameters', params)
+      return {}
+    }),
+  updateQueryParamField: (index, field, value) =>
+    set((state) => {
+      if (!state.selectedRequest) return state
+      const params = [...state.selectedRequest.queryParameters]
+      params[index] = { ...params[index], [field]: value }
+      state.updateRequestField('queryParameters', params)
+      return {}
+    }),
+  deleteQueryParam: (index) =>
+    set((state) => {
+      if (!state.selectedRequest) return state
+      const params = [...state.selectedRequest.queryParameters]
+      params.splice(index, 1)
+      state.updateRequestField('queryParameters', params)
+      return {}
+    }),
+  deleteAllParams: () =>
+    set((state) => {
+      if (!state.selectedRequest) return state
+      state.updateRequestField('queryParameters', [])
+      return {}
+    }),
+  updateRequestField: (field, value) =>
+    set((state) => {
+      const { selectedRequest } = state
+      if (!selectedRequest) return state
+
+      const updatedRequest = {
+        ...selectedRequest,
+        [field]: value,
+      }
+
+      state.updateSelectedRequest(updatedRequest)
+      return {}
+    }),
+  updateRequestOptionField: (field, value) =>
+    set((state) => {
+      const { selectedRequest } = state
+      if (!selectedRequest) return state
+
+      const updatedRequest = {
+        ...selectedRequest,
+        options: {
+          ...selectedRequest.options,
+          [field]: value,
+        },
+      }
+
+      state.updateSelectedRequest(updatedRequest)
+      return {}
+    }),
+})
+
+const keysToIgnore = ['sendTrigger']
+
+export const useHypersomniaStore = create<HypersomniaStore>()(
+  persist(hypersomniaStateCreator, {
+    name: 'hypersomnia-store',
+    partialize: (state) =>
+      Object.fromEntries(
+        Object.entries(state).filter(([key]) => !keysToIgnore.includes(key)),
+      ),
+  }),
+)
 
 export default useHypersomniaStore

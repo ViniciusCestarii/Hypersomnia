@@ -1,33 +1,24 @@
 'use client'
-import Collection from './collection'
-import useCollectionsStore from '../zustand/collections-store'
-import TypographyP from '@/components/ui/typography-p'
-import useIsClient from '../hooks/useIsClient'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import TypographyP from '@/components/ui/typography-p'
 import { useQueryState } from 'nuqs'
+import useIsClient from '../hooks/useIsClient'
 import useHypersomniaStore from '../zustand/hypersomnia-store'
-import { useEffect } from 'react'
+import Collection from './collection'
 
 const CollectionList = () => {
-  const collections = useCollectionsStore((state) => state.collections)
   const selectedProject = useHypersomniaStore((state) => state.selectedProject)
 
   const [filter, setFilter] = useQueryState(`qc`)
   const isClient = useIsClient()
 
-  useEffect(() => {
-    if (selectedProject && isClient) {
-      setFilter(null)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedProject, setFilter])
-
-  const filteredCollections = filter
-    ? collections.filter((collection) =>
-        collection.title.toLowerCase().includes(filter.toLowerCase()),
-      )
-    : collections
+  const filteredCollections =
+    (filter
+      ? selectedProject?.collections.filter((collection) =>
+          collection.title.toLowerCase().includes(filter.toLowerCase()),
+        )
+      : selectedProject?.collections) ?? []
 
   return (
     <>

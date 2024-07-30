@@ -9,9 +9,9 @@ const Editor = (props: EditorProps) => {
   const editorDefaultProps: EditorProps = useMemo(
     () =>
       generateEditorDefaultProps({
-        theme: theme.theme,
+        theme: theme.resolvedTheme,
       }),
-    [theme.theme],
+    [theme.resolvedTheme],
   )
 
   return (

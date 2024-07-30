@@ -7,7 +7,7 @@ import RequestMethodBadge from '@/components/ui/panel/request-method-badge'
 import { Separator } from '@/components/ui/separator'
 import { filterNodes } from '@/lib/utils'
 import { FileSystemNode as FileSystemNodeType } from '@/types/collection'
-import useCollectionContext from '@/zustand/collection-store'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
   AlertCircle,
   ChevronDown,
@@ -22,7 +22,7 @@ import { useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
 
 const RequestCollectionPanel = () => {
-  const collection = useCollectionContext((state) => state.collection)
+  const collection = useHypersomniaStore((state) => state.selectedCollection)
 
   const [filter, setFilter] = useQueryState('qr')
   const [expandAll, setExpandAll] = useState(false) // todo: make this work properly
@@ -92,7 +92,7 @@ type FileSystemNodeProps = {
 }
 
 const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
-  const selectRequest = useCollectionContext((state) => state.selectRequest)
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
 
   const [isOpen, setIsOpen] = useState(openFolders)
 

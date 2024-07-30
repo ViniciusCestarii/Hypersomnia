@@ -11,21 +11,22 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { requestMethods } from '@/lib/utils'
-import useCollectionContext from '@/zustand/collection-store'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { parseAsString, useQueryState } from 'nuqs'
 import ParamsTab from './(request-option-tabs)/params-tab'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import BodyTab from './(request-option-tabs)/body-tab'
+import TypographyP from '@/components/ui/typography-p'
 
 const RequestOptionPanel = () => {
-  const request = useCollectionContext((state) => state.selectedRequest)
-  const sendRequest = useCollectionContext((state) => state.sendRequest)
-  const updateRequestField = useCollectionContext(
+  const request = useHypersomniaStore((state) => state.selectedRequest)
+  const sendRequest = useHypersomniaStore((state) => state.sendRequest)
+  const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
   )
-  const updateRequestOptionField = useCollectionContext(
+  const updateRequestOptionField = useHypersomniaStore(
     (state) => state.updateRequestOptionField,
   )
 
@@ -35,7 +36,7 @@ const RequestOptionPanel = () => {
   )
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col flex-1">
       <PanelHeaderContainer className="pl-0">
         {request && (
           <div className="flex relative max-w-full w-full items-center">
@@ -89,7 +90,11 @@ const RequestOptionPanel = () => {
       <Tabs value={tab}>
         <ScrollArea type="hover">
           <TabsList className="flex justify-start">
-            <TabsTrigger value="params" onClick={() => setTab('params')}>
+            <TabsTrigger
+              value="params"
+              className="min-w-24"
+              onClick={() => setTab('params')}
+            >
               params ({request?.queryParameters.length ?? 0})
             </TabsTrigger>
             <TabsTrigger value="body" onClick={() => setTab('body')}>
@@ -111,25 +116,37 @@ const RequestOptionPanel = () => {
           </TabsList>
         </ScrollArea>
         <Separator className="w-full" />
-        <TabsContent value="params">
-          <ParamsTab />
-        </TabsContent>
-        <TabsContent value="body" className="mt-0">
-          <BodyTab />
-        </TabsContent>
-        <TabsContent value="auth">
-          {/* Your AuthTab component or content goes here */}
-        </TabsContent>
-        <TabsContent value="headers">
-          {/* Your HeadersTab component or content goes here */}
-        </TabsContent>
-        <TabsContent value="scripts">
-          {/* Your ScriptsTab component or content goes here */}
-        </TabsContent>
-        <TabsContent value="docs">
-          {/* Your DocsTab component or content goes here */}
-        </TabsContent>
+        {request && (
+          <>
+            <TabsContent value="params">
+              <ParamsTab />
+            </TabsContent>
+            <TabsContent value="body" className="mt-0">
+              <BodyTab />
+            </TabsContent>
+            <TabsContent value="auth">
+              {/* Your AuthTab component or content goes here */}
+            </TabsContent>
+            <TabsContent value="headers">
+              {/* Your HeadersTab component or content goes here */}
+            </TabsContent>
+            <TabsContent value="scripts">
+              {/* Your ScriptsTab component or content goes here */}
+            </TabsContent>
+            <TabsContent value="docs">
+              {/* Your DocsTab component or content goes here */}
+            </TabsContent>
+          </>
+        )}
       </Tabs>
+      {/* todo: add button to create request or keyboard shortcut to select etc */}
+      {!request && (
+        <div className="flex justify-center items-center flex-1 -mt-12">
+          <TypographyP className="text-muted-foreground text-center">
+            No request selected
+          </TypographyP>
+        </div>
+      )}
     </div>
   )
 }
