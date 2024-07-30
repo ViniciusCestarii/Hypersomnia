@@ -51,7 +51,7 @@ const RequestOptionPanel = () => {
               <SelectTrigger
                 aria-label="request method"
                 id="request-method"
-                className="border-0 w-fit"
+                className="border-0 w-fit shadow-none"
               >
                 <RequestMethodBadge method={request.options.method} />
               </SelectTrigger>
@@ -72,7 +72,7 @@ const RequestOptionPanel = () => {
               id="request-url"
               onChange={({ target }) => updateRequestField('url', target.value)}
               value={request.url}
-              className="font-semibold shrink mr-16 border-0 focus-visible:ring-0 pl-0"
+              className="font-semibold shrink mr-16 border-0 shadow-none focus-visible:ring-0 pl-0"
             />
             <Button
               onClick={sendRequest}
