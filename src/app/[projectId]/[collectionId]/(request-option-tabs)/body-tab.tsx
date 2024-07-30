@@ -46,7 +46,7 @@ const groupIcons: Record<string, React.ElementType> = {
 }
 
 const BodyTab = () => {
-  const request = useHypersomniaStore((state) => state.selectedRequest)
+  const request = useHypersomniaStore((state) => state.selectedRequest!)
   const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
   )
@@ -58,8 +58,8 @@ const BodyTab = () => {
     [updateRequestField],
   )
 
-  const bodyType = request?.bodyType ?? 'none'
-  const bodyContent = request?.bodyContent ?? ''
+  const bodyType = request.bodyType ?? 'none'
+  const bodyContent = request.bodyContent ?? ''
 
   const renderBodyInput = () => {
     switch (bodyType) {

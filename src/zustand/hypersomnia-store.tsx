@@ -386,12 +386,14 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
     }),
 })
 
+const keysToIgnore = ['sendTrigger']
+
 export const useHypersomniaStore = create<HypersomniaStore>()(
   persist(hypersomniaStateCreator, {
     name: 'hypersomnia-store',
     partialize: (state) =>
       Object.fromEntries(
-        Object.entries(state).filter(([key]) => key !== 'sendTrigger'),
+        Object.entries(state).filter(([key]) => !keysToIgnore.includes(key)),
       ),
   }),
 )

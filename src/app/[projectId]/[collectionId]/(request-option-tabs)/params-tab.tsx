@@ -4,7 +4,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import ClipboardButton from '@/components/ui/panel/clipboard-button'
-import { Skeleton } from '@/components/ui/skeleton'
 import TypographyH3 from '@/components/ui/Typography-h3'
 import { cn, getRequestWithQueryParams } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
@@ -12,9 +11,9 @@ import { AlertTriangle, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
 
 const ParamsTab = () => {
-  const request = useHypersomniaStore((state) => state.selectedRequest)
+  const request = useHypersomniaStore((state) => state.selectedRequest!)
 
-  const requestUrlWithQuery = request ? getRequestWithQueryParams(request) : ''
+  const requestUrlWithQuery = getRequestWithQueryParams(request)
   const isRequestUrlWithQueryEmpty = requestUrlWithQuery === ''
 
   return (
@@ -24,20 +23,14 @@ const ParamsTab = () => {
           URL preview
         </AlertTitle>
         <AlertDescription className="text-extra-xs break-words pr-8 max-h-28 min-w-24 relative">
-          {request ? (
-            <>
-              {isRequestUrlWithQueryEmpty ? '...' : requestUrlWithQuery}
-              <ClipboardButton
-                label="copy URL"
-                disabled={isRequestUrlWithQueryEmpty}
-                text={requestUrlWithQuery}
-                variant={'ghost'}
-                className="absolute right-0 bottom-0"
-              />
-            </>
-          ) : (
-            <Skeleton className="h-[0.6rem] mt-3 mb-[0.15rem] w-[60%]" />
-          )}
+          {isRequestUrlWithQueryEmpty ? '...' : requestUrlWithQuery}
+          <ClipboardButton
+            label="copy URL"
+            disabled={isRequestUrlWithQueryEmpty}
+            text={requestUrlWithQuery}
+            variant={'ghost'}
+            className="absolute right-0 bottom-0"
+          />
         </AlertDescription>
       </Alert>
       <QueryParametersSection />
@@ -46,7 +39,7 @@ const ParamsTab = () => {
 }
 
 const QueryParametersSection = () => {
-  const request = useHypersomniaStore((state) => state.selectedRequest)
+  const request = useHypersomniaStore((state) => state.selectedRequest!)
   const addQueryParam = useHypersomniaStore((state) => state.addQueryParam)
   const updateQueryParamField = useHypersomniaStore(
     (state) => state.updateQueryParamField,
@@ -72,9 +65,7 @@ const QueryParametersSection = () => {
           Add
         </Button>
         <DeleteConfirmationButton
-          disabled={
-            !request?.queryParameters || request.queryParameters.length === 0
-          }
+          disabled={request.queryParameters.length === 0}
           onConfirm={deleteAllParams}
           text="Delete all"
           aria-label="delete all query parameters"
@@ -83,7 +74,7 @@ const QueryParametersSection = () => {
           iconSize={12}
         />
       </div>
-      {request?.queryParameters?.map((param, index) => {
+      {request.queryParameters?.map((param, index) => {
         const keyInputId = `param-key-${index}`
         const valueInputId = `param-value-${index}`
         const checkboxId = `param-enabled-${index}`
