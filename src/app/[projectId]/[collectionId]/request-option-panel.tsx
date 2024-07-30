@@ -11,7 +11,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { requestMethods } from '@/lib/utils'
-import useCollectionContext from '@/zustand/collection-store'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { parseAsString, useQueryState } from 'nuqs'
 import ParamsTab from './(request-option-tabs)/params-tab'
 import { Input } from '@/components/ui/input'
@@ -20,12 +20,12 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import BodyTab from './(request-option-tabs)/body-tab'
 
 const RequestOptionPanel = () => {
-  const request = useCollectionContext((state) => state.selectedRequest)
-  const sendRequest = useCollectionContext((state) => state.sendRequest)
-  const updateRequestField = useCollectionContext(
+  const request = useHypersomniaStore((state) => state.selectedRequest)
+  const sendRequest = useHypersomniaStore((state) => state.sendRequest)
+  const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
   )
-  const updateRequestOptionField = useCollectionContext(
+  const updateRequestOptionField = useHypersomniaStore(
     (state) => state.updateRequestOptionField,
   )
 

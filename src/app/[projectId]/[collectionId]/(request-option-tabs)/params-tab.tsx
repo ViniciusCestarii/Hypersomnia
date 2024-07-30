@@ -7,12 +7,12 @@ import ClipboardButton from '@/components/ui/panel/clipboard-button'
 import { Skeleton } from '@/components/ui/skeleton'
 import TypographyH3 from '@/components/ui/Typography-h3'
 import { cn, getRequestWithQueryParams } from '@/lib/utils'
-import useCollectionContext from '@/zustand/collection-store'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { AlertTriangle, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
 
 const ParamsTab = () => {
-  const request = useCollectionContext((state) => state.selectedRequest)
+  const request = useHypersomniaStore((state) => state.selectedRequest)
 
   const requestUrlWithQuery = request ? getRequestWithQueryParams(request) : ''
   const isRequestUrlWithQueryEmpty = requestUrlWithQuery === ''
@@ -46,15 +46,15 @@ const ParamsTab = () => {
 }
 
 const QueryParametersSection = () => {
-  const request = useCollectionContext((state) => state.selectedRequest)
-  const addQueryParam = useCollectionContext((state) => state.addQueryParam)
-  const updateQueryParamField = useCollectionContext(
+  const request = useHypersomniaStore((state) => state.selectedRequest)
+  const addQueryParam = useHypersomniaStore((state) => state.addQueryParam)
+  const updateQueryParamField = useHypersomniaStore(
     (state) => state.updateQueryParamField,
   )
-  const deleteQueryParam = useCollectionContext(
+  const deleteQueryParam = useHypersomniaStore(
     (state) => state.deleteQueryParam,
   )
-  const deleteAllParams = useCollectionContext((state) => state.deleteAllParams)
+  const deleteAllParams = useHypersomniaStore((state) => state.deleteAllParams)
 
   return (
     <>

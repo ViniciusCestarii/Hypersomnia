@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { BodyType } from '@/types/collection'
-import useCollectionContext from '@/zustand/collection-store'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { EditorProps } from '@monaco-editor/react'
 import { Boxes, Code2, MoreHorizontal } from 'lucide-react'
 import { useMemo } from 'react'
@@ -46,8 +46,8 @@ const groupIcons: Record<string, React.ElementType> = {
 }
 
 const BodyTab = () => {
-  const request = useCollectionContext((state) => state.selectedRequest)
-  const updateRequestField = useCollectionContext(
+  const request = useHypersomniaStore((state) => state.selectedRequest)
+  const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
   )
 

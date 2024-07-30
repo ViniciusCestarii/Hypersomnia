@@ -13,13 +13,7 @@ const CollectionPageContext = ({
   params,
   children,
 }: CollectionPageContextProps) => {
-  const selectedProject = useHypersomniaStore((state) => state.selectedProject)
   const selectProject = useHypersomniaStore((state) => state.selectProject)
-
-  useEffect(() => {
-    selectProject(params.projectId)
-  }, [params.projectId, selectProject])
-
   const collection =
     useHypersomniaStore((state) =>
       state.selectedProject?.collections.find(
@@ -27,11 +21,17 @@ const CollectionPageContext = ({
       ),
     ) ?? null
 
-  return (
-    <CollectionProvider project={selectedProject} collection={collection}>
-      {children}
-    </CollectionProvider>
-  )
+  useEffect(() => {
+    selectProject(params.projectId)
+  }, [params.projectId, selectProject])
+
+  useEffect(() => {
+    if (collection) {
+      useHypersomniaStore.setState({ selectedCollection: collection })
+    }
+  }, [collection])
+
+  return children
 }
 
 export default CollectionPageContext

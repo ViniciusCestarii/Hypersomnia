@@ -50,4 +50,12 @@ export type Collection = {
   fileSystem: FileSystemNode[]
 }
 
+export type RequestFetchResult = {
+  data?: unknown | null
+  time?: string | null
+  response?: AxiosResponse<unknown> | null
+  error?: Error | null
+  loading?: boolean
+}
+
 export type CreateCollection = Omit<Collection, 'id'>

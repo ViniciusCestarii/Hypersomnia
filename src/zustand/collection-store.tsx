@@ -194,7 +194,7 @@ export function CollectionProvider({
   )
 }
 
-export default function useCollectionContext<T>(
+export default function useHypersomniaStore<T>(
   selector: (state: CollectionState) => T,
 ): T {
   const store = useContext(CollectionContext)

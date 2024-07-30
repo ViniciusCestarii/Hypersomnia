@@ -1,9 +1,14 @@
+import { findSystemNodeByPath, updateRequestInFileSystem } from '@/lib/utils'
+import {
+  Collection,
+  QueryParameters,
+  Request,
+  RequestFetchResult,
+} from '@/types/collection'
 import { create, StateCreator } from 'zustand'
-import { createJSONStorage, devtools, persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
 import { CreateProject, Project } from '../types/project'
 import useCollectionsStore from './collections-store'
-import { Collection, QueryParameters, Request } from '@/types/collection'
-import { findSystemNodeByPath, updateRequestInFileSystem } from '@/lib/utils'
 
 type HypersomniaStore = {
   projects: Project[]
@@ -16,9 +21,9 @@ type HypersomniaStore = {
   updateCollection: (collection: Collection) => void
   selectedRequestPath: string[] | null
   selectedRequest: Request | null
-  sendTrigger: boolean
-  response: Response | null
-  setResponse: (response: Response | null) => void
+  sendTrigger: boolean | undefined
+  requestFetchResult: RequestFetchResult | null
+  setRequestFetchResult: (requestFetchResult: RequestFetchResult | null) => void
   selectRequest: (path: string[]) => void
   sendRequest: () => void
   updateSelectedRequest: (request: Request) => void
@@ -279,13 +284,13 @@ const hpersomniaStateCreator: StateCreator<
       return { selectedRequest, selectedRequestPath: path }
     })
   },
-  response: null,
-  sendTrigger: false,
+  requestFetchResult: null,
+  sendTrigger: undefined,
   sendRequest: () =>
     set((state) => ({
       sendTrigger: !state.sendTrigger,
     })),
-  setResponse: (response) => set({ response }),
+  setRequestFetchResult: (requestFetchResult) => set({ requestFetchResult }),
   updateSelectedRequest: (updatedRequest) =>
     set((state) => {
       const { selectedRequestPath, selectedCollection } = state
@@ -372,6 +377,10 @@ export const useHypersomniaStore = create<HypersomniaStore>()(
   persist(hpersomniaStateCreator, {
     name: 'hypersomnia-store',
     storage: createJSONStorage(() => sessionStorage),
+    partialize: (state) =>
+      Object.fromEntries(
+        Object.entries(state).filter(([key]) => key !== 'sendTrigger'),
+      ),
   }),
 )
 
