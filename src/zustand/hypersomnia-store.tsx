@@ -225,10 +225,7 @@ const initialProjects: Project[] = [
   },
 ]
 
-const hypersomniaStateCreator: StateCreator<
-  HypersomniaStore,
-  [['zustand/persist', unknown]]
-> = (set) => ({
+const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
   projects: initialProjects,
   selectedProject: null,
   selectedCollection: null,
