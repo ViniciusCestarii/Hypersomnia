@@ -1,9 +1,9 @@
 'use client'
 
-import { CollectionProvider } from '@/zustand/collection-store'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import React, { useEffect } from 'react'
 import { ApiToolProps } from './page'
+import { findFileByPath } from '@/lib/utils'
 
 interface CollectionPageContextProps extends ApiToolProps {
   children: React.ReactNode
@@ -20,6 +20,12 @@ const CollectionPageContext = ({
         (collection) => collection.id === params.collectionId,
       ),
     ) ?? null
+  const selectCollection = useHypersomniaStore(
+    (state) => state.selectCollection,
+  )
+  const selectedRequestPath = useHypersomniaStore(
+    (state) => state.selectedRequestPath,
+  )
 
   useEffect(() => {
     selectProject(params.projectId)
@@ -27,9 +33,21 @@ const CollectionPageContext = ({
 
   useEffect(() => {
     if (collection) {
-      useHypersomniaStore.setState({ selectedCollection: collection })
+      selectCollection(collection.id)
     }
-  }, [collection])
+
+    if (selectedRequestPath) {
+      const fileRequest = findFileByPath(
+        collection?.fileSystem ?? [],
+        selectedRequestPath,
+      )
+      if (fileRequest) {
+        useHypersomniaStore.setState({ selectedRequest: fileRequest.request })
+      } else {
+        useHypersomniaStore.setState({ selectedRequest: null })
+      }
+    }
+  }, [collection, selectCollection, selectedRequestPath])
 
   return children
 }

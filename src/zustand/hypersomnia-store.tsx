@@ -6,9 +6,8 @@ import {
   RequestFetchResult,
 } from '@/types/collection'
 import { create, StateCreator } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
 import { CreateProject, Project } from '../types/project'
-import useCollectionsStore from './collections-store'
 
 type HypersomniaStore = {
   projects: Project[]
@@ -19,6 +18,7 @@ type HypersomniaStore = {
   selectProject: (id: string) => void
   selectedCollection: Collection | null
   updateCollection: (collection: Collection) => void
+  selectCollection: (id: string) => void
   selectedRequestPath: string[] | null
   selectedRequest: Request | null
   sendTrigger: boolean | undefined
@@ -225,7 +225,7 @@ const initialProjects: Project[] = [
   },
 ]
 
-const hpersomniaStateCreator: StateCreator<
+const hypersomniaStateCreator: StateCreator<
   HypersomniaStore,
   [['zustand/persist', unknown]]
 > = (set) => ({
@@ -258,20 +258,18 @@ const hpersomniaStateCreator: StateCreator<
   updateProjects: (projects: Project[]) => set({ projects }),
   selectProject: (id: string) =>
     set((state) => {
-      const { updateCollections, selectCollection } =
-        useCollectionsStore.getState()
-
-      const project = state.projects.find((project) => project.id === id)
-
-      if (project) {
-        updateCollections(project.collections)
-        const hasCollections = project.collections.length > 0
-        selectCollection(hasCollections ? project.collections[0].id : null)
-      }
-
-      return {
-        selectedProject: project ?? null,
-      }
+      const selectedProject = state.projects.find(
+        (project) => project.id === id,
+      )
+      return { selectedProject }
+    }),
+  selectCollection: (id) =>
+    set((state) => {
+      if (!state.selectedProject) return state
+      const selectedCollection = state.selectedProject.collections.find(
+        (collection) => collection.id === id,
+      )
+      return { selectedCollection }
     }),
   updateCollection: (collection) => set({ selectedCollection: collection }),
   selectRequest: (path) => {
@@ -293,8 +291,14 @@ const hpersomniaStateCreator: StateCreator<
   setRequestFetchResult: (requestFetchResult) => set({ requestFetchResult }),
   updateSelectedRequest: (updatedRequest) =>
     set((state) => {
-      const { selectedRequestPath, selectedCollection } = state
-      if (!selectedRequestPath || !selectedCollection) return state
+      const {
+        selectedRequestPath,
+        selectedCollection,
+        projects,
+        selectedProject,
+      } = state
+      if (!selectedRequestPath || !selectedCollection || !selectedProject)
+        return state
 
       const updatedFileSystem = updateRequestInFileSystem(
         selectedCollection.fileSystem,
@@ -307,7 +311,19 @@ const hpersomniaStateCreator: StateCreator<
         fileSystem: updatedFileSystem,
       }
 
+      const updatedProject = {
+        ...selectedProject,
+        collections: selectedProject.collections.map((collection) =>
+          collection.id === selectedCollection.id
+            ? updatedCollection
+            : collection,
+        ),
+      }
+
       return {
+        projects: projects.map((project) =>
+          project.id === selectedProject.id ? updatedProject : project,
+        ),
         selectedCollection: updatedCollection,
         selectedRequest: updatedRequest,
       }
@@ -374,9 +390,8 @@ const hpersomniaStateCreator: StateCreator<
 })
 
 export const useHypersomniaStore = create<HypersomniaStore>()(
-  persist(hpersomniaStateCreator, {
+  persist(hypersomniaStateCreator, {
     name: 'hypersomnia-store',
-    storage: createJSONStorage(() => sessionStorage),
     partialize: (state) =>
       Object.fromEntries(
         Object.entries(state).filter(([key]) => key !== 'sendTrigger'),

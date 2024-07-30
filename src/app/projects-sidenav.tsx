@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useQueryState } from 'nuqs'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Suspense, useEffect } from 'react'
+import { Suspense } from 'react'
 
 const ProjectSidenav = () => {
   return (
@@ -23,18 +23,10 @@ const ProjectsList = () => {
   const { projects, selectProject, selectedProject } = useHypersomniaStore()
 
   const [filter, setFilter] = useQueryState('qp')
-  const [projectId, setProjectId] = useQueryState('project')
 
   const handleSelectProject = (id: string) => {
-    setProjectId(id)
     selectProject(id)
   }
-
-  useEffect(() => {
-    if (projectId) {
-      selectProject(projectId)
-    }
-  }, [projectId, selectProject])
 
   const filteredProjects = filter
     ? projects.filter((project) =>
