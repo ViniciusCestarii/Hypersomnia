@@ -77,7 +77,7 @@ const config = {
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
       fontSize: {
-        'extra-xs': ['0.625rem', { lineHeight: '1rem' }], // This is the new size below `text-xs`
+        xss: ['0.75rem', { lineHeight: '1rem' }],
       },
     },
   },

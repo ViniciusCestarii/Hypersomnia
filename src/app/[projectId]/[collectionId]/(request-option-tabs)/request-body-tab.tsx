@@ -45,7 +45,7 @@ const groupIcons: Record<string, React.ElementType> = {
   Other: MoreHorizontal,
 }
 
-const BodyTab = () => {
+const RequestBodyTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
   const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
@@ -133,4 +133,4 @@ const BodyTab = () => {
   )
 }
 
-export default BodyTab
+export default RequestBodyTab

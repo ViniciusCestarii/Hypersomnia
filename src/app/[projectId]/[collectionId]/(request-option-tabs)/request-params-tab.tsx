@@ -10,7 +10,7 @@ import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { AlertTriangle, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
 
-const ParamsTab = () => {
+const RequestParamsTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
 
   const requestUrlWithQuery = getRequestWithQueryParams(request)
@@ -22,7 +22,7 @@ const ParamsTab = () => {
         <AlertTitle className="uppercase text-xs text-foreground/75 ">
           URL preview
         </AlertTitle>
-        <AlertDescription className="text-extra-xs break-words pr-8 max-h-28 min-w-24 relative">
+        <AlertDescription className="text-xss break-words pr-8 max-h-28 min-w-24 relative">
           {isRequestUrlWithQueryEmpty ? '...' : requestUrlWithQuery}
           <ClipboardButton
             label="copy URL"
@@ -190,4 +190,4 @@ const DeleteConfirmationButton = ({
   )
 }
 
-export default ParamsTab
+export default RequestParamsTab

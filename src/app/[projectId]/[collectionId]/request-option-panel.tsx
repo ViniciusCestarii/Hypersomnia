@@ -1,6 +1,9 @@
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
 import RequestMethodBadge from '@/components/ui/panel/request-method-badge'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -10,15 +13,12 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import TypographyP from '@/components/ui/typography-p'
 import { requestMethods } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { parseAsString, useQueryState } from 'nuqs'
-import ParamsTab from './(request-option-tabs)/params-tab'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import BodyTab from './(request-option-tabs)/body-tab'
-import TypographyP from '@/components/ui/typography-p'
+import RequestBodyTab from './(request-option-tabs)/request-body-tab'
+import RequestParamsTab from './(request-option-tabs)/request-params-tab'
 
 const RequestOptionPanel = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest)
@@ -119,10 +119,10 @@ const RequestOptionPanel = () => {
         {request && (
           <>
             <TabsContent value="params">
-              <ParamsTab />
+              <RequestParamsTab />
             </TabsContent>
             <TabsContent value="body" className="mt-0">
-              <BodyTab />
+              <RequestBodyTab />
             </TabsContent>
             <TabsContent value="auth">
               {/* Your AuthTab component or content goes here */}

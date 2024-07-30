@@ -16,6 +16,7 @@ import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 import ResponseBodyTab from './(request-response-tabs)/response-body-tab'
+import ResponseHeadersTab from './(request-response-tabs)/response-headers-tab'
 
 const RequestResponsePanel = () => {
   const sendTrigger = useHypersomniaStore((state) => state.sendTrigger)
@@ -71,8 +72,13 @@ const RequestResponsePanel = () => {
             <TabsTrigger value="body" onClick={() => setTab('body')}>
               body
             </TabsTrigger>
-            <TabsTrigger value="headers" onClick={() => setTab('headers')}>
-              headers
+            <TabsTrigger
+              value="headers"
+              className="min-w-[104px]"
+              onClick={() => setTab('headers')}
+            >
+              headers (
+              {response?.headers ? Object.keys(response.headers).length : 0})
             </TabsTrigger>
             <TabsTrigger value="cookies" onClick={() => setTab('cookies')}>
               cookies
@@ -86,8 +92,8 @@ const RequestResponsePanel = () => {
             <TabsContent value="body" className="mt-0">
               <ResponseBodyTab />
             </TabsContent>
-            <TabsContent value="headers">
-              {/* Your AuthTab component or content goes here */}
+            <TabsContent value="headers" className="mt-0">
+              <ResponseHeadersTab />
             </TabsContent>
             <TabsContent value="cookies">
               {/* Your HeadersTab component or content goes here */}
