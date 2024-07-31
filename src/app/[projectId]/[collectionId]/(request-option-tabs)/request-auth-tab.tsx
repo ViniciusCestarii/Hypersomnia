@@ -14,6 +14,8 @@ import { AuthType } from '@/types/collection'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { Boxes, Code2, MoreHorizontal } from 'lucide-react'
 import BasicAuthInput from './(request-auth-input)/basic-auth-input'
+import { Checkbox } from '@/components/ui/checkbox'
+import BearerTokenAuthInput from './(request-auth-input)/bearer-token-input'
 
 interface AuthTypeOption {
   value: AuthType
@@ -46,6 +48,8 @@ const RequestAuthTab = () => {
     switch (authType) {
       case 'basic':
         return <BasicAuthInput />
+      case 'bearer token':
+        return <BearerTokenAuthInput />
       default:
         return null
     }
@@ -98,14 +102,24 @@ const RequestAuthTab = () => {
         </SelectContent>
       </Select>
       <Separator />
-      <div
-        className={cn(
-          'grid grid-cols-[100px_1fr] gap-x-2 gap-y-3 items-center px-3 py-2',
-          !request.auth?.enabled && 'opacity-50',
-        )}
-      >
-        {renderAuthInput()}
-      </div>
+      {authType !== 'none' && (
+        <div
+          className={cn(
+            'grid grid-cols-[100px_1fr] gap-x-2 gap-y-3 items-center px-3 py-2',
+            !request.auth?.enabled && 'opacity-50',
+          )}
+        >
+          <Label htmlFor="request-basic-auth-enabled">Enabled</Label>
+          <Checkbox
+            id="request-basic-auth-enabled"
+            checked={request.auth?.enabled}
+            onCheckedChange={(value) =>
+              updateRequestField('auth.enabled', value)
+            }
+          />
+          {renderAuthInput()}
+        </div>
+      )}
     </>
   )
 }

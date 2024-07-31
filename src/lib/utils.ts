@@ -1,5 +1,6 @@
 import {
   AuthBasic,
+  AuthBearerToken,
   FileSystemNode,
   FileSystemNode as FileSystemNodeType,
   MethodType,
@@ -336,6 +337,14 @@ export const getAuthConfig = ({
         Authorization: `Basic ${btoa(
           `${authData?.username ?? ''}:${authData?.password ?? ''}`,
         )}`,
+      }
+    }
+    case 'bearer token': {
+      const authData = auth.data as AuthBearerToken | undefined
+      return {
+        Authorization: `${
+          authData?.prefix || 'Bearer'
+        } ${authData?.token ?? ''}`,
       }
     }
     default:

@@ -1,4 +1,3 @@
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input, PasswordInput } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { AuthBasic } from '@/types/collection'
@@ -14,12 +13,6 @@ const BasicAuthInput = () => {
 
   return (
     <>
-      <Label htmlFor="request-basic-auth-enabled">Enabled</Label>
-      <Checkbox
-        id="request-basic-auth-enabled"
-        checked={request.auth?.enabled}
-        onCheckedChange={(value) => updateRequestField('auth.enabled', value)}
-      />
       <Label htmlFor="request-basic-auth-username">Username</Label>
       <Input
         id="request-basic-auth-username"
