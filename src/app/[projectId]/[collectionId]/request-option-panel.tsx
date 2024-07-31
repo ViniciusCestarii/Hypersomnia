@@ -19,6 +19,8 @@ import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { parseAsString, useQueryState } from 'nuqs'
 import RequestBodyTab from './(request-option-tabs)/request-body-tab'
 import RequestParamsTab from './(request-option-tabs)/request-params-tab'
+import RequestAuthTab from './(request-option-tabs)/request-auth-tab'
+import useDefineMonacoTheme from '@/hooks/useDefineMonacoTheme'
 
 const RequestOptionPanel = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest)
@@ -29,6 +31,8 @@ const RequestOptionPanel = () => {
   const updateRequestOptionField = useHypersomniaStore(
     (state) => state.updateRequestOptionField,
   )
+
+  useDefineMonacoTheme()
 
   const [tab, setTab] = useQueryState(
     'option-tab',
@@ -127,7 +131,7 @@ const RequestOptionPanel = () => {
               <RequestBodyTab />
             </TabsContent>
             <TabsContent value="auth">
-              {/* Your AuthTab component or content goes here */}
+              <RequestAuthTab />
             </TabsContent>
             <TabsContent value="headers">
               {/* Your HeadersTab component or content goes here */}
