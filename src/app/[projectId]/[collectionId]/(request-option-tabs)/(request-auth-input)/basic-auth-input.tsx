@@ -13,7 +13,7 @@ const BasicAuthInput = () => {
   const authData = request.auth?.data as AuthBasic | undefined
 
   return (
-    <div className="grid grid-cols-[100px_1fr] gap-x-2 gap-y-3 items-center px-3 py-2">
+    <>
       <Label htmlFor="request-basic-auth-enabled">Enabled</Label>
       <Checkbox
         id="request-basic-auth-enabled"
@@ -38,7 +38,7 @@ const BasicAuthInput = () => {
           updateRequestField('auth.data.password', e.target.value)
         }
       />
-    </div>
+    </>
   )
 }
 

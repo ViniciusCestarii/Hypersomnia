@@ -1,5 +1,3 @@
-import { Checkbox } from '@/components/ui/checkbox'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -11,7 +9,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { AuthBasic, AuthType } from '@/types/collection'
+import { cn } from '@/lib/utils'
+import { AuthType } from '@/types/collection'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { Boxes, Code2, MoreHorizontal } from 'lucide-react'
 import BasicAuthInput from './(request-auth-input)/basic-auth-input'
@@ -99,7 +98,14 @@ const RequestAuthTab = () => {
         </SelectContent>
       </Select>
       <Separator />
-      {renderAuthInput()}
+      <div
+        className={cn(
+          'grid grid-cols-[100px_1fr] gap-x-2 gap-y-3 items-center px-3 py-2',
+          !request.auth?.enabled && 'opacity-50',
+        )}
+      >
+        {renderAuthInput()}
+      </div>
     </>
   )
 }
