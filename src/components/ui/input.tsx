@@ -1,6 +1,8 @@
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
+import { EyeIcon, EyeOffIcon } from 'lucide-react'
+import { Button } from './button'
 
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement>
 
@@ -21,4 +23,39 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 )
 Input.displayName = 'Input'
 
-export { Input }
+const PasswordInput = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, ...props }, ref) => {
+    const [showPassword, setShowPassword] = React.useState(false)
+
+    const handlePasswordVisibilityToggle = () => {
+      setShowPassword((prev) => !prev)
+    }
+
+    return (
+      <div className="relative">
+        <Input
+          type={showPassword ? type : 'password'}
+          className={className}
+          ref={ref}
+          {...props}
+        />
+        <Button
+          size="icon"
+          variant="ghost"
+          className="absolute top-1/2 -translate-y-1/2 bg-background rounded-full right-1 flex items-center"
+          onClick={handlePasswordVisibilityToggle}
+        >
+          {showPassword ? (
+            <EyeOffIcon className="h-5 w-5" />
+          ) : (
+            <EyeIcon className="h-5 w-5" />
+          )}
+        </Button>
+      </div>
+    )
+  },
+)
+
+PasswordInput.displayName = 'PasswordInput'
+
+export { Input, PasswordInput }

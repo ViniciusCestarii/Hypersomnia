@@ -1,4 +1,5 @@
 import {
+  AuthBasic,
   FileSystemNode,
   FileSystemNode as FileSystemNodeType,
   MethodType,
@@ -9,6 +10,7 @@ import { twMerge } from 'tailwind-merge'
 
 import { html as beautifyHtml } from 'js-beautify'
 import { EditorProps } from '@monaco-editor/react'
+import { AxiosRequestConfig } from 'axios'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -320,4 +322,23 @@ export const timeAgo = (requestStartTime: number): string => {
     return minutes === 1 ? '1 minute ago' : `${minutes} minutes ago`
 
   return 'Just now'
+}
+
+export const getAuthConfig = ({
+  auth,
+}: Request): AxiosRequestConfig['headers'] => {
+  if (!auth?.enabled) return {}
+
+  switch (auth.type) {
+    case 'basic': {
+      const authData = auth.data as AuthBasic | undefined
+      return {
+        Authorization: `Basic ${btoa(
+          `${authData?.username ?? ''}:${authData?.password ?? ''}`,
+        )}`,
+      }
+    }
+    default:
+      return {}
+  }
 }

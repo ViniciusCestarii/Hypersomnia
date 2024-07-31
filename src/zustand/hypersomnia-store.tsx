@@ -35,7 +35,7 @@ type HypersomniaStore = {
   ) => void
   deleteQueryParam: (index: number) => void
   deleteAllParams: () => void
-  updateRequestField: (field: keyof Request, value: unknown) => void
+  updateRequestField: (field: string, value: unknown) => void
   updateRequestOptionField: (
     field: keyof Request['options'],
     value: unknown,
@@ -360,12 +360,19 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       const { selectedRequest } = state
       if (!selectedRequest) return state
 
-      const updatedRequest = {
-        ...selectedRequest,
-        [field]: value,
+      const keys = field.split('.')
+      const lastKey = keys.pop()
+      if (!lastKey) {
+        throw new Error('Invalid field')
       }
+      const nestedObject = keys.reduce((obj: any, key) => {
+        if (!obj[key]) obj[key] = {}
+        return obj[key]
+      }, selectedRequest)
 
-      state.updateSelectedRequest(updatedRequest)
+      nestedObject[lastKey] = value
+
+      state.updateSelectedRequest({ ...selectedRequest })
       return {}
     }),
   updateRequestOptionField: (field, value) =>

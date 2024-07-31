@@ -7,6 +7,7 @@ import useFetch from '@/hooks/useFetch'
 import useIsClient from '@/hooks/useIsClient'
 import {
   cn,
+  getAuthConfig,
   getBodyData,
   getRequestWithQueryParams,
   getStatusColor,
@@ -35,6 +36,10 @@ const RequestResponsePanel = () => {
     ...request,
     options: {
       ...request?.options,
+      headers: {
+        ...request?.options?.headers,
+        ...(request ? getAuthConfig(request) : {}),
+      },
       data: request ? getBodyData({ ...request }) : '',
       url: request ? getRequestWithQueryParams(request) : '',
     },

@@ -94,6 +94,9 @@ const RequestBodyTab = () => {
       <Select
         value={bodyType}
         onValueChange={(value) => {
+          if (value === 'none') {
+            updateRequestField('bodyContent', undefined)
+          }
           updateRequestField('bodyType', value)
         }}
       >

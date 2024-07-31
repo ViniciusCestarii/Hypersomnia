@@ -51,8 +51,9 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
         requestStartTime,
       })
     } catch (err) {
+      console.error(err)
+
       if (axios.isAxiosError(err)) {
-        console.log(err)
         const timeTaken =
           err.response?.headers['request-finish-time'] - requestStartTime
         delete err.response?.headers['request-finish-time']

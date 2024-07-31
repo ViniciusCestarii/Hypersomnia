@@ -130,7 +130,7 @@ const RequestOptionPanel = () => {
             <TabsContent value="body" className="mt-0">
               <RequestBodyTab />
             </TabsContent>
-            <TabsContent value="auth">
+            <TabsContent value="auth" className="mt-0">
               <RequestAuthTab />
             </TabsContent>
             <TabsContent value="headers">

@@ -35,29 +35,29 @@ export type QueryParameters = {
   enabled: boolean
 }
 
-type AuthType = 'basic' | 'bearer token'
+type AuthType = 'basic' | 'bearer token' | 'none'
 
 type AuthBasic = {
-  username: string
-  password: string
+  username?: string
+  password?: string
 }
 
 type AuthBearerToken = {
-  prefix: string
-  token: string
+  prefix?: string
+  token?: string
 }
 
 type Auth = {
   type: AuthType
   enabled: boolean
-  data: AuthBasic | AuthBearerToken
+  data?: AuthBasic | AuthBearerToken
 }
 
 export type Request = {
   url: string
   bodyType?: BodyType
   bodyContent?: string
-  auth?: AuthBearerToken | AuthBasic
+  auth?: Auth
   queryParameters: QueryParameters[]
   options: AxiosRequestConfig & OverrideAxiosRequestConfig
 }
