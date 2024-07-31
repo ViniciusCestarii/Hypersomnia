@@ -8,22 +8,32 @@ import RequestOptionPanel from './request-option-panel'
 import RequestResponsePanel from './request-response-panel'
 
 interface PanelsProps {
-  rcps?: number
-  rops?: number
-  rrps?: number
+  hypersomniaLeftPanelSize?: number
+  hypersomniaMiddlePanelSize?: number
+  hypersomniaRightPanelSize?: number
 }
 
-export default function Panels({ rcps, rops, rrps }: PanelsProps) {
+export default function Panels({
+  hypersomniaLeftPanelSize,
+  hypersomniaMiddlePanelSize,
+  hypersomniaRightPanelSize,
+}: PanelsProps) {
   const [requestCollectionPanelSize, setRequestCollectionPanelSize] =
-    useCookieStorage('rcps', rcps ?? 15)
+    useCookieStorage(
+      'hypersomnia_left_panel_size',
+      hypersomniaLeftPanelSize ?? 15,
+    )
 
   const [requestOptionPanelSize, setRequestOptionPanelSize] = useCookieStorage(
-    'rops',
-    rops ?? 60,
+    'hypersomnia_middle_panel_size',
+    hypersomniaMiddlePanelSize ?? 60,
   )
 
   const [requestResponsePanelSize, setrequestResponsePanelSize] =
-    useCookieStorage('rrps', rrps ?? 25)
+    useCookieStorage(
+      'hypersomnia_right_panel_size',
+      hypersomniaRightPanelSize ?? 25,
+    )
 
   return (
     <>

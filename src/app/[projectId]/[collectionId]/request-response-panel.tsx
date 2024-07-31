@@ -19,12 +19,14 @@ import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
 import ResponseBodyTab from './(request-response-tabs)/response-body-tab'
 import ResponseHeadersTab from './(request-response-tabs)/response-headers-tab'
+import ResponseCookiesTab from './(request-response-tabs)/response-cookies-tab'
 
 const RequestResponsePanel = () => {
   const sendTrigger = useHypersomniaStore((state) => state.sendTrigger)
   const request = useHypersomniaStore((state) => state.selectedRequest)
   const { timeTaken, requestStartTime, response, error, loading } =
     useHypersomniaStore((state) => state.requestFetchResult) ?? {}
+  const cookies = useHypersomniaStore((state) => state.cookies)
 
   const [tab, setTab] = useQueryState(
     'response-tab',
@@ -111,8 +113,12 @@ const RequestResponsePanel = () => {
               headers (
               {response?.headers ? Object.keys(response.headers).length : 0})
             </TabsTrigger>
-            <TabsTrigger value="cookies" onClick={() => setTab('cookies')}>
-              cookies
+            <TabsTrigger
+              value="cookies"
+              className="min-w-[100px]"
+              onClick={() => setTab('cookies')}
+            >
+              cookies ({cookies.length})
             </TabsTrigger>
             <ScrollBar orientation="horizontal" />
           </TabsList>
@@ -128,7 +134,7 @@ const RequestResponsePanel = () => {
                 <ResponseHeadersTab />
               </TabsContent>
               <TabsContent value="cookies">
-                {/* Your HeadersTab component or content goes here */}
+                <ResponseCookiesTab />
               </TabsContent>
             </>
           )}

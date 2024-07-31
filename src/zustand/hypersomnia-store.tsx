@@ -1,6 +1,7 @@
 import { findSystemNodeByPath, updateRequestInFileSystem } from '@/lib/utils'
 import {
   Collection,
+  Cookie,
   QueryParameters,
   Request,
   RequestFetchResult,
@@ -8,6 +9,7 @@ import {
 import { create, StateCreator } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { CreateProject, Project } from '../types/project'
+import { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 
 type HypersomniaStore = {
   projects: Project[]
@@ -40,6 +42,8 @@ type HypersomniaStore = {
     field: keyof Request['options'],
     value: unknown,
   ) => void
+  cookies: Cookie[]
+  setCookies: (cookies: Cookie[]) => void
 }
 
 const initialProjects: Project[] = [
@@ -194,6 +198,16 @@ const initialProjects: Project[] = [
               },
             },
           },
+          {
+            name: 'Get Cookie',
+            request: {
+              url: 'https://yummy-cookies.vercel.app',
+              queryParameters: [],
+              options: {
+                method: 'get',
+              },
+            },
+          },
         ],
       },
       {
@@ -297,6 +311,8 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       return { selectedRequest, selectedRequestPath: path }
     })
   },
+  cookies: [],
+  setCookies: (cookies) => set({ cookies }),
   requestFetchResult: null,
   sendTrigger: undefined,
   sendRequest: () =>
@@ -411,7 +427,7 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
     }),
 })
 
-const keysToIgnore = ['sendTrigger']
+const keysToIgnore = ['sendTrigger', 'cookies']
 
 export const useHypersomniaStore = create<HypersomniaStore>()(
   persist(hypersomniaStateCreator, {

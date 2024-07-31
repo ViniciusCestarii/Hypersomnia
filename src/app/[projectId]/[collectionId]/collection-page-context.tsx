@@ -3,7 +3,7 @@
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import React, { useEffect } from 'react'
 import { ApiToolProps } from './page'
-import { findFileByPath } from '@/lib/utils'
+import { findFileByPath, getCookies } from '@/lib/utils'
 
 interface CollectionPageContextProps extends ApiToolProps {
   children: React.ReactNode
@@ -26,6 +26,7 @@ const CollectionPageContext = ({
   const selectedRequestPath = useHypersomniaStore(
     (state) => state.selectedRequestPath,
   )
+  const setCookies = useHypersomniaStore((state) => state.setCookies)
 
   useEffect(() => {
     selectProject(params.projectId)
@@ -48,6 +49,10 @@ const CollectionPageContext = ({
       }
     }
   }, [collection, selectCollection, selectedRequestPath])
+
+  useEffect(() => {
+    setCookies(getCookies())
+  }, [setCookies])
 
   return children
 }

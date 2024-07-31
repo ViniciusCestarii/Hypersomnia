@@ -1,3 +1,4 @@
+import { getCookies } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import axios, { AxiosRequestConfig } from 'axios'
 import { useCallback, useEffect } from 'react'
@@ -29,6 +30,7 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
   const requestFetchResult = useHypersomniaStore(
     (state) => state.requestFetchResult,
   )
+  const setCookies = useHypersomniaStore((state) => state.setCookies)
 
   const fetchData = useCallback(async () => {
     if (!url || !options) {
@@ -76,8 +78,10 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
           requestStartTime,
         })
       }
+    } finally {
+      setCookies(getCookies())
     }
-  }, [url, options, setRequestFetchResult, requestFetchResult])
+  }, [url, options, setRequestFetchResult, requestFetchResult, setCookies])
 
   useEffect(() => {
     if (enabled) {

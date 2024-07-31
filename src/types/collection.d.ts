@@ -78,4 +78,9 @@ export type RequestFetchResult = {
   loading?: boolean
 }
 
+export type Cookie = {
+  name: string
+  value: string
+}
+
 export type CreateCollection = Omit<Collection, 'id'>

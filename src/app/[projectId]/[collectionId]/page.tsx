@@ -11,9 +11,9 @@ export interface ApiToolProps {
 }
 
 export default function ApiTool(props: ApiToolProps) {
-  const rcps = getCookie('rcps')
-  const rops = getCookie('rops')
-  const rrps = getCookie('rrps')
+  const hypersomniaLeftPanelSize = getCookie('hypersomnia_left_panel_size')
+  const hypersomniaMiddlePanelSize = getCookie('hypersomnia_middle_panel_size')
+  const hypersomniaRightPanelSize = getCookie('hypersomnia_right_panel_size')
 
   return (
     <ResizablePanelGroup
@@ -21,7 +21,11 @@ export default function ApiTool(props: ApiToolProps) {
       className="flex flex-1 rounded-lg border"
     >
       <CollectionPageContext {...props}>
-        <Panels rcps={rcps} rops={rops} rrps={rrps} />
+        <Panels
+          hypersomniaLeftPanelSize={hypersomniaLeftPanelSize}
+          hypersomniaMiddlePanelSize={hypersomniaMiddlePanelSize}
+          hypersomniaRightPanelSize={hypersomniaRightPanelSize}
+        />
       </CollectionPageContext>
     </ResizablePanelGroup>
   )

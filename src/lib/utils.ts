@@ -1,6 +1,7 @@
 import {
   AuthBasic,
   AuthBearerToken,
+  Cookie,
   FileSystemNode,
   FileSystemNode as FileSystemNodeType,
   MethodType,
@@ -350,4 +351,24 @@ export const getAuthConfig = ({
     default:
       return {}
   }
+}
+
+export const getCookies = (): Cookie[] => {
+  const ignoreMyCookies = [
+    'hypersomnia_left_panel_size',
+    'hypersomnia_middle_panel_size',
+    'hypersomnia_right_panel_size',
+  ]
+
+  const cookies = document.cookie.split(';')
+  const result: Cookie[] = []
+
+  cookies.forEach((cookie) => {
+    const [name, value] = cookie.split('=').map((part) => part.trim())
+    if (ignoreMyCookies.filter((ignore) => ignore === name).length === 0) {
+      result.push({ name, value })
+    }
+  })
+
+  return result
 }
