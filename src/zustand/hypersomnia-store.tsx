@@ -176,6 +176,24 @@ const initialProjects: Project[] = [
               },
             },
           },
+          {
+            name: 'Test Basic Auth',
+            request: {
+              url: 'https://httpbin.org/basic-auth/user/pass',
+              queryParameters: [],
+              auth: {
+                type: 'basic',
+                enabled: true,
+                data: {
+                  username: 'user',
+                  password: 'pass',
+                },
+              },
+              options: {
+                method: 'get',
+              },
+            },
+          },
         ],
       },
       {

@@ -10,7 +10,7 @@ interface BodyDataType {
 
 const getDataText = (data: unknown): BodyDataType | undefined => {
   if (typeof data === 'string' && data.length > 0) {
-    if (data.trimStart().startsWith('<!DOCTYPE html>')) {
+    if (data.trimStart().toUpperCase().startsWith('<!DOCTYPE HTML')) {
       return {
         text: formatHtmlContent(data),
         type: 'html',
