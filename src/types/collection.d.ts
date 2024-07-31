@@ -52,7 +52,7 @@ export type Collection = {
 
 export type RequestFetchResult = {
   data?: unknown | null
-  timeTaken?: string | null
+  timeTaken?: number | null
   requestStartTime?: number | null
   response?: AxiosResponse<unknown> | null
   error?: Error | null

@@ -31,29 +31,24 @@ const getDataText = (data: unknown): BodyDataType | undefined => {
 }
 
 const ResponseBodyTab = () => {
-  const { data, error, loading } =
+  const { data } =
     useHypersomniaStore((state) => state.requestFetchResult) ?? {}
 
   const dataText = getDataText(data)
 
+  if (!dataText) {
+    return null
+  }
+
   return (
-    <div className="relative h-[80vh]">
-      {loading && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center bg-background/35 z-50">
-          Loading...
-        </div>
-      )}
-      {!error && dataText && (
-        <Editor
-          language={dataText.type}
-          value={dataText.text}
-          options={{
-            readOnly: true,
-            domReadOnly: true,
-          }}
-        />
-      )}
-    </div>
+    <Editor
+      language={dataText.type}
+      value={dataText.text}
+      options={{
+        readOnly: true,
+        domReadOnly: true,
+      }}
+    />
   )
 }
 

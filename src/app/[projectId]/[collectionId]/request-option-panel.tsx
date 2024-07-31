@@ -37,7 +37,7 @@ const RequestOptionPanel = () => {
 
   return (
     <div className="flex flex-col flex-1">
-      <PanelHeaderContainer className="pl-0">
+      <PanelHeaderContainer className="px-0">
         {request && (
           <div className="flex relative max-w-full w-full items-center">
             <Label className="sr-only" htmlFor="request-method">
@@ -75,15 +75,17 @@ const RequestOptionPanel = () => {
               value={request.url}
               className="font-semibold shrink mr-16 border-0 shadow-none focus-visible:ring-0 pl-0"
             />
-            <Button
-              onClick={sendRequest}
-              aria-label="send"
-              title="send"
-              variant="default"
-              className="h-6 absolute right-0 -translate-y-1/2 top-1/2"
-            >
-              Send
-            </Button>
+            <div className="absolute right-0 pr-2 bg-background">
+              <Button
+                onClick={sendRequest}
+                aria-label="send"
+                title="send"
+                variant="default"
+                className="h-6"
+              >
+                Send
+              </Button>
+            </div>
           </div>
         )}
       </PanelHeaderContainer>

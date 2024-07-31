@@ -7,29 +7,16 @@ interface UseFetchProps {
   enabled?: boolean
 }
 
-const calculateTimeTaken = (startTime: number) => {
-  return (new Date().getTime() - startTime).toFixed(0)
-}
-
 const customAxios = axios.create()
-
-customAxios.interceptors.request.use((config) => {
-  config.headers['request-startTime'] = new Date().getTime()
-  return config
-})
 
 customAxios.interceptors.response.use(
   (response) => {
-    const startTime = response.config.headers['request-startTime']
-    response.headers['request-duration'] = calculateTimeTaken(startTime)
-    response.headers['request-startTime'] = startTime
+    response.headers['request-finish-time'] = new Date().getTime()
     return response
   },
   (error) => {
-    const startTime = error.config?.headers['request-startTime']
-    if (startTime) {
-      error.response.headers['request-duration'] = calculateTimeTaken(startTime)
-      error.response.headers['request-startTime'] = startTime
+    if (error.response) {
+      error.response.headers['request-finish-time'] = new Date().getTime()
     }
     return Promise.reject(error)
   },
@@ -48,13 +35,13 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
       return
     }
     setRequestFetchResult({ ...requestFetchResult, loading: true })
+    const requestStartTime = new Date().getTime()
 
     try {
       const response = await customAxios(options)
-      const timeTaken = response.headers['request-duration']
-      const requestStartTime = response.headers['request-startTime']
-      delete response.headers['request-duration']
-      delete response.headers['request-startTime']
+      const timeTaken =
+        response.headers['request-finish-time'] - requestStartTime
+      delete response.headers['request-finish-time']
       setRequestFetchResult({
         data: response.data,
         error: null,
@@ -65,16 +52,26 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
       })
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        const timeTaken = err.response?.headers['request-duration']
-        const requestStartTime = err.response?.headers['request-startTime']
-        delete err.response?.headers['request-duration']
-        delete err.response?.headers['request-startTime']
+        console.log(err)
+        const timeTaken =
+          err.response?.headers['request-finish-time'] - requestStartTime
+        delete err.response?.headers['request-finish-time']
+
         setRequestFetchResult({
-          data: null,
+          data: err.response?.data ?? null,
           error: err,
           loading: false,
-          response: err.response || null,
-          timeTaken,
+          response: err.response ?? null,
+          timeTaken: Number.isNaN(timeTaken) ? null : timeTaken,
+          requestStartTime,
+        })
+      } else {
+        setRequestFetchResult({
+          data: null,
+          error: err as Error,
+          loading: false,
+          response: null,
+          timeTaken: null,
           requestStartTime,
         })
       }

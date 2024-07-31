@@ -22,7 +22,7 @@ import ResponseHeadersTab from './(request-response-tabs)/response-headers-tab'
 const RequestResponsePanel = () => {
   const sendTrigger = useHypersomniaStore((state) => state.sendTrigger)
   const request = useHypersomniaStore((state) => state.selectedRequest)
-  const { timeTaken, requestStartTime, response } =
+  const { timeTaken, requestStartTime, response, error, loading } =
     useHypersomniaStore((state) => state.requestFetchResult) ?? {}
 
   const [tab, setTab] = useQueryState(
@@ -53,23 +53,42 @@ const RequestResponsePanel = () => {
   return (
     <div>
       <PanelHeaderContainer>
-        {response && (
-          <>
+        <>
+          {response ? (
             <span
+              title={httpStatusCodes[response.status]}
               className={cn(
                 'font-semibold text-nowrap',
-                getStatusColor(response.status),
+                getStatusColor(response?.status),
               )}
             >
-              {response.status} {httpStatusCodes[response.status]}
+              {`${response.status} ${httpStatusCodes[response.status]}`}
             </span>
-            <span className="mx-2 text-nowrap">{timeTaken + 'ms'}</span>
-            {requestStartTime && (
-              <>
-                <Separator orientation="vertical" className="ml-auto" />
-                <TimeAgo requestStartTime={requestStartTime} />
-              </>
-            )}
+          ) : (
+            error && (
+              <span
+                className={cn(
+                  'font-semibold text-nowrap',
+                  getStatusColor(response?.status),
+                )}
+                title={`${error.message} could be due to CORS policy, network
+                    connection, bad DNS, or others issues`}
+              >
+                {error.message}
+              </span>
+            )
+          )}
+          {typeof timeTaken !== 'undefined' && (
+            <span className="mx-2 text-nowrap">
+              {(timeTaken?.toFixed(0) ?? 0) + 'ms'}
+            </span>
+          )}
+        </>
+
+        {requestStartTime && (
+          <>
+            <Separator orientation="vertical" className="ml-auto" />
+            <TimeAgo requestStartTime={requestStartTime} />
           </>
         )}
       </PanelHeaderContainer>
@@ -94,19 +113,26 @@ const RequestResponsePanel = () => {
           </TabsList>
         </ScrollArea>
         <Separator className="w-full" />
-        {request && (
-          <>
-            <TabsContent value="body" className="mt-0">
-              <ResponseBodyTab />
-            </TabsContent>
-            <TabsContent value="headers" className="mt-0">
-              <ResponseHeadersTab />
-            </TabsContent>
-            <TabsContent value="cookies">
-              {/* Your HeadersTab component or content goes here */}
-            </TabsContent>
-          </>
-        )}
+        <div className="relative h-[80vh]">
+          {request && (
+            <>
+              <TabsContent value="body" className="mt-0">
+                <ResponseBodyTab />
+              </TabsContent>
+              <TabsContent value="headers" className="mt-0">
+                <ResponseHeadersTab />
+              </TabsContent>
+              <TabsContent value="cookies">
+                {/* Your HeadersTab component or content goes here */}
+              </TabsContent>
+            </>
+          )}
+          {loading && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center bg-background/35 z-50">
+              Loading...
+            </div>
+          )}
+        </div>
       </Tabs>
     </div>
   )
