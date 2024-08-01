@@ -45,19 +45,25 @@ type HypersomniaStore = {
   setCookies: (cookies: Cookie[]) => void
 }
 
-const testMd = `### Hypersomnia
+const testMd = `# Hypersomnia
 
 ## Test 
 
-# markdown
+### markdown
 
 A paragraph with *emphasis* and **strong importance**.
 
 > A block quote with ~strikethrough~ and a URL: https://reactjs.org.
 
-* Lists
+### Bulleted Lists
+
 * [ ] todo
 * [x] done
+
+### Numbered List
+
+1. one
+2. two
 
 A table:
 

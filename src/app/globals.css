@@ -80,6 +80,13 @@
   text-decoration: underline;
 }
 
+.markdown blockquote {
+  padding: 0.5rem;
+  margin-right: 0px;
+  border-left: 4px solid hsl(var(--border));
+  background-color: hsl(var(--muted));
+}
+
 .markdown table {
   width: 100%;
   border-collapse: collapse;
