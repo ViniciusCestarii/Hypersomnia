@@ -40,7 +40,7 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
     const requestStartTime = new Date().getTime()
 
     try {
-      const response = await customAxios(options)
+      const response = await customAxios({ ...options, withCredentials: true })
       const timeTaken =
         response.headers['request-finish-time'] - requestStartTime
       delete response.headers['request-finish-time']

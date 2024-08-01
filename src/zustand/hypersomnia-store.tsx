@@ -9,7 +9,6 @@ import {
 import { create, StateCreator } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { CreateProject, Project } from '../types/project'
-import { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 
 type HypersomniaStore = {
   projects: Project[]
