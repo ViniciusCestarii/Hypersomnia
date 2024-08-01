@@ -7,8 +7,10 @@ import ClipboardButton from '@/components/ui/panel/clipboard-button'
 import TypographyH3 from '@/components/ui/Typography-h3'
 import { cn, getRequestWithQueryParams } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
-import { AlertTriangle, Plus, Trash } from 'lucide-react'
-import { useState } from 'react'
+import { AlertTriangle, GripVertical, Plus, Trash } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, Reorder } from 'framer-motion'
+import { QueryParameters } from '@/types/collection'
 
 const RequestParamsTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
@@ -47,7 +49,31 @@ const QueryParametersSection = () => {
   const deleteQueryParam = useHypersomniaStore(
     (state) => state.deleteQueryParam,
   )
+  const updateRequestField = useHypersomniaStore(
+    (state) => state.updateRequestField,
+  )
   const deleteAllParams = useHypersomniaStore((state) => state.deleteAllParams)
+
+  const [localQueryParamsId, setLocalQueryParamsId] = useState(
+    request.queryParameters?.map((param) => param.id) ?? [],
+  )
+
+  const handleReorder = (newOrder: string[]) => {
+    setLocalQueryParamsId(newOrder)
+  }
+
+  const handleSaveReorder = () => {
+    const reorderedParams = localQueryParamsId
+      .map((id) => request.queryParameters.find((param) => param.id === id))
+      .filter((param) => param !== undefined)
+
+    console.log(reorderedParams)
+    updateRequestField('queryParameters', reorderedParams)
+  }
+
+  useEffect(() => {
+    setLocalQueryParamsId(request.queryParameters.map((param) => param.id))
+  }, [request.queryParameters])
 
   return (
     <>
@@ -74,69 +100,96 @@ const QueryParametersSection = () => {
           iconSize={12}
         />
       </div>
-      {request.queryParameters?.map((param, index) => {
-        const keyInputId = `param-key-${index}`
-        const valueInputId = `param-value-${index}`
-        const checkboxId = `param-enabled-${index}`
-        return (
-          <div
-            key={index}
-            className={cn('flex items-center', !param.enabled && 'opacity-50')}
-          >
-            <Label className="sr-only" htmlFor={keyInputId}>
-              Key
-            </Label>
-            <Input
-              id={keyInputId}
-              type="text"
-              value={param.key ?? ''}
-              className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
-              placeholder="key"
-              onChange={(e) =>
-                updateQueryParamField(index, 'key', e.target.value)
-              }
-            />
-            <Label className="sr-only" htmlFor={valueInputId}>
-              Value
-            </Label>
-            <Input
-              id={valueInputId}
-              type="text"
-              value={param.value ?? ''}
-              className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
-              placeholder="value"
-              onChange={(e) =>
-                updateQueryParamField(index, 'value', e.target.value)
-              }
-            />
-            <DeleteConfirmationButton
-              onConfirm={() => deleteQueryParam(index)}
-              aria-label="delete query parameter"
-              title="delete query parameter"
-              className="rounded-none h-9 flex items-center"
-              iconSize={12}
-            />
-            <div className="rounded-none h-9 flex items-center hover:bg-accent px-3">
-              <Label className="sr-only" htmlFor={checkboxId}>
-                Enabled
-              </Label>
-              <Checkbox
-                id={checkboxId}
-                aria-label={
-                  param.enabled ? 'disable query param' : 'enable query param'
-                }
-                title={
-                  param.enabled ? 'disable query param' : 'enable query param'
-                }
-                checked={param.enabled}
-                onCheckedChange={(checked) =>
-                  updateQueryParamField(index, 'enabled', checked)
-                }
-              />
-            </div>
-          </div>
-        )
-      })}
+      <Reorder.Group
+        axis="y"
+        values={localQueryParamsId}
+        onReorder={handleReorder}
+        onDragEnd={handleSaveReorder}
+      >
+        <AnimatePresence initial={false}>
+          {localQueryParamsId.map((id, index) => {
+            const keyInputId = `param-key-${index}`
+            const valueInputId = `param-value-${index}`
+            const checkboxId = `param-enabled-${index}`
+            const param = request.queryParameters.find((p) => p.id === id)
+            if (!param) return null
+            return (
+              <Reorder.Item
+                key={id}
+                value={id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: 0.15 },
+                }}
+                exit={{ opacity: 0, y: 20, transition: { duration: 0.3 } }}
+                whileDrag={{ backgroundColor: 'hsl(var(--muted))' }}
+                className={cn(
+                  'flex items-center',
+                  !param.enabled && 'opacity-50',
+                )}
+              >
+                <Label className="sr-only" htmlFor={keyInputId}>
+                  Key
+                </Label>
+                <Input
+                  id={keyInputId}
+                  type="text"
+                  value={param.key ?? ''}
+                  className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
+                  placeholder="key"
+                  onChange={(e) =>
+                    updateQueryParamField(index, 'key', e.target.value)
+                  }
+                />
+                <Label className="sr-only" htmlFor={valueInputId}>
+                  Value
+                </Label>
+                <Input
+                  id={valueInputId}
+                  type="text"
+                  value={param.value ?? ''}
+                  className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
+                  placeholder="value"
+                  onChange={(e) =>
+                    updateQueryParamField(index, 'value', e.target.value)
+                  }
+                />
+                <DeleteConfirmationButton
+                  onConfirm={() => deleteQueryParam(index)}
+                  aria-label="delete query parameter"
+                  title="delete query parameter"
+                  className="rounded-none h-9 flex items-center"
+                  iconSize={12}
+                />
+                <div className="rounded-none h-9 flex items-center hover:bg-accent px-3">
+                  <Label className="sr-only" htmlFor={checkboxId}>
+                    Enabled
+                  </Label>
+                  <Checkbox
+                    id={checkboxId}
+                    aria-label={
+                      param.enabled
+                        ? 'disable query param'
+                        : 'enable query param'
+                    }
+                    title={
+                      param.enabled
+                        ? 'disable query param'
+                        : 'enable query param'
+                    }
+                    checked={param.enabled}
+                    onCheckedChange={(checked) =>
+                      updateQueryParamField(index, 'enabled', checked)
+                    }
+                  />
+                </div>
+              </Reorder.Item>
+            )
+          })}
+        </AnimatePresence>
+      </Reorder.Group>
     </>
   )
 }

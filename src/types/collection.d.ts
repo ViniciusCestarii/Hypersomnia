@@ -30,6 +30,7 @@ type OverrideAxiosRequestConfig = {
 }
 
 export type QueryParameters = {
+  id: string
   key?: string
   value?: string
   enabled: boolean
