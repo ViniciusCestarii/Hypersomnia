@@ -113,13 +113,15 @@ const RequestResponsePanel = () => {
               headers (
               {response?.headers ? Object.keys(response.headers).length : 0})
             </TabsTrigger>
-            <TabsTrigger
-              value="cookies"
-              className="min-w-[100px]"
-              onClick={() => setTab('cookies')}
-            >
-              cookies ({cookies.length})
-            </TabsTrigger>
+            {!process.env.NEXT_PUBLIC_IS_RUNNING_REMOTELY && (
+              <TabsTrigger
+                value="cookies"
+                className="min-w-[100px]"
+                onClick={() => setTab('cookies')}
+              >
+                cookies ({cookies.length})
+              </TabsTrigger>
+            )}
             <ScrollBar orientation="horizontal" />
           </TabsList>
         </ScrollArea>
@@ -133,8 +135,11 @@ const RequestResponsePanel = () => {
               <TabsContent value="headers" className="mt-0">
                 <ResponseHeadersTab />
               </TabsContent>
-              <TabsContent value="cookies">
-                <ResponseCookiesTab />
+
+              <TabsContent value="cookies" className="mt-0">
+                {!process.env.NEXT_PUBLIC_IS_RUNNING_REMOTELY && (
+                  <ResponseCookiesTab />
+                )}
               </TabsContent>
             </>
           )}

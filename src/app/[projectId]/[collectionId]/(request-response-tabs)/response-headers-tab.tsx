@@ -15,11 +15,7 @@ const ResponseHeadersTab = () => {
     useHypersomniaStore((state) => state.requestFetchResult) ?? {}
 
   return (
-    <div
-      style={{
-        borderRadius: '0.5rem',
-      }}
-    >
+    <>
       <Table className="w-full">
         <TableHeader>
           <TableRow className="uppercase text-sm">
@@ -43,7 +39,7 @@ const ResponseHeadersTab = () => {
           <Terminal className="size-4" />
           <AlertTitle>Some headers may not be displayed</AlertTitle>
           <AlertDescription className="text-xs">
-            please check the Network tab in your browser&apos;s developer tools.{' '}
+            Please check the Network tab in your browser&apos;s developer tools.{' '}
             <a
               href="https://developer.mozilla.org/docs/Web/HTTP/Headers/Access-Control-Expose-Headers"
               className="underline"
@@ -55,7 +51,7 @@ const ResponseHeadersTab = () => {
           </AlertDescription>
         </Alert>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -18,7 +18,7 @@ const RequestParamsTab = () => {
 
   return (
     <>
-      <Alert className="bg-foreground/5 overflow-auto w-[calc(100%_-_1rem)] mx-2">
+      <Alert className="bg-foreground/5">
         <AlertTitle className="uppercase text-xs text-foreground/75 ">
           URL preview
         </AlertTitle>

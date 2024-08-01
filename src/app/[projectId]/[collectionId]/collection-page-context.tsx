@@ -30,6 +30,12 @@ const CollectionPageContext = ({
 
   useEffect(() => {
     selectProject(params.projectId)
+    useHypersomniaStore.setState((state) => ({
+      requestFetchResult: {
+        ...state.requestFetchResult,
+        loading: false,
+      },
+    }))
   }, [params.projectId, selectProject])
 
   useEffect(() => {
