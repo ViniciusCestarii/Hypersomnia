@@ -71,3 +71,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+.markdown > * {
+  all: revert;
+}
+
+.markdown a {
+  text-decoration: underline;
+}
+
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.markdown th, .markdown td {
+  padding: 0.5rem;
+  border: 1px solid hsl(var(--border));
+}

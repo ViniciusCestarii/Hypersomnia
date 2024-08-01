@@ -21,6 +21,7 @@ import RequestBodyTab from './(request-option-tabs)/request-body-tab'
 import RequestParamsTab from './(request-option-tabs)/request-params-tab'
 import RequestAuthTab from './(request-option-tabs)/request-auth-tab'
 import useDefineMonacoTheme from '@/hooks/useDefineMonacoTheme'
+import RequestDocsTab from './(request-option-tabs)/request-docs-tab'
 
 const RequestOptionPanel = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest)
@@ -112,9 +113,6 @@ const RequestOptionPanel = () => {
             <TabsTrigger value="headers" onClick={() => setTab('headers')}>
               headers
             </TabsTrigger>
-            <TabsTrigger value="scripts" onClick={() => setTab('scripts')}>
-              scripts
-            </TabsTrigger>
             <TabsTrigger value="docs" onClick={() => setTab('docs')}>
               docs
             </TabsTrigger>
@@ -136,11 +134,8 @@ const RequestOptionPanel = () => {
             <TabsContent value="headers">
               {/* Your HeadersTab component or content goes here */}
             </TabsContent>
-            <TabsContent value="scripts">
-              {/* Your ScriptsTab component or content goes here */}
-            </TabsContent>
-            <TabsContent value="docs">
-              {/* Your DocsTab component or content goes here */}
+            <TabsContent value="docs" className="mt-0">
+              <RequestDocsTab />
             </TabsContent>
           </>
         )}

@@ -45,6 +45,28 @@ type HypersomniaStore = {
   setCookies: (cookies: Cookie[]) => void
 }
 
+const testMd = `### Hypersomnia
+
+## Test 
+
+# markdown
+
+A paragraph with *emphasis* and **strong importance**.
+
+> A block quote with ~strikethrough~ and a URL: https://reactjs.org.
+
+* Lists
+* [ ] todo
+* [x] done
+
+A table:
+
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+| Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 |
+| Row 2, Column 1 | Row 2, Column 2 | Row 2, Column 3 |
+| Row 3, Column 1 | Row 3, Column 2 | Row 3, Column 3 |`
+
 const initialProjects: Project[] = [
   {
     id: 'project-1',
@@ -68,6 +90,7 @@ const initialProjects: Project[] = [
                     name: 'request 1',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/posts',
+                      doc: testMd,
                       queryParameters: [
                         {
                           key: 'userId',

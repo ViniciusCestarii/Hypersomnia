@@ -58,6 +58,7 @@ export type Request = {
   bodyType?: BodyType
   bodyContent?: string
   auth?: Auth
+  doc?: string
   queryParameters: QueryParameters[]
   options: AxiosRequestConfig & OverrideAxiosRequestConfig
 }
