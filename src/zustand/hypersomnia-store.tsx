@@ -45,7 +45,7 @@ type HypersomniaStore = {
   setCookies: (cookies: Cookie[]) => void
 }
 
-const testMd = `# Hypersomnia
+const testMd = `# Hypersomnia ☀
 
 ## Test 
 

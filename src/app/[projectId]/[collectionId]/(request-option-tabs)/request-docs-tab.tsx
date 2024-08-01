@@ -21,8 +21,8 @@ const RequestDocsTab = () => {
           <TabsTrigger value="preview" className="w-1/2">
             preview
           </TabsTrigger>
-          <ScrollBar orientation="horizontal" />
         </TabsList>
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
       <Separator className="w-full" />
       <TabsContent value="write" className="mt-0">
@@ -33,11 +33,18 @@ const RequestDocsTab = () => {
         />
       </TabsContent>
       <TabsContent value="preview" className="mt-0">
-        <Markdown className="markdown pl-3" remarkPlugins={[remarkGfm]}>
-          {request?.doc && request.doc.trimStart().length > 0
-            ? request.doc
-            : 'No content'}
-        </Markdown>
+        <ScrollArea type="auto">
+          <Markdown
+            className="markdown pl-3 max-h-[75vh]"
+            remarkPlugins={[remarkGfm]}
+          >
+            {request?.doc && request.doc.trimStart().length > 0
+              ? request.doc
+              : 'No content'}
+          </Markdown>
+          <ScrollBar orientation="horizontal" />
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
       </TabsContent>
     </Tabs>
   )
