@@ -7,8 +7,27 @@ import ClipboardButton from '@/components/ui/panel/clipboard-button'
 import TypographyH3 from '@/components/ui/Typography-h3'
 import { cn, getRequestWithQueryParams } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
-import { AlertTriangle, Plus, Trash } from 'lucide-react'
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { AlertTriangle, GripVertical, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 const RequestParamsTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
@@ -41,13 +60,40 @@ const RequestParamsTab = () => {
 const QueryParametersSection = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
   const addQueryParam = useHypersomniaStore((state) => state.addQueryParam)
-  const updateQueryParamField = useHypersomniaStore(
-    (state) => state.updateQueryParamField,
-  )
-  const deleteQueryParam = useHypersomniaStore(
-    (state) => state.deleteQueryParam,
+  const updateRequestField = useHypersomniaStore(
+    (state) => state.updateRequestField,
   )
   const deleteAllParams = useHypersomniaStore((state) => state.deleteAllParams)
+  const handleSaveReorder = (newOrder: string[]) => {
+    const reorderedParams = newOrder
+      .map((id) => request.queryParameters.find((param) => param.id === id))
+      .filter((param) => param !== undefined)
+
+    updateRequestField('queryParameters', reorderedParams)
+  }
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  )
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+
+    if (!over) return
+
+    if (active.id !== over.id) {
+      const items = request.queryParameters.map((p) => p.id)
+      const oldIndex = items.indexOf(active.id.toString())
+      const newIndex = items.indexOf(over.id.toString())
+
+      handleSaveReorder(arrayMove(items, oldIndex, newIndex))
+    }
+  }
+
+  const localQueryParamsId = request.queryParameters.map((p) => p.id)
 
   return (
     <>
@@ -74,70 +120,132 @@ const QueryParametersSection = () => {
           iconSize={12}
         />
       </div>
-      {request.queryParameters?.map((param, index) => {
-        const keyInputId = `param-key-${index}`
-        const valueInputId = `param-value-${index}`
-        const checkboxId = `param-enabled-${index}`
-        return (
-          <div
-            key={index}
-            className={cn('flex items-center', !param.enabled && 'opacity-50')}
+      <ScrollArea type="auto">
+        <ul className="min-w-60 max-h-[60vh] py-[1px]">
+          <DndContext
+            modifiers={[restrictToVerticalAxis]}
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            <Label className="sr-only" htmlFor={keyInputId}>
-              Key
-            </Label>
-            <Input
-              id={keyInputId}
-              type="text"
-              value={param.key ?? ''}
-              className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
-              placeholder="key"
-              onChange={(e) =>
-                updateQueryParamField(index, 'key', e.target.value)
-              }
-            />
-            <Label className="sr-only" htmlFor={valueInputId}>
-              Value
-            </Label>
-            <Input
-              id={valueInputId}
-              type="text"
-              value={param.value ?? ''}
-              className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
-              placeholder="value"
-              onChange={(e) =>
-                updateQueryParamField(index, 'value', e.target.value)
-              }
-            />
-            <DeleteConfirmationButton
-              onConfirm={() => deleteQueryParam(index)}
-              aria-label="delete query parameter"
-              title="delete query parameter"
-              className="rounded-none h-9 flex items-center"
-              iconSize={12}
-            />
-            <div className="rounded-none h-9 flex items-center hover:bg-accent px-3">
-              <Label className="sr-only" htmlFor={checkboxId}>
-                Enabled
-              </Label>
-              <Checkbox
-                id={checkboxId}
-                aria-label={
-                  param.enabled ? 'disable query param' : 'enable query param'
-                }
-                title={
-                  param.enabled ? 'disable query param' : 'enable query param'
-                }
-                checked={param.enabled}
-                onCheckedChange={(checked) =>
-                  updateQueryParamField(index, 'enabled', checked)
-                }
-              />
-            </div>
-          </div>
-        )
-      })}
+            <SortableContext
+              items={localQueryParamsId}
+              strategy={verticalListSortingStrategy}
+            >
+              {localQueryParamsId.map((id, index) => (
+                <QueryParamInput key={id} id={id} index={index} />
+              ))}
+            </SortableContext>
+          </DndContext>
+        </ul>
+        <ScrollBar orientation="horizontal" />
+        <ScrollBar orientation="vertical" />
+      </ScrollArea>
     </>
+  )
+}
+
+interface QueryParamInputProps {
+  id: string
+  index: number
+}
+
+const QueryParamInput = ({ id, index }: QueryParamInputProps) => {
+  const deleteQueryParam = useHypersomniaStore(
+    (state) => state.deleteQueryParam,
+  )
+  const request = useHypersomniaStore((state) => state.selectedRequest!)
+  const updateQueryParamField = useHypersomniaStore(
+    (state) => state.updateQueryParamField,
+  )
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  const keyInputId = `param-key-${id}`
+  const valueInputId = `param-value-${id}`
+  const checkboxId = `param-enabled-${id}`
+
+  const param = request.queryParameters[index]
+
+  if (!param) return null
+  return (
+    <li
+      key={id}
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'flex items-center select-none transition-colors',
+        !param.enabled && 'opacity-[0.5_!important]',
+        isDragging && 'bg-muted/85',
+      )}
+    >
+      <GripVertical
+        ref={setActivatorNodeRef as unknown as React.RefObject<SVGSVGElement>}
+        {...attributes}
+        {...listeners}
+        className={cn(
+          'cursor-grab min-w-6 p-[6px] h-9',
+          isDragging && 'cursor-grabbing',
+        )}
+      />
+      <Label className="sr-only" htmlFor={keyInputId}>
+        Key
+      </Label>
+      <Input
+        id={keyInputId}
+        type="text"
+        value={param.key ?? ''}
+        className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
+        placeholder="key"
+        onChange={(e) => updateQueryParamField(index, 'key', e.target.value)}
+      />
+      <Label className="sr-only" htmlFor={valueInputId}>
+        Value
+      </Label>
+      <Input
+        id={valueInputId}
+        type="text"
+        value={param.value ?? ''}
+        className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
+        placeholder="value"
+        onChange={(e) => updateQueryParamField(index, 'value', e.target.value)}
+      />
+      <DeleteConfirmationButton
+        onConfirm={() => deleteQueryParam(index)}
+        aria-label="delete query parameter"
+        title="delete query parameter"
+        className="rounded-none h-9 flex items-center"
+        iconSize={12}
+      />
+      <div className="rounded-none h-9 flex items-center hover:bg-accent px-3">
+        <Label className="sr-only" htmlFor={checkboxId}>
+          Enabled
+        </Label>
+        <Checkbox
+          id={checkboxId}
+          aria-label={
+            param.enabled ? 'disable query param' : 'enable query param'
+          }
+          title={param.enabled ? 'disable query param' : 'enable query param'}
+          checked={param.enabled}
+          onCheckedChange={(checked) =>
+            updateQueryParamField(index, 'enabled', checked)
+          }
+        />
+      </div>
+    </li>
   )
 }
 

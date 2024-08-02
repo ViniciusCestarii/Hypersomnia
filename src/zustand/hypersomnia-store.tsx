@@ -6,6 +6,7 @@ import {
   Request,
   RequestFetchResult,
 } from '@/types/collection'
+import { v4 as uuidv4 } from 'uuid'
 import { create, StateCreator } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { CreateProject, Project } from '../types/project'
@@ -99,11 +100,13 @@ const initialProjects: Project[] = [
                       doc: testMd,
                       queryParameters: [
                         {
+                          id: '22d4ae2e-d37b-4538-a37a-c8b009c8886f',
                           key: 'userId',
                           value: '1',
                           enabled: true,
                         },
                         {
+                          id: '119556a5-411f-4956-8ed0-75e1f8660044',
                           key: 'today',
                           enabled: false,
                         },
@@ -391,7 +394,7 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
     set((state) => {
       if (!state.selectedRequest) return state
       const params = [...state.selectedRequest.queryParameters]
-      params.push({ key: '', value: '', enabled: true })
+      params.push({ id: uuidv4(), key: '', value: '', enabled: true })
       state.updateRequestField('queryParameters', params)
       return {}
     }),
