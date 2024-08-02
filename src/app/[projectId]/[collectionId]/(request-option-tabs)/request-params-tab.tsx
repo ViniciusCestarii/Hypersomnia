@@ -8,7 +8,7 @@ import TypographyH3 from '@/components/ui/Typography-h3'
 import { cn, getRequestWithQueryParams } from '@/lib/utils'
 import { QueryParameters } from '@/types/collection'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
-import { AnimatePresence, Reorder, useDragControls } from 'framer-motion'
+import { AnimatePresence, Reorder } from 'framer-motion'
 import { AlertTriangle, GripVertical, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
 
@@ -88,55 +88,44 @@ const QueryParametersSection = () => {
         onReorder={handleSaveReorder}
       >
         <AnimatePresence initial={false} mode="popLayout">
-          {localQueryParamsId.map((id, index) => (
-            <QueryParameterItem key={id} id={id} index={index} />
-          ))}
+          {localQueryParamsId.map((id, index) => {
+            const param = request.queryParameters[index]
+            if (!param) return null
+
+            return (
+              <Reorder.Item
+                key={id}
+                value={id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: 0.15 },
+                }}
+                exit={{ opacity: 0, y: 20, transition: { duration: 0.3 } }}
+                whileDrag={{ backgroundColor: '#FAFAFA0D' }}
+                className={cn(
+                  'flex items-center select-none',
+                  !param.enabled && 'opacity-[0.5_!important]',
+                )}
+              >
+                <GripVertical className="cursor-grab min-w-6 p-[6px] h-9" />
+                <QueryParamInput key={id} index={index} param={param} />
+              </Reorder.Item>
+            )
+          })}
         </AnimatePresence>
       </Reorder.Group>
     </>
   )
 }
 
-const QueryParameterItem = ({ id, index }: { id: string; index: number }) => {
-  const request = useHypersomniaStore((state) => state.selectedRequest!)
-  const param = request.queryParameters[index]
-  const controls = useDragControls()
-  if (!param) return null
-
-  return (
-    <Reorder.Item
-      key={id}
-      value={id}
-      dragListener={false}
-      dragControls={controls}
-      initial={{ opacity: 0, y: 30 }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.15 },
-      }}
-      exit={{ opacity: 0, y: 20, transition: { duration: 0.3 } }}
-      whileDrag={{ backgroundColor: '#FAFAFA0D' }}
-      className={cn(
-        'flex items-center select-none',
-        !param.enabled && 'opacity-[0.5_!important]',
-      )}
-    >
-      <GripVertical
-        className="cursor-grab min-w-6 p-[6px] h-9"
-        onPointerDown={(e) => controls.start(e)}
-      />
-      <QueryParamReoderItem key={id} index={index} param={param} />
-    </Reorder.Item>
-  )
-}
-
-interface QueryParamReoderItemProps {
+interface QueryParamInputProps {
   index: number
   param: QueryParameters
 }
 
-const QueryParamReoderItem = ({ index, param }: QueryParamReoderItemProps) => {
+const QueryParamInput = ({ index, param }: QueryParamInputProps) => {
   const deleteQueryParam = useHypersomniaStore(
     (state) => state.deleteQueryParam,
   )
