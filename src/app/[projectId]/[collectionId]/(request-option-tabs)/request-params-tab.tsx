@@ -27,6 +27,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { AlertTriangle, GripVertical, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 const RequestParamsTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
@@ -119,23 +120,27 @@ const QueryParametersSection = () => {
           iconSize={12}
         />
       </div>
-      <ul>
-        <DndContext
-          modifiers={[restrictToVerticalAxis]}
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={localQueryParamsId}
-            strategy={verticalListSortingStrategy}
+      <ScrollArea type="auto">
+        <ul className="min-w-60 max-h-[60vh]">
+          <DndContext
+            modifiers={[restrictToVerticalAxis]}
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            {localQueryParamsId.map((id, index) => (
-              <QueryParamInput key={id} id={id} index={index} />
-            ))}
-          </SortableContext>
-        </DndContext>
-      </ul>
+            <SortableContext
+              items={localQueryParamsId}
+              strategy={verticalListSortingStrategy}
+            >
+              {localQueryParamsId.map((id, index) => (
+                <QueryParamInput key={id} id={id} index={index} />
+              ))}
+            </SortableContext>
+          </DndContext>
+        </ul>
+        <ScrollBar orientation="horizontal" />
+        <ScrollBar orientation="vertical" />
+      </ScrollArea>
     </>
   )
 }
