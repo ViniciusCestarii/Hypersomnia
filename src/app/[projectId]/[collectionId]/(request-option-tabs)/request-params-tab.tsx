@@ -140,8 +140,8 @@ const QueryParametersSection = () => {
           iconSize={12}
         />
       </div>
-      <ScrollArea type="auto">
-        <ul className="min-w-60 h-[60vh] py-[1px]">
+      <ScrollArea type="auto" className="h-[60vh]">
+        <ul className="py-[1px]">
           <DndContext
             modifiers={[restrictToVerticalAxis]}
             sensors={sensors}
@@ -232,7 +232,7 @@ const QueryParamInput = forwardRef<HTMLLIElement, QueryParamInputProps>(
         {...props}
         ref={ref}
         className={cn(
-          'flex items-center select-none transition-colors',
+          'flex items-center select-none transition-colors min-w-60',
           isOver && 'bg-muted/50',
           !param.enabled && 'opacity-[0.5_!important]',
           className,
