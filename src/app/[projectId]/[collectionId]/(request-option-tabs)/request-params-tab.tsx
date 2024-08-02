@@ -6,11 +6,11 @@ import { Label } from '@/components/ui/label'
 import ClipboardButton from '@/components/ui/panel/clipboard-button'
 import TypographyH3 from '@/components/ui/Typography-h3'
 import { cn, getRequestWithQueryParams } from '@/lib/utils'
-import useHypersomniaStore from '@/zustand/hypersomnia-store'
-import { AlertTriangle, GripVertical, Plus, Trash } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { AnimatePresence, Reorder, useDragControls } from 'framer-motion'
 import { QueryParameters } from '@/types/collection'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
+import { AnimatePresence, Reorder, useDragControls } from 'framer-motion'
+import { AlertTriangle, GripVertical, Plus, Trash } from 'lucide-react'
+import { useState } from 'react'
 
 const RequestParamsTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
@@ -43,17 +43,10 @@ const RequestParamsTab = () => {
 const QueryParametersSection = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
   const addQueryParam = useHypersomniaStore((state) => state.addQueryParam)
-  const updateQueryParamField = useHypersomniaStore(
-    (state) => state.updateQueryParamField,
-  )
-  const deleteQueryParam = useHypersomniaStore(
-    (state) => state.deleteQueryParam,
-  )
   const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
   )
   const deleteAllParams = useHypersomniaStore((state) => state.deleteAllParams)
-
   const handleSaveReorder = (newOrder: string[]) => {
     const reorderedParams = newOrder
       .map((id) => request.queryParameters.find((param) => param.id === id))
