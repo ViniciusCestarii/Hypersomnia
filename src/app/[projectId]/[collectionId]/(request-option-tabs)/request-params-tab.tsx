@@ -9,7 +9,7 @@ import { cn, getRequestWithQueryParams } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { AlertTriangle, GripVertical, Plus, Trash } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { AnimatePresence, Reorder } from 'framer-motion'
+import { AnimatePresence, Reorder, useDragControls } from 'framer-motion'
 import { QueryParameters } from '@/types/collection'
 
 const RequestParamsTab = () => {
@@ -54,26 +54,15 @@ const QueryParametersSection = () => {
   )
   const deleteAllParams = useHypersomniaStore((state) => state.deleteAllParams)
 
-  const [localQueryParamsId, setLocalQueryParamsId] = useState(
-    request.queryParameters?.map((param) => param.id) ?? [],
-  )
-
-  const handleReorder = (newOrder: string[]) => {
-    setLocalQueryParamsId(newOrder)
-  }
-
-  const handleSaveReorder = () => {
-    const reorderedParams = localQueryParamsId
+  const handleSaveReorder = (newOrder: string[]) => {
+    const reorderedParams = newOrder
       .map((id) => request.queryParameters.find((param) => param.id === id))
       .filter((param) => param !== undefined)
 
-    console.log(reorderedParams)
     updateRequestField('queryParameters', reorderedParams)
   }
 
-  useEffect(() => {
-    setLocalQueryParamsId(request.queryParameters.map((param) => param.id))
-  }, [request.queryParameters])
+  const localQueryParamsId = request.queryParameters.map((p) => p.id)
 
   return (
     <>
@@ -103,93 +92,116 @@ const QueryParametersSection = () => {
       <Reorder.Group
         axis="y"
         values={localQueryParamsId}
-        onReorder={handleReorder}
-        onDragEnd={handleSaveReorder}
+        onReorder={handleSaveReorder}
       >
-        <AnimatePresence initial={false}>
-          {localQueryParamsId.map((id, index) => {
-            const keyInputId = `param-key-${index}`
-            const valueInputId = `param-value-${index}`
-            const checkboxId = `param-enabled-${index}`
-            const param = request.queryParameters.find((p) => p.id === id)
-            if (!param) return null
-            return (
-              <Reorder.Item
-                key={id}
-                value={id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 0.15 },
-                }}
-                exit={{ opacity: 0, y: 20, transition: { duration: 0.3 } }}
-                whileDrag={{ backgroundColor: 'hsl(var(--muted))' }}
-                className={cn(
-                  'flex items-center',
-                  !param.enabled && 'opacity-50',
-                )}
-              >
-                <Label className="sr-only" htmlFor={keyInputId}>
-                  Key
-                </Label>
-                <Input
-                  id={keyInputId}
-                  type="text"
-                  value={param.key ?? ''}
-                  className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
-                  placeholder="key"
-                  onChange={(e) =>
-                    updateQueryParamField(index, 'key', e.target.value)
-                  }
-                />
-                <Label className="sr-only" htmlFor={valueInputId}>
-                  Value
-                </Label>
-                <Input
-                  id={valueInputId}
-                  type="text"
-                  value={param.value ?? ''}
-                  className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
-                  placeholder="value"
-                  onChange={(e) =>
-                    updateQueryParamField(index, 'value', e.target.value)
-                  }
-                />
-                <DeleteConfirmationButton
-                  onConfirm={() => deleteQueryParam(index)}
-                  aria-label="delete query parameter"
-                  title="delete query parameter"
-                  className="rounded-none h-9 flex items-center"
-                  iconSize={12}
-                />
-                <div className="rounded-none h-9 flex items-center hover:bg-accent px-3">
-                  <Label className="sr-only" htmlFor={checkboxId}>
-                    Enabled
-                  </Label>
-                  <Checkbox
-                    id={checkboxId}
-                    aria-label={
-                      param.enabled
-                        ? 'disable query param'
-                        : 'enable query param'
-                    }
-                    title={
-                      param.enabled
-                        ? 'disable query param'
-                        : 'enable query param'
-                    }
-                    checked={param.enabled}
-                    onCheckedChange={(checked) =>
-                      updateQueryParamField(index, 'enabled', checked)
-                    }
-                  />
-                </div>
-              </Reorder.Item>
-            )
-          })}
+        <AnimatePresence initial={false} mode="popLayout">
+          {localQueryParamsId.map((id, index) => (
+            <QueryParameterItem key={id} id={id} index={index} />
+          ))}
         </AnimatePresence>
       </Reorder.Group>
+    </>
+  )
+}
+
+const QueryParameterItem = ({ id, index }: { id: string; index: number }) => {
+  const request = useHypersomniaStore((state) => state.selectedRequest!)
+  const param = request.queryParameters[index]
+  const controls = useDragControls()
+  if (!param) return null
+
+  return (
+    <Reorder.Item
+      key={id}
+      value={id}
+      dragListener={false}
+      dragControls={controls}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.15 },
+      }}
+      exit={{ opacity: 0, y: 20, transition: { duration: 0.3 } }}
+      whileDrag={{ backgroundColor: '#FAFAFA0D' }}
+      className={cn(
+        'flex items-center select-none',
+        !param.enabled && 'opacity-[0.5_!important]',
+      )}
+    >
+      <GripVertical
+        className="cursor-grab min-w-6 p-[6px] h-9"
+        onPointerDown={(e) => controls.start(e)}
+      />
+      <QueryParamReoderItem key={id} index={index} param={param} />
+    </Reorder.Item>
+  )
+}
+
+interface QueryParamReoderItemProps {
+  index: number
+  param: QueryParameters
+}
+
+const QueryParamReoderItem = ({ index, param }: QueryParamReoderItemProps) => {
+  const deleteQueryParam = useHypersomniaStore(
+    (state) => state.deleteQueryParam,
+  )
+  const updateQueryParamField = useHypersomniaStore(
+    (state) => state.updateQueryParamField,
+  )
+
+  const keyInputId = `param-key-${index}`
+  const valueInputId = `param-value-${index}`
+  const checkboxId = `param-enabled-${index}`
+  if (!param) return null
+  return (
+    <>
+      <Label className="sr-only" htmlFor={keyInputId}>
+        Key
+      </Label>
+      <Input
+        id={keyInputId}
+        type="text"
+        value={param.key ?? ''}
+        className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
+        placeholder="key"
+        onChange={(e) => updateQueryParamField(index, 'key', e.target.value)}
+      />
+      <Label className="sr-only" htmlFor={valueInputId}>
+        Value
+      </Label>
+      <Input
+        id={valueInputId}
+        type="text"
+        value={param.value ?? ''}
+        className="h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase"
+        placeholder="value"
+        onChange={(e) => updateQueryParamField(index, 'value', e.target.value)}
+      />
+      <DeleteConfirmationButton
+        onConfirm={() => deleteQueryParam(index)}
+        aria-label="delete query parameter"
+        title="delete query parameter"
+        className="rounded-none h-9 flex items-center"
+        iconSize={12}
+      />
+      <div className="rounded-none h-9 flex items-center hover:bg-accent px-3">
+        <Label className="sr-only" htmlFor={checkboxId}>
+          Enabled
+        </Label>
+        <Checkbox
+          id={checkboxId}
+          aria-label={
+            param.enabled ? 'disable query param' : 'enable query param'
+          }
+          title={param.enabled ? 'disable query param' : 'enable query param'}
+          checked={param.enabled}
+          onCheckedChange={(checked) =>
+            updateQueryParamField(index, 'enabled', checked)
+          }
+        />
+      </div>
     </>
   )
 }
