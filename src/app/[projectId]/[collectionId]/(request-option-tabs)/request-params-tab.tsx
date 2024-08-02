@@ -121,7 +121,7 @@ const QueryParametersSection = () => {
         />
       </div>
       <ScrollArea type="auto">
-        <ul className="min-w-60 max-h-[60vh]">
+        <ul className="min-w-60 max-h-[60vh] py-[1px]">
           <DndContext
             modifiers={[restrictToVerticalAxis]}
             sensors={sensors}
@@ -200,7 +200,6 @@ const QueryParamInput = ({ id, index }: QueryParamInputProps) => {
           isDragging && 'cursor-grabbing',
         )}
       />
-
       <Label className="sr-only" htmlFor={keyInputId}>
         Key
       </Label>
