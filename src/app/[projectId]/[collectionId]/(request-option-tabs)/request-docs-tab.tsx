@@ -4,9 +4,12 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
+import Loading from '@/components/ui/loading'
+import remarkGfm from 'remark-gfm'
 
-const Markdown = dynamic(() => import('react-markdown'))
-const remarkGfm = dynamic(() => import('remark-gfm'))
+const Markdown = dynamic(() => import('react-markdown'), {
+  loading: () => <Loading className="h-[75vh]" />,
+})
 
 const RequestDocsTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest)
@@ -38,11 +41,9 @@ const RequestDocsTab = () => {
         <ScrollArea type="auto">
           <Markdown
             className="markdown pl-3 max-h-[75vh]"
-            remarkPlugins={[remarkGfm as any]}
+            remarkPlugins={[remarkGfm]}
           >
-            {request?.doc && request.doc.trimStart().length > 0
-              ? request.doc
-              : 'No content'}
+            {request?.doc}
           </Markdown>
           <ScrollBar orientation="horizontal" />
           <ScrollBar orientation="vertical" />
