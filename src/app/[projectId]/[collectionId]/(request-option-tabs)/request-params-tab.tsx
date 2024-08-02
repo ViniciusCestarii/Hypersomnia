@@ -6,11 +6,27 @@ import { Label } from '@/components/ui/label'
 import ClipboardButton from '@/components/ui/panel/clipboard-button'
 import TypographyH3 from '@/components/ui/Typography-h3'
 import { cn, getRequestWithQueryParams } from '@/lib/utils'
-import { QueryParameters } from '@/types/collection'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
-import { AnimatePresence, Reorder } from 'framer-motion'
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { AlertTriangle, GripVertical, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 
 const RequestParamsTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
@@ -55,6 +71,27 @@ const QueryParametersSection = () => {
     updateRequestField('queryParameters', reorderedParams)
   }
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  )
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+
+    if (!over) return
+
+    if (active.id !== over.id) {
+      const items = request.queryParameters.map((p) => p.id)
+      const oldIndex = items.indexOf(active.id.toString())
+      const newIndex = items.indexOf(over.id.toString())
+
+      handleSaveReorder(arrayMove(items, oldIndex, newIndex))
+    }
+  }
+
   const localQueryParamsId = request.queryParameters.map((p) => p.id)
 
   return (
@@ -82,63 +119,83 @@ const QueryParametersSection = () => {
           iconSize={12}
         />
       </div>
-      <Reorder.Group
-        axis="y"
-        values={localQueryParamsId}
-        onReorder={handleSaveReorder}
-      >
-        <AnimatePresence initial={false} mode="popLayout">
-          {localQueryParamsId.map((id, index) => {
-            const param = request.queryParameters[index]
-            if (!param) return null
-
-            return (
-              <Reorder.Item
-                key={id}
-                value={id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 0.15 },
-                }}
-                exit={{ opacity: 0, y: 20, transition: { duration: 0.3 } }}
-                whileDrag={{ backgroundColor: '#FAFAFA0D' }}
-                className={cn(
-                  'flex items-center select-none',
-                  !param.enabled && 'opacity-[0.5_!important]',
-                )}
-              >
-                <GripVertical className="cursor-grab min-w-6 p-[6px] h-9" />
-                <QueryParamInput key={id} index={index} param={param} />
-              </Reorder.Item>
-            )
-          })}
-        </AnimatePresence>
-      </Reorder.Group>
+      <ul>
+        <DndContext
+          modifiers={[restrictToVerticalAxis]}
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={localQueryParamsId}
+            strategy={verticalListSortingStrategy}
+          >
+            {localQueryParamsId.map((id, index) => (
+              <QueryParamInput key={id} id={id} index={index} />
+            ))}
+          </SortableContext>
+        </DndContext>
+      </ul>
     </>
   )
 }
 
 interface QueryParamInputProps {
+  id: string
   index: number
-  param: QueryParameters
 }
 
-const QueryParamInput = ({ index, param }: QueryParamInputProps) => {
+const QueryParamInput = ({ id, index }: QueryParamInputProps) => {
   const deleteQueryParam = useHypersomniaStore(
     (state) => state.deleteQueryParam,
   )
+  const request = useHypersomniaStore((state) => state.selectedRequest!)
   const updateQueryParamField = useHypersomniaStore(
     (state) => state.updateQueryParamField,
   )
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
 
-  const keyInputId = `param-key-${index}`
-  const valueInputId = `param-value-${index}`
-  const checkboxId = `param-enabled-${index}`
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  const keyInputId = `param-key-${id}`
+  const valueInputId = `param-value-${id}`
+  const checkboxId = `param-enabled-${id}`
+
+  const param = request.queryParameters[index]
+
   if (!param) return null
   return (
-    <>
+    <li
+      key={id}
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'flex items-center select-none transition-colors',
+        !param.enabled && 'opacity-[0.5_!important]',
+        isDragging && 'bg-muted/85',
+      )}
+    >
+      <GripVertical
+        ref={setActivatorNodeRef as unknown as React.RefObject<SVGSVGElement>}
+        {...attributes}
+        {...listeners}
+        className={cn(
+          'cursor-grab min-w-6 p-[6px] h-9',
+          isDragging && 'cursor-grabbing',
+        )}
+      />
+
       <Label className="sr-only" htmlFor={keyInputId}>
         Key
       </Label>
@@ -184,7 +241,7 @@ const QueryParamInput = ({ index, param }: QueryParamInputProps) => {
           }
         />
       </div>
-    </>
+    </li>
   )
 }
 
