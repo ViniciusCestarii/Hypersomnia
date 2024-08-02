@@ -31,11 +31,11 @@ type HypersomniaStore = {
   updateSelectedRequest: (request: Request) => void
   addQueryParam: () => void
   updateQueryParamField: (
-    index: number,
+    id: string,
     field: keyof QueryParameters,
     value: unknown,
   ) => void
-  deleteQueryParam: (index: number) => void
+  deleteQueryParam: (id: string) => void
   deleteAllParams: () => void
   updateRequestField: (field: string, value: unknown) => void
   updateRequestOptionField: (
@@ -398,20 +398,30 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       state.updateRequestField('queryParameters', params)
       return {}
     }),
-  updateQueryParamField: (index, field, value) =>
+  updateQueryParamField: (id, field, value) =>
     set((state) => {
       if (!state.selectedRequest) return state
       const params = [...state.selectedRequest.queryParameters]
-      params[index] = { ...params[index], [field]: value }
+      const queryParamToUpdateId =
+        state.selectedRequest.queryParameters.findIndex(
+          (param) => param.id === id,
+        )
+      params[queryParamToUpdateId] = {
+        ...params[queryParamToUpdateId],
+        [field]: value,
+      }
       state.updateRequestField('queryParameters', params)
       return {}
     }),
-  deleteQueryParam: (index) =>
+  deleteQueryParam: (id) =>
     set((state) => {
       if (!state.selectedRequest) return state
       const params = [...state.selectedRequest.queryParameters]
-      params.splice(index, 1)
-      state.updateRequestField('queryParameters', params)
+
+      state.updateRequestField(
+        'queryParameters',
+        params.filter((param) => param.id !== id),
+      )
       return {}
     }),
   deleteAllParams: () =>
