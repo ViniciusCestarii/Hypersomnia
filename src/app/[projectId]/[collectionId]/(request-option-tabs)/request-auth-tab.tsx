@@ -1,3 +1,4 @@
+import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -12,9 +13,8 @@ import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { AuthType } from '@/types/collection'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
-import { Boxes, Code2, MoreHorizontal } from 'lucide-react'
+import { Key, MoreHorizontal } from 'lucide-react'
 import BasicAuthInput from './(request-auth-input)/basic-auth-input'
-import { Checkbox } from '@/components/ui/checkbox'
 import BearerTokenAuthInput from './(request-auth-input)/bearer-token-input'
 
 interface AuthTypeOption {
@@ -31,8 +31,7 @@ const authTypes: Record<string, AuthTypeOption[]> = {
 }
 
 const groupIcons: Record<string, React.ElementType> = {
-  Structured: Boxes,
-  Text: Code2,
+  'Auth Types': Key,
   Other: MoreHorizontal,
 }
 

@@ -4,6 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import ClipboardButton from '@/components/ui/panel/clipboard-button'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import TypographyH3 from '@/components/ui/Typography-h3'
 import { cn, getRequestWithQueryParams } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
@@ -18,6 +19,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import {
   arrayMove,
   SortableContext,
@@ -27,14 +29,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { AlertTriangle, GripVertical, Plus, Trash } from 'lucide-react'
-import {
-  ButtonHTMLAttributes,
-  DetailedHTMLProps,
-  forwardRef,
-  useState,
-} from 'react'
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { forwardRef, useState } from 'react'
 
 const RequestParamsTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
@@ -48,7 +43,7 @@ const RequestParamsTab = () => {
         <AlertTitle className="uppercase text-xs text-foreground/75 ">
           URL preview
         </AlertTitle>
-        <AlertDescription className="text-xss break-words pr-8 max-h-28 min-w-24 relative">
+        <AlertDescription className="text-xss break-words pr-8 max-h-20 min-w-24 relative">
           {isRequestUrlWithQueryEmpty ? '...' : requestUrlWithQuery}
           <ClipboardButton
             label="copy URL"
@@ -117,7 +112,9 @@ const QueryParametersSection = () => {
 
   return (
     <>
-      <TypographyH3 className="pt-4 px-2">Query Parameters</TypographyH3>
+      <TypographyH3 className="pt-4 px-2 text-nowrap">
+        Query Parameters
+      </TypographyH3>
       <div className="flex">
         <Button
           onClick={addQueryParam}
@@ -140,7 +137,7 @@ const QueryParametersSection = () => {
           iconSize={12}
         />
       </div>
-      <ScrollArea type="auto" className="h-[60vh]">
+      <ScrollArea type="auto" className="h-[55vh]">
         <ul className="py-[1px]">
           <DndContext
             modifiers={[restrictToVerticalAxis]}
@@ -172,10 +169,7 @@ const QueryParametersSection = () => {
 interface QueryParamInputProps extends React.HTMLProps<HTMLLIElement> {
   id: string
   isOver?: boolean
-  gripProps?: DetailedHTMLProps<
-    ButtonHTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
-  >
+  gripProps?: ButtonProps
 }
 
 const SortableQueryParamInput = ({ id }: { id: string }) => {
@@ -238,16 +232,17 @@ const QueryParamInput = forwardRef<HTMLLIElement, QueryParamInputProps>(
           className,
         )}
       >
-        <button
+        <Button
+          variant="ghost"
           {...gripProps}
           className={cn(
-            'cursor-grab min-w-6 p-[6px] h-9 flex justify-center items-center',
+            'cursor-grab min-w-7 p-[6px] px-2 h-9 flex justify-center items-center rounded-none',
             isOver && 'cursor-grabbing',
             gripProps?.className,
           )}
         >
           <GripVertical />
-        </button>
+        </Button>
         <Label className="sr-only" htmlFor={keyInputId}>
           Key
         </Label>
