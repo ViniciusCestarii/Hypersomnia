@@ -1,7 +1,8 @@
 import { getCookies } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import axios, { AxiosRequestConfig } from 'axios'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
+
 interface UseFetchProps {
   url?: string
   options?: AxiosRequestConfig
@@ -31,12 +32,16 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
     (state) => state.requestFetchResult,
   )
   const setCookies = useHypersomniaStore((state) => state.setCookies)
+  const latestRequestRef = useRef(0)
 
   const fetchData = useCallback(async () => {
     if (!url || !options) {
       return
     }
+
+    const requestId = ++latestRequestRef.current
     setRequestFetchResult({ ...requestFetchResult, loading: true })
+    const isLatestRequest = requestId === latestRequestRef.current
     const requestStartTime = new Date().getTime()
 
     try {
@@ -44,14 +49,17 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
       const timeTaken =
         response.headers['request-finish-time'] - requestStartTime
       delete response.headers['request-finish-time']
-      setRequestFetchResult({
-        data: response.data,
-        error: null,
-        loading: false,
-        response,
-        timeTaken,
-        requestStartTime,
-      })
+
+      if (isLatestRequest) {
+        setRequestFetchResult({
+          data: response.data,
+          error: null,
+          loading: false,
+          response,
+          timeTaken,
+          requestStartTime,
+        })
+      }
     } catch (err) {
       console.error(err)
 
@@ -60,26 +68,32 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
           err.response?.headers['request-finish-time'] - requestStartTime
         delete err.response?.headers['request-finish-time']
 
-        setRequestFetchResult({
-          data: err.response?.data ?? null,
-          error: err,
-          loading: false,
-          response: err.response ?? null,
-          timeTaken: Number.isNaN(timeTaken) ? null : timeTaken,
-          requestStartTime,
-        })
+        if (isLatestRequest) {
+          setRequestFetchResult({
+            data: err.response?.data ?? null,
+            error: err,
+            loading: false,
+            response: err.response ?? null,
+            timeTaken: Number.isNaN(timeTaken) ? null : timeTaken,
+            requestStartTime,
+          })
+        }
       } else {
-        setRequestFetchResult({
-          data: null,
-          error: err as Error,
-          loading: false,
-          response: null,
-          timeTaken: null,
-          requestStartTime,
-        })
+        if (isLatestRequest) {
+          setRequestFetchResult({
+            data: null,
+            error: err as Error,
+            loading: false,
+            response: null,
+            timeTaken: null,
+            requestStartTime,
+          })
+        }
       }
     } finally {
-      setCookies(getCookies())
+      if (isLatestRequest) {
+        setCookies(getCookies())
+      }
     }
   }, [url, options, setRequestFetchResult, requestFetchResult, setCookies])
 
