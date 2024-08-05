@@ -29,6 +29,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { Plus } from 'lucide-react'
 import { forwardRef, useState } from 'react'
+import { v4 } from 'uuid'
 
 const RequestParamsTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
@@ -60,11 +61,19 @@ const RequestParamsTab = () => {
 
 const QueryParametersSection = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
-  const addQueryParam = useHypersomniaStore((state) => state.addQueryParam)
   const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
   )
-  const deleteAllParams = useHypersomniaStore((state) => state.deleteAllParams)
+
+  const addQueryParam = () => {
+    const newQueryParam = { id: v4(), enabled: true }
+    updateRequestField('queryParameters', [
+      ...(request.queryParameters ?? []),
+      newQueryParam,
+    ])
+  }
+
+  const deleteAllParams = () => updateRequestField('queryParameters', undefined)
 
   const queryParameters = request.queryParameters ?? []
 
@@ -224,6 +233,7 @@ const QueryParamInput = forwardRef<HTMLLIElement, QueryParamInputProps>(
         ordenable={param}
         pathField="queryParameters"
         inputName="query param"
+        keyTitle="key"
       />
     )
   },

@@ -29,14 +29,6 @@ type HypersomniaStore = {
   selectRequest: (path: string[]) => void
   sendRequest: () => void
   updateSelectedRequest: (request: Request) => void
-  addQueryParam: () => void
-  updateQueryParamField: (
-    id: string,
-    field: keyof QueryParameters,
-    value: unknown,
-  ) => void
-  deleteQueryParam: (id: string) => void
-  deleteAllParams: () => void
   updateRequestField: (field: string, value: unknown) => void
   updateRequestOptionField: (
     field: keyof Request['options'],
@@ -396,43 +388,6 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         selectedCollection: updatedCollection,
         selectedRequest: updatedRequest,
       }
-    }),
-  addQueryParam: () =>
-    set((state) => {
-      if (!state.selectedRequest) return state
-      const params = [...(state.selectedRequest?.queryParameters ?? [])]
-      params.push({ id: uuidv4(), key: '', value: '', enabled: true })
-      state.updateRequestField('queryParameters', params)
-      return {}
-    }),
-  updateQueryParamField: (id, field, value) =>
-    set((state) => {
-      if (!state.selectedRequest) return state
-      const params = [...(state.selectedRequest.queryParameters ?? [])]
-      const queryParamToUpdateId = params.findIndex((param) => param.id === id)
-      params[queryParamToUpdateId] = {
-        ...params[queryParamToUpdateId],
-        [field]: value,
-      }
-      state.updateRequestField('queryParameters', params)
-      return {}
-    }),
-  deleteQueryParam: (id) =>
-    set((state) => {
-      if (!state.selectedRequest) return state
-      const params = [...(state.selectedRequest.queryParameters ?? [])]
-
-      state.updateRequestField(
-        'queryParameters',
-        params.filter((param) => param.id !== id),
-      )
-      return {}
-    }),
-  deleteAllParams: () =>
-    set((state) => {
-      if (!state.selectedRequest) return state
-      state.updateRequestField('queryParameters', [])
-      return {}
     }),
   updateRequestField: (field, value) =>
     set((state) => {
