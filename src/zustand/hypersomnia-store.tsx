@@ -98,6 +98,13 @@ const initialProjects: Project[] = [
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/posts',
                       doc: testMd,
+                      headers: [
+                        {
+                          key: 'User-Agent',
+                          value: 'hypersomnia/0.0.1',
+                          enabled: true,
+                        },
+                      ],
                       queryParameters: [
                         {
                           id: '22d4ae2e-d37b-4538-a37a-c8b009c8886f',

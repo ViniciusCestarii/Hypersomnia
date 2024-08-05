@@ -36,6 +36,12 @@ export type QueryParameters = {
   enabled: boolean
 }
 
+export type Headers = {
+  key: string
+  value: string
+  enabled: boolean
+}
+
 type AuthType = 'basic' | 'bearer token' | 'none'
 
 type AuthBasic = {
@@ -61,6 +67,7 @@ export type Request = {
   auth?: Auth
   doc?: string
   queryParameters: QueryParameters[]
+  headers?: Headers[]
   options: AxiosRequestConfig & OverrideAxiosRequestConfig
 }
 

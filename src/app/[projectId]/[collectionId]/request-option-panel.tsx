@@ -22,6 +22,7 @@ import RequestParamsTab from './(request-option-tabs)/request-params-tab'
 import RequestAuthTab from './(request-option-tabs)/request-auth-tab'
 import useDefineMonacoTheme from '@/hooks/useDefineMonacoTheme'
 import RequestDocsTab from './(request-option-tabs)/request-docs-tab'
+import RequestHeadersTab from './(request-option-tabs)/request-headers-tab'
 
 const RequestOptionPanel = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest)
@@ -99,7 +100,7 @@ const RequestOptionPanel = () => {
           <TabsList className="flex justify-start">
             <TabsTrigger
               value="params"
-              className="min-w-24"
+              className="min-w-[6.25rem]"
               onClick={() => setTab('params')}
             >
               params ({request?.queryParameters.length ?? 0})
@@ -110,8 +111,12 @@ const RequestOptionPanel = () => {
             <TabsTrigger value="auth" onClick={() => setTab('auth')}>
               auth
             </TabsTrigger>
-            <TabsTrigger value="headers" onClick={() => setTab('headers')}>
-              headers
+            <TabsTrigger
+              value="headers"
+              className="min-w-[6.5rem]"
+              onClick={() => setTab('headers')}
+            >
+              headers ({request?.headers?.length ?? 0})
             </TabsTrigger>
             <TabsTrigger value="docs" onClick={() => setTab('docs')}>
               docs
@@ -132,7 +137,7 @@ const RequestOptionPanel = () => {
               <RequestAuthTab />
             </TabsContent>
             <TabsContent value="headers">
-              {/* Your HeadersTab component or content goes here */}
+              <RequestHeadersTab />
             </TabsContent>
             <TabsContent value="docs" className="mt-0">
               <RequestDocsTab />
