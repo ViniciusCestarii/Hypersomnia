@@ -133,7 +133,6 @@ const initialProjects: Project[] = [
                     name: 'request 2',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/users',
-                      queryParameters: [],
                       options: {
                         method: 'get',
                       },
@@ -155,7 +154,6 @@ const initialProjects: Project[] = [
                     name: 'request 3',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/posts',
-                      queryParameters: [],
                       options: {
                         method: 'post',
                         data: {
@@ -174,7 +172,6 @@ const initialProjects: Project[] = [
                   url: 'https://jsonplaceholder.typicode.com/posts',
                   bodyType: 'json',
                   bodyContent: '{"title": "foo", "body": "bar", "userId": 1}',
-                  queryParameters: [],
                   options: {
                     method: 'post',
                   },
@@ -188,7 +185,6 @@ const initialProjects: Project[] = [
                     name: 'request 4',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/users',
-                      queryParameters: [],
                       options: {
                         method: 'post',
                         data: {
@@ -206,7 +202,6 @@ const initialProjects: Project[] = [
             name: 'put',
             request: {
               url: 'https://jsonplaceholder.typicode.com/posts/1',
-              queryParameters: [],
               options: {
                 method: 'put',
                 data: {
@@ -222,7 +217,6 @@ const initialProjects: Project[] = [
             name: 'Test Basic Auth',
             request: {
               url: 'https://httpbin.org/basic-auth/user/pass',
-              queryParameters: [],
               auth: {
                 type: 'basic',
                 enabled: true,
@@ -240,7 +234,6 @@ const initialProjects: Project[] = [
             name: 'Get Cookie',
             request: {
               url: 'https://yummy-cookies.vercel.app',
-              queryParameters: [],
               options: {
                 method: 'get',
               },
@@ -400,7 +393,7 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
   addQueryParam: () =>
     set((state) => {
       if (!state.selectedRequest) return state
-      const params = [...state.selectedRequest.queryParameters]
+      const params = [...(state.selectedRequest?.queryParameters ?? [])]
       params.push({ id: uuidv4(), key: '', value: '', enabled: true })
       state.updateRequestField('queryParameters', params)
       return {}
@@ -408,11 +401,8 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
   updateQueryParamField: (id, field, value) =>
     set((state) => {
       if (!state.selectedRequest) return state
-      const params = [...state.selectedRequest.queryParameters]
-      const queryParamToUpdateId =
-        state.selectedRequest.queryParameters.findIndex(
-          (param) => param.id === id,
-        )
+      const params = [...(state.selectedRequest.queryParameters ?? [])]
+      const queryParamToUpdateId = params.findIndex((param) => param.id === id)
       params[queryParamToUpdateId] = {
         ...params[queryParamToUpdateId],
         [field]: value,
@@ -423,7 +413,7 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
   deleteQueryParam: (id) =>
     set((state) => {
       if (!state.selectedRequest) return state
-      const params = [...state.selectedRequest.queryParameters]
+      const params = [...(state.selectedRequest.queryParameters ?? [])]
 
       state.updateRequestField(
         'queryParameters',

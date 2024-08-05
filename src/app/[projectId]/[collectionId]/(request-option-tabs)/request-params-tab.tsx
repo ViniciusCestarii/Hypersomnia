@@ -66,9 +66,12 @@ const QueryParametersSection = () => {
     (state) => state.updateRequestField,
   )
   const deleteAllParams = useHypersomniaStore((state) => state.deleteAllParams)
+
+  const queryParameters = request.queryParameters ?? []
+
   const handleSaveReorder = (newOrder: string[]) => {
     const reorderedParams = newOrder
-      .map((id) => request.queryParameters.find((param) => param.id === id))
+      .map((id) => queryParameters.find((param) => param.id === id))
       .filter((param) => param !== undefined)
 
     updateRequestField('queryParameters', reorderedParams)
@@ -98,7 +101,7 @@ const QueryParametersSection = () => {
     if (!over) return
 
     if (active.id !== over.id) {
-      const items = request.queryParameters.map((p) => p.id)
+      const items = queryParameters.map((p) => p.id)
       const oldIndex = items.indexOf(active.id.toString())
       const newIndex = items.indexOf(over.id.toString())
 
@@ -108,7 +111,7 @@ const QueryParametersSection = () => {
     }
   }
 
-  const localQueryParamsId = request.queryParameters.map((p) => p.id)
+  const localQueryParamsId = queryParameters.map((p) => p.id)
 
   return (
     <>
@@ -128,7 +131,7 @@ const QueryParametersSection = () => {
           Add
         </Button>
         <DeleteConfirmationButton
-          disabled={request.queryParameters.length === 0}
+          disabled={queryParameters.length === 0}
           onConfirm={deleteAllParams}
           text="Delete all"
           aria-label="delete all query parameters"
@@ -214,11 +217,13 @@ const QueryParamInput = forwardRef<HTMLLIElement, QueryParamInputProps>(
       (state) => state.updateQueryParamField,
     )
 
+    const queryParameters = request.queryParameters ?? []
+
     const keyInputId = `param-key-${id}-${isOver}`
     const valueInputId = `param-value-${id}-${isOver}`
     const checkboxId = `param-enabled-${id}-${isOver}`
 
-    const param = request.queryParameters.find((p) => p.id === id)
+    const param = queryParameters.find((p) => p.id === id)
 
     if (!param) return null
     return (

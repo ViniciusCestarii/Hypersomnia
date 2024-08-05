@@ -66,7 +66,7 @@ export type Request = {
   bodyContent?: string
   auth?: Auth
   doc?: string
-  queryParameters: QueryParameters[]
+  queryParameters?: QueryParameters[]
   headers?: Headers[]
   options: AxiosRequestConfig & OverrideAxiosRequestConfig
 }

@@ -103,7 +103,7 @@ const RequestOptionPanel = () => {
               className="min-w-[6.25rem]"
               onClick={() => setTab('params')}
             >
-              params ({request?.queryParameters.length ?? 0})
+              params ({request?.queryParameters?.length ?? 0})
             </TabsTrigger>
             <TabsTrigger value="body" onClick={() => setTab('body')}>
               body
