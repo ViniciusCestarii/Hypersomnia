@@ -4,6 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import ClipboardButton from '@/components/ui/panel/clipboard-button'
+import DeleteConfirmationButton from '@/components/ui/panel/delete-confirmation-button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import TypographyH3 from '@/components/ui/Typography-h3'
 import { cn, getRequestWithQueryParams } from '@/lib/utils'
@@ -28,7 +29,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { AlertTriangle, GripVertical, Plus, Trash } from 'lucide-react'
+import { GripVertical, Plus } from 'lucide-react'
 import { forwardRef, useState } from 'react'
 
 const RequestParamsTab = () => {
@@ -309,54 +310,5 @@ const QueryParamInput = forwardRef<HTMLLIElement, QueryParamInputProps>(
 )
 
 QueryParamInput.displayName = 'QueryParamInput'
-
-const DeleteConfirmationButton = ({
-  onConfirm,
-  title,
-  'aria-label': ariaLabel,
-  iconSize = 12,
-  className,
-  text,
-  ...props
-}: ButtonProps & {
-  onConfirm: () => void
-  text?: string
-  iconSize?: number
-  className?: string
-}) => {
-  const [isConfirming, setIsConfirming] = useState(false)
-
-  const handleClick = () => {
-    if (isConfirming) {
-      onConfirm()
-      setIsConfirming(false)
-    } else {
-      setIsConfirming(true)
-      setTimeout(() => setIsConfirming(false), 2000)
-    }
-  }
-
-  return (
-    <Button
-      {...props}
-      size="sm"
-      variant="ghost"
-      aria-label={isConfirming ? 'confirm delete' : ariaLabel}
-      title={isConfirming ? 'confirm delete' : title}
-      className={cn(
-        className,
-        isConfirming && 'text-warning hover:text-warning',
-      )}
-      onClick={handleClick}
-    >
-      {isConfirming ? (
-        <AlertTriangle size={iconSize} className={text ? 'mr-1' : undefined} />
-      ) : (
-        <Trash size={iconSize} className={text ? 'mr-1' : undefined} />
-      )}
-      {isConfirming && text ? 'Confirm delete' : (text ?? '')}
-    </Button>
-  )
-}
 
 export default RequestParamsTab
