@@ -100,6 +100,12 @@ const initialProjects: Project[] = [
                       doc: testMd,
                       headers: [
                         {
+                          id: 'f4b3a0d1-6c1c-4d2c-9f3f-1b0b1d5c3c9e',
+                          key: 'Content-Type',
+                          value: 'application/json',
+                          enabled: true,
+                        },
+                        {
                           id: 'c3b9e7a3-4d36-4d97-9106-ac50c833b700',
                           key: 'X-Client-Version',
                           value: 'hypersomnia/0.0.1',

@@ -103,7 +103,11 @@ const RequestOptionPanel = () => {
               className="min-w-[6.25rem]"
               onClick={() => setTab('params')}
             >
-              params ({request?.queryParameters?.length ?? 0})
+              params (
+              {request?.queryParameters?.filter(
+                (query) => query.key && query.enabled,
+              ).length ?? 0}
+              )
             </TabsTrigger>
             <TabsTrigger value="body" onClick={() => setTab('body')}>
               body
@@ -116,7 +120,11 @@ const RequestOptionPanel = () => {
               className="min-w-[6.5rem]"
               onClick={() => setTab('headers')}
             >
-              headers ({request?.headers?.length ?? 0})
+              headers (
+              {request?.headers?.filter(
+                (header) => header.key && header.enabled,
+              ).length ?? 0}
+              )
             </TabsTrigger>
             <TabsTrigger value="docs" onClick={() => setTab('docs')}>
               docs
@@ -136,7 +144,7 @@ const RequestOptionPanel = () => {
             <TabsContent value="auth" className="mt-0">
               <RequestAuthTab />
             </TabsContent>
-            <TabsContent value="headers">
+            <TabsContent value="headers" className="mt-0">
               <RequestHeadersTab />
             </TabsContent>
             <TabsContent value="docs" className="mt-0">

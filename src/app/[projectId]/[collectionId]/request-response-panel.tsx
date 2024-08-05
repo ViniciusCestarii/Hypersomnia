@@ -9,6 +9,7 @@ import {
   cn,
   getAuthConfig,
   getBodyData,
+  getDefinedHeaders,
   getRequestWithQueryParams,
   getStatusColor,
   httpStatusCodes,
@@ -41,9 +42,10 @@ const RequestResponsePanel = () => {
     options: {
       ...request?.options,
       headers: {
+        ...getDefinedHeaders(),
         ...requestHeaders.reduce((acc: { [key: string]: string }, header) => {
-          if (header.enabled) {
-            acc[header.key ?? ''] = header.value ?? ''
+          if (header.enabled && header.key) {
+            acc[header.key] = header.value ?? ''
           }
           return acc
         }, {}),

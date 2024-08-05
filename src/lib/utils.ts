@@ -177,8 +177,9 @@ export const findSystemNodeByPath = (
 export const getRequestWithQueryParams = (request: Request): string => {
   if (
     !request.url &&
-    request.queryParameters.filter((param) => param.key && param.enabled)
-      .length === 0
+    (request?.queryParameters ?? []).filter(
+      (param) => param.key && param.enabled,
+    ).length === 0
   )
     return ''
   const params = new URLSearchParams()
@@ -372,3 +373,7 @@ export const getCookies = (): Cookie[] => {
 
   return result
 }
+
+export const getDefinedHeaders = () => ({
+  Accept: '*/*',
+})

@@ -1,13 +1,11 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button, ButtonProps } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import ClipboardButton from '@/components/ui/panel/clipboard-button'
 import DeleteConfirmationButton from '@/components/ui/panel/delete-confirmation-button'
+import OrdenableInput from '@/components/ui/panel/ordenable-input'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import TypographyH3 from '@/components/ui/Typography-h3'
-import { cn, getRequestWithQueryParams } from '@/lib/utils'
+import { getRequestWithQueryParams } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
   closestCenter,
@@ -29,7 +27,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { forwardRef, useState } from 'react'
 
 const RequestParamsTab = () => {
@@ -209,102 +207,24 @@ const SortableQueryParamInput = ({ id }: { id: string }) => {
 }
 
 const QueryParamInput = forwardRef<HTMLLIElement, QueryParamInputProps>(
-  ({ id, className, gripProps, isOver, ...props }, ref) => {
-    const deleteQueryParam = useHypersomniaStore(
-      (state) => state.deleteQueryParam,
-    )
+  (props, ref) => {
     const request = useHypersomniaStore((state) => state.selectedRequest!)
-    const updateQueryParamField = useHypersomniaStore(
-      (state) => state.updateQueryParamField,
-    )
-
     const queryParameters = request.queryParameters ?? []
 
-    const keyInputId = `param-key-${id}-${isOver}`
-    const valueInputId = `param-value-${id}-${isOver}`
-    const checkboxId = `param-enabled-${id}-${isOver}`
+    const { id } = props
 
     const param = queryParameters.find((p) => p.id === id)
 
     if (!param) return null
     return (
-      <li
+      <OrdenableInput
         {...props}
         ref={ref}
-        className={cn(
-          'flex items-center select-none transition-colors min-w-60',
-          isOver && 'bg-muted/50',
-          !param.enabled && 'opacity-[0.5_!important]',
-          className,
-        )}
-      >
-        <Button
-          variant="ghost"
-          {...gripProps}
-          className={cn(
-            'cursor-grab min-w-7 p-[6px] px-2 h-9 flex justify-center items-center rounded-none',
-            isOver && 'cursor-grabbing',
-            gripProps?.className,
-          )}
-        >
-          <GripVertical />
-        </Button>
-        <Label className="sr-only" htmlFor={keyInputId}>
-          Key
-        </Label>
-        <Input
-          id={keyInputId}
-          type="text"
-          value={param.key ?? ''}
-          className={cn(
-            'h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase',
-            isOver && 'cursor-grabbing',
-          )}
-          placeholder="key"
-          onChange={(e) => updateQueryParamField(id, 'key', e.target.value)}
-        />
-        <Label className="sr-only" htmlFor={valueInputId}>
-          Value
-        </Label>
-        <Input
-          id={valueInputId}
-          type="text"
-          value={param.value ?? ''}
-          className={cn(
-            'h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase',
-            isOver && 'cursor-grabbing',
-          )}
-          placeholder="value"
-          onChange={(e) => updateQueryParamField(id, 'value', e.target.value)}
-        />
-        <DeleteConfirmationButton
-          onConfirm={() => deleteQueryParam(id)}
-          aria-label="delete query parameter"
-          title="delete query parameter"
-          className={cn(
-            'rounded-none h-9 flex items-center',
-            isOver && 'cursor-grabbing',
-          )}
-          iconSize={12}
-        />
-        <div className="rounded-none h-9 flex items-center hover:bg-accent px-3">
-          <Label className="sr-only" htmlFor={checkboxId}>
-            Enabled
-          </Label>
-          <Checkbox
-            id={checkboxId}
-            aria-label={
-              param.enabled ? 'disable query param' : 'enable query param'
-            }
-            className={cn(isOver && 'cursor-grabbing')}
-            title={param.enabled ? 'disable query param' : 'enable query param'}
-            checked={param.enabled}
-            onCheckedChange={(checked) =>
-              updateQueryParamField(id, 'enabled', checked)
-            }
-          />
-        </div>
-      </li>
+        allOrdenable={queryParameters}
+        ordenable={param}
+        pathField="queryParameters"
+        inputName="query param"
+      />
     )
   },
 )
