@@ -37,8 +37,9 @@ export type QueryParameters = {
 }
 
 export type Headers = {
-  key: string
-  value: string
+  id: string
+  key?: string
+  value?: string
   enabled: boolean
 }
 

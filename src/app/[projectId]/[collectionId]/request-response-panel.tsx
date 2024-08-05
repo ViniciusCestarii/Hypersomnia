@@ -33,13 +33,20 @@ const RequestResponsePanel = () => {
     parseAsString.withDefault('body'),
   )
 
+  const requestHeaders = request?.headers ?? []
+
   // todo: memoize values to prevent unnecessary re-renders
   const refetch = useFetch({
     ...request,
     options: {
       ...request?.options,
       headers: {
-        ...request?.options?.headers,
+        ...requestHeaders.reduce((acc: { [key: string]: string }, header) => {
+          if (header.enabled) {
+            acc[header.key ?? ''] = header.value ?? ''
+          }
+          return acc
+        }, {}),
         ...(request ? getAuthConfig(request) : {}),
       },
       data: request ? getBodyData({ ...request }) : '',

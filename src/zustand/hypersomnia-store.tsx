@@ -100,7 +100,8 @@ const initialProjects: Project[] = [
                       doc: testMd,
                       headers: [
                         {
-                          key: 'User-Agent',
+                          id: 'c3b9e7a3-4d36-4d97-9106-ac50c833b700',
+                          key: 'X-Client-Version',
                           value: 'hypersomnia/0.0.1',
                           enabled: true,
                         },
