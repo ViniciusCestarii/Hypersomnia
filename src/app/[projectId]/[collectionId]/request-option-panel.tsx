@@ -23,7 +23,7 @@ import RequestAuthTab from './(request-option-tabs)/request-auth-tab'
 import useDefineMonacoTheme from '@/hooks/useDefineMonacoTheme'
 import RequestDocsTab from './(request-option-tabs)/request-docs-tab'
 import RequestHeadersTab from './(request-option-tabs)/request-headers-tab'
-import { Key } from 'lucide-react'
+import { Code2, Key } from 'lucide-react'
 
 const RequestOptionPanel = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest)
@@ -111,7 +111,10 @@ const RequestOptionPanel = () => {
               )
             </TabsTrigger>
             <TabsTrigger value="body" onClick={() => setTab('body')}>
-              body
+              body{' '}
+              {request?.bodyType && request.bodyType !== 'none' && (
+                <Code2 className="size-4 ml-2" />
+              )}
             </TabsTrigger>
             <TabsTrigger value="auth" onClick={() => setTab('auth')}>
               auth {request?.auth?.enabled && <Key className="size-4 ml-2" />}
