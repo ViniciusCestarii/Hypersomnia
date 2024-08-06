@@ -61,10 +61,14 @@ type Auth = {
   data?: AuthBasic | AuthBearerToken
 }
 
+type Body = {
+  type: BodyType
+  content: string
+}
+
 export type Request = {
   url: string
-  bodyType?: BodyType
-  bodyContent?: string
+  body?: Body
   auth?: Auth
   doc?: string
   queryParameters?: QueryParameters[]

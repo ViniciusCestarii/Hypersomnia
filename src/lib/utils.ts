@@ -1,6 +1,7 @@
 import {
   AuthBasic,
   AuthBearerToken,
+  Body,
   Cookie,
   FileSystemNode,
   FileSystemNode as FileSystemNodeType,
@@ -273,19 +274,17 @@ export const httpStatusCodes: { [key: number]: string } = {
   511: 'Network Authentication Required',
 }
 
-type GetBodyData = Pick<Request, 'bodyType' | 'bodyContent'>
+export const getBodyData = ({ type, content }: Body) => {
+  if (content === undefined) return undefined
 
-export const getBodyData = ({ bodyType, bodyContent }: GetBodyData) => {
-  if (bodyContent === undefined) return undefined
-
-  if (bodyType === 'json') {
+  if (type === 'json') {
     try {
-      return JSON.parse(bodyContent)
+      return JSON.parse(content)
     } catch (e) {
-      return bodyContent
+      return content
     }
   }
-  return bodyContent
+  return content
 }
 
 interface GenerateEditorDefaultProps {

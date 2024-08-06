@@ -51,7 +51,7 @@ const RequestResponsePanel = () => {
         }, {}),
         ...(request ? getAuthConfig(request) : {}),
       },
-      data: request ? getBodyData({ ...request }) : '',
+      data: request?.body ? getBodyData({ ...request.body }) : '',
       url: request ? getRequestWithQueryParams(request) : '',
     },
     enabled: false,

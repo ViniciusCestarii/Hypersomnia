@@ -111,10 +111,7 @@ const RequestOptionPanel = () => {
               )
             </TabsTrigger>
             <TabsTrigger value="body" onClick={() => setTab('body')}>
-              body{' '}
-              {request?.bodyType && request.bodyType !== 'none' && (
-                <Code2 className="size-4 ml-2" />
-              )}
+              body {request?.body && <Code2 className="size-4 ml-2" />}
             </TabsTrigger>
             <TabsTrigger value="auth" onClick={() => setTab('auth')}>
               auth {request?.auth?.enabled && <Key className="size-4 ml-2" />}

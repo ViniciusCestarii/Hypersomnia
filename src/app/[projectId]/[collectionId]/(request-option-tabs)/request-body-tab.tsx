@@ -53,13 +53,13 @@ const RequestBodyTab = () => {
 
   const editorProps: EditorProps = useMemo(
     () => ({
-      onChange: (value) => updateRequestField('bodyContent', value),
+      onChange: (value) => updateRequestField('body.content', value),
     }),
     [updateRequestField],
   )
 
-  const bodyType = request.bodyType ?? 'none'
-  const bodyContent = request.bodyContent ?? ''
+  const bodyType = request.body?.type ?? 'none'
+  const bodyContent = request.body?.content ?? ''
 
   const renderBodyInput = () => {
     switch (bodyType) {
@@ -95,9 +95,11 @@ const RequestBodyTab = () => {
         value={bodyType}
         onValueChange={(value) => {
           if (value === 'none') {
-            updateRequestField('bodyContent', undefined)
+            updateRequestField('body', undefined)
+            return
           }
-          updateRequestField('bodyType', value)
+
+          updateRequestField('body.type', value)
         }}
       >
         <SelectTrigger

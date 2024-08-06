@@ -2,11 +2,9 @@ import { findSystemNodeByPath, updateRequestInFileSystem } from '@/lib/utils'
 import {
   Collection,
   Cookie,
-  QueryParameters,
   Request,
   RequestFetchResult,
 } from '@/types/collection'
-import { v4 as uuidv4 } from 'uuid'
 import { create, StateCreator } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { CreateProject, Project } from '../types/project'
@@ -169,8 +167,10 @@ const initialProjects: Project[] = [
                 name: 'request 4',
                 request: {
                   url: 'https://jsonplaceholder.typicode.com/posts',
-                  bodyType: 'json',
-                  bodyContent: '{"title": "foo", "body": "bar", "userId": 1}',
+                  body: {
+                    type: 'json',
+                    content: '{"title": "foo", "body": "bar", "userId": 1}',
+                  },
                   options: {
                     method: 'post',
                   },
