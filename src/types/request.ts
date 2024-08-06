@@ -71,7 +71,7 @@ export type HypersomniaRequest = {
 }
 
 export type RequestFetchResult = {
-  data?: unknown | null
+  data?: unknown
   timeTaken?: number | null
   requestStartTime?: number | null
   response?: AxiosResponse<unknown> | null
