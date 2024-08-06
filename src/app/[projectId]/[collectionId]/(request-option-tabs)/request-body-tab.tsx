@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { BodyType } from '@/types/collection'
+import { BodyType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { EditorProps } from '@monaco-editor/react'
 import { Boxes, Code2, MoreHorizontal } from 'lucide-react'

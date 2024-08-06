@@ -5,7 +5,7 @@ import OrdenableInput from '@/components/ui/panel/ordenable-input'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import TypographyH3 from '@/components/ui/Typography-h3'
 import { getDefinedHeaders } from '@/lib/utils'
-import { Headers } from '@/types/collection'
+import { RequestHeaders } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
   closestCenter,
@@ -37,7 +37,12 @@ const RequestHeadersTab = () => {
     (state) => state.updateRequestField,
   )
   const addHeader = () => {
-    const newHeader: Headers = { id: v4(), key: '', value: '', enabled: true }
+    const newHeader: RequestHeaders = {
+      id: v4(),
+      key: '',
+      value: '',
+      enabled: true,
+    }
     updateRequestField('headers', [...(request?.headers ?? []), newHeader])
   }
 

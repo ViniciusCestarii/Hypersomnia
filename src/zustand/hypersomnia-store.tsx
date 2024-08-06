@@ -1,13 +1,14 @@
 import { findSystemNodeByPath, updateRequestInFileSystem } from '@/lib/utils'
+import { create, StateCreator } from 'zustand'
+import { persist } from 'zustand/middleware'
 import {
   Collection,
   Cookie,
-  Request,
+  CreateProject,
+  HypersomniaRequest,
+  Project,
   RequestFetchResult,
-} from '@/types/collection'
-import { create, StateCreator } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { CreateProject, Project } from '../types/project'
+} from '@/types'
 
 type HypersomniaStore = {
   projects: Project[]
@@ -20,16 +21,16 @@ type HypersomniaStore = {
   updateCollection: (collection: Collection) => void
   selectCollection: (id: string) => void
   selectedRequestPath: string[] | null
-  selectedRequest: Request | null
+  selectedRequest: HypersomniaRequest | null
   sendTrigger: boolean | undefined
   requestFetchResult: RequestFetchResult | null
   setRequestFetchResult: (requestFetchResult: RequestFetchResult | null) => void
   selectRequest: (path: string[]) => void
   sendRequest: () => void
-  updateSelectedRequest: (request: Request) => void
+  updateSelectedRequest: (request: HypersomniaRequest) => void
   updateRequestField: (field: string, value: unknown) => void
   updateRequestOptionField: (
-    field: keyof Request['options'],
+    field: keyof HypersomniaRequest['options'],
     value: unknown,
   ) => void
   cookies: Cookie[]

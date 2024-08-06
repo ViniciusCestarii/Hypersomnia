@@ -51,7 +51,7 @@ const RequestResponsePanel = () => {
         }, {}),
         ...(request ? getAuthConfig(request) : {}),
       },
-      data: request?.body ? getBodyData({ ...request.body }) : '',
+      data: request?.body ? getBodyData(request.body) : '',
       url: request ? getRequestWithQueryParams(request) : '',
     },
     enabled: false,
@@ -83,10 +83,7 @@ const RequestResponsePanel = () => {
           ) : (
             error && (
               <span
-                className={cn(
-                  'font-semibold text-nowrap',
-                  getStatusColor(response?.status),
-                )}
+                className={cn('font-semibold text-nowrap', getStatusColor(500))}
                 title={`${error.message} could be due to CORS policy, network
                     connection, bad DNS, or others issues`}
               >

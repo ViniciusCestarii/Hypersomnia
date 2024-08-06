@@ -1,12 +1,4 @@
-import { AxiosRequestConfig } from 'axios'
-
-/* eslint-disable no-use-before-define */
-export type FileSystemNode = {
-  name: string
-  children?: FileSystemNode[]
-  isFolder?: boolean
-  request?: Request
-}
+import { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 export type MethodType =
   | 'get'
@@ -29,58 +21,53 @@ type OverrideAxiosRequestConfig = {
   method: MethodType
 }
 
-export type QueryParameters = {
+export type RequestQueryParameters = {
   id: string
   key?: string
   value?: string
   enabled: boolean
 }
 
-export type Headers = {
+export type RequestHeaders = {
   id: string
   key?: string
   value?: string
   enabled: boolean
 }
 
-type AuthType = 'basic' | 'bearer token' | 'none'
+export type AuthType = 'basic' | 'bearer token' | 'none'
 
-type AuthBasic = {
+export type AuthBasic = {
   username?: string
   password?: string
 }
 
-type AuthBearerToken = {
+export type AuthBearerToken = {
   prefix?: string
   token?: string
 }
 
-type Auth = {
+export type RequestAuth = {
   type: AuthType
   enabled: boolean
   data?: AuthBasic | AuthBearerToken
 }
 
-type Body = {
+export type RequestBody = {
   type: BodyType
   content: string
 }
 
-export type Request = {
-  url: string
-  body?: Body
-  auth?: Auth
-  doc?: string
-  queryParameters?: QueryParameters[]
-  headers?: Headers[]
-  options: AxiosRequestConfig & OverrideAxiosRequestConfig
-}
+export type RequestOptions = AxiosRequestConfig & OverrideAxiosRequestConfig
 
-export type Collection = {
-  id: string
-  title: string
-  description: string
-  fileSystem: FileSystemNode[]
+export type HypersomniaRequest = {
+  url: string
+  body?: RequestBody
+  auth?: RequestAuth
+  doc?: string
+  queryParameters?: RequestQueryParameters[]
+  headers?: RequestHeaders[]
+  options: RequestOptions
 }
 
 export type RequestFetchResult = {
@@ -96,5 +83,3 @@ export type Cookie = {
   name: string
   value: string
 }
-
-export type CreateCollection = Omit<Collection, 'id'>

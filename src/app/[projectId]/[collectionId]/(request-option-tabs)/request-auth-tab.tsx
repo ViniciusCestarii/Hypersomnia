@@ -11,11 +11,11 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { AuthType } from '@/types/collection'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { Key, MoreHorizontal } from 'lucide-react'
 import BasicAuthInput from './(request-auth-input)/basic-auth-input'
 import BearerTokenAuthInput from './(request-auth-input)/bearer-token-input'
+import { AuthType } from '@/types'
 
 interface AuthTypeOption {
   value: AuthType
