@@ -11,7 +11,7 @@ export type MethodType =
 
 export type BodyTypeStructured = 'form-data' | 'x-www-form-urlencoded'
 
-export type BodyTypeText = 'json' | 'xml' | 'yaml' | 'plain-text'
+export type BodyTypeText = 'json' | 'xml' | 'yaml' | 'edn' | 'plain-text'
 
 export type BodyTypeOther = 'file' | 'none'
 

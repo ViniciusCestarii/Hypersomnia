@@ -16,4 +16,4 @@
 
 [ ] If a header will be overridden, add a warning for the user (make it yellow).
 
-[ ] Add suport for EDN body
+[x] Add suport for EDN body

@@ -32,6 +32,7 @@ const bodyTypes: Record<string, BodyTypeOption[]> = {
     { value: 'json', label: 'JSON' },
     { value: 'xml', label: 'XML' },
     { value: 'yaml', label: 'YAML' },
+    { value: 'edn', label: 'EDN' },
     { value: 'plain-text', label: 'Plain Text' },
   ],
   Other: [
@@ -70,6 +71,7 @@ const RequestBodyTab = () => {
         return <Editor {...editorProps} language="xml" value={bodyContent} />
       case 'yaml':
         return <Editor {...editorProps} language="yaml" value={bodyContent} />
+      case 'edn':
       case 'plain-text':
         return (
           <Editor {...editorProps} language="plaintext" value={bodyContent} />

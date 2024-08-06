@@ -393,6 +393,8 @@ export const getTextContentTypeFromBodyType = (
       return 'text/plain'
     case 'yaml':
       return 'application/x-yaml'
+    case 'edn':
+      return 'application/edn'
     case 'file':
       return 'application/octet-stream'
     case 'form-data':
