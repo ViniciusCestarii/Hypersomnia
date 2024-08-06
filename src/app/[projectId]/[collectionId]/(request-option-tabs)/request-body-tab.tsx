@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { generateUUID, getTextContentTypeFromBodyType } from '@/lib/utils'
 import { BodyType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { EditorProps } from '@monaco-editor/react'
@@ -93,13 +94,46 @@ const RequestBodyTab = () => {
       </Label>
       <Select
         value={bodyType}
-        onValueChange={(value) => {
+        onValueChange={(value: BodyType) => {
+          const requestHeaders = request.headers ?? []
+          const headerContentType =
+            requestHeaders.length > 0 &&
+            requestHeaders.find((headers) => headers.key === 'Content-Type')
           if (value === 'none') {
             updateRequestField('body', undefined)
+            if (headerContentType) {
+              updateRequestField(
+                'headers',
+                requestHeaders.filter(
+                  (headers) => headers.key !== 'Content-Type',
+                ),
+              )
+            }
             return
           }
 
           updateRequestField('body.type', value)
+          if (!headerContentType) {
+            const contentTypeValue = getTextContentTypeFromBodyType(value)
+            updateRequestField('headers', [
+              {
+                id: generateUUID(),
+                key: 'Content-Type',
+                value: contentTypeValue,
+                enabled: true,
+              },
+              ...requestHeaders,
+            ])
+          } else {
+            updateRequestField(
+              'headers',
+              requestHeaders.map((headers) =>
+                headers.key === 'Content-Type'
+                  ? { ...headers, value: getTextContentTypeFromBodyType(value) }
+                  : headers,
+              ),
+            )
+          }
         }}
       >
         <SelectTrigger

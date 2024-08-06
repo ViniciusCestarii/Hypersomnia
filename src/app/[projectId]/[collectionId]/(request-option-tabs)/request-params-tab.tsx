@@ -5,7 +5,7 @@ import DeleteConfirmationButton from '@/components/ui/panel/delete-confirmation-
 import OrdenableInput from '@/components/ui/panel/ordenable-input'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import TypographyH3 from '@/components/ui/Typography-h3'
-import { getRequestWithQueryParams } from '@/lib/utils'
+import { generateUUID, getRequestWithQueryParams } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
   closestCenter,
@@ -29,7 +29,6 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { Plus } from 'lucide-react'
 import { forwardRef, useState } from 'react'
-import { v4 } from 'uuid'
 
 const RequestParamsTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
@@ -66,7 +65,7 @@ const QueryParametersSection = () => {
   )
 
   const addQueryParam = () => {
-    const newQueryParam = { id: v4(), enabled: true }
+    const newQueryParam = { id: generateUUID(), enabled: true }
     updateRequestField('queryParameters', [
       ...(request.queryParameters ?? []),
       newQueryParam,

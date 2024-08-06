@@ -13,6 +13,7 @@ import {
   MethodType,
   RequestBody,
 } from '@/types'
+import { v4 } from 'uuid'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -377,3 +378,28 @@ export const getCookies = (): Cookie[] => {
 export const getDefinedHeaders = () => ({
   Accept: '*/*',
 })
+
+export const generateUUID = (): string => v4()
+
+export const getTextContentTypeFromBodyType = (
+  type: RequestBody['type'],
+): string => {
+  switch (type) {
+    case 'json':
+      return 'application/json'
+    case 'xml':
+      return 'application/xml'
+    case 'plain-text':
+      return 'text/plain'
+    case 'yaml':
+      return 'application/x-yaml'
+    case 'file':
+      return 'application/octet-stream'
+    case 'form-data':
+      return 'multipart/form-data'
+    case 'x-www-form-urlencoded':
+      return 'application/x-www-form-urlencoded'
+    default:
+      return 'application/json'
+  }
+}

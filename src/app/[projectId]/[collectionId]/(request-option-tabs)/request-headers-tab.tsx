@@ -4,7 +4,7 @@ import DeleteConfirmationButton from '@/components/ui/panel/delete-confirmation-
 import OrdenableInput from '@/components/ui/panel/ordenable-input'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import TypographyH3 from '@/components/ui/Typography-h3'
-import { getDefinedHeaders } from '@/lib/utils'
+import { generateUUID, getDefinedHeaders } from '@/lib/utils'
 import { RequestHeaders } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
@@ -29,7 +29,6 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { Plus, Terminal } from 'lucide-react'
 import { forwardRef, useState } from 'react'
-import { v4 } from 'uuid'
 
 const RequestHeadersTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
@@ -38,7 +37,7 @@ const RequestHeadersTab = () => {
   )
   const addHeader = () => {
     const newHeader: RequestHeaders = {
-      id: v4(),
+      id: generateUUID(),
       key: '',
       value: '',
       enabled: true,

@@ -12,7 +12,7 @@
 
 [ ] Store last request response on request
 
-[ ] Apply automatically the right Content-Type header when body is selected
+[x] Apply automatically the right Content-Type header when body is selected
 
 [ ] If a header will be overridded add a warning to user (make it warning yellow)
 
