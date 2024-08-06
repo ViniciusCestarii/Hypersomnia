@@ -203,7 +203,7 @@ const SortableHeadersInput = ({ id, index }: { id: string; index: number }) => {
 
   const thisHeader = headers.find((header) => header.id === id)!
   const duplicateIndex = headers.findLastIndex(
-    (header) => header.key === thisHeader.key,
+    (header) => header.key?.toLowerCase() === thisHeader.key?.toLowerCase(),
   )
 
   const willBeOverriden = duplicateIndex > index
