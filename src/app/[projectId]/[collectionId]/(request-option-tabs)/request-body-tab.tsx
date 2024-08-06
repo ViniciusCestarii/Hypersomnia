@@ -15,7 +15,7 @@ import { generateUUID, getTextContentTypeFromBodyType } from '@/lib/utils'
 import { BodyType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { EditorProps } from '@monaco-editor/react'
-import { Boxes, Code2, MoreHorizontal } from 'lucide-react'
+import { AlertCircle, Boxes, Code2, MoreHorizontal } from 'lucide-react'
 import { useMemo } from 'react'
 
 interface BodyTypeOption {
@@ -91,83 +91,101 @@ const RequestBodyTab = () => {
 
   return (
     <>
-      <Label className="sr-only" htmlFor="request-body-type">
-        Body type
-      </Label>
-      <Select
-        value={bodyType}
-        onValueChange={(value: BodyType) => {
-          const requestHeaders = request.headers ?? []
-          const headerContentType =
-            requestHeaders.length > 0 &&
-            requestHeaders.find((headers) => headers.key === 'Content-Type')
-          if (value === 'none') {
-            updateRequestField('body', undefined)
-            if (headerContentType) {
+      <div className="flex items-center">
+        <Label className="sr-only" htmlFor="request-body-type">
+          Body type
+        </Label>
+        <Select
+          value={bodyType}
+          onValueChange={(value: BodyType) => {
+            const requestHeaders = request.headers ?? []
+            const headerContentType =
+              requestHeaders.length > 0 &&
+              requestHeaders.find((headers) => headers.key === 'Content-Type')
+            if (value === 'none') {
+              updateRequestField('body', undefined)
+              if (headerContentType) {
+                updateRequestField(
+                  'headers',
+                  requestHeaders.filter(
+                    (headers) => headers.key !== 'Content-Type',
+                  ),
+                )
+              }
+              return
+            }
+
+            updateRequestField('body.type', value)
+            if (!headerContentType) {
+              const contentTypeValue = getTextContentTypeFromBodyType(value)
+              updateRequestField('headers', [
+                {
+                  id: generateUUID(),
+                  key: 'Content-Type',
+                  value: contentTypeValue,
+                  enabled: true,
+                },
+                ...requestHeaders,
+              ])
+            } else {
               updateRequestField(
                 'headers',
-                requestHeaders.filter(
-                  (headers) => headers.key !== 'Content-Type',
+                requestHeaders.map((headers) =>
+                  headers.key === 'Content-Type'
+                    ? {
+                        ...headers,
+                        value: getTextContentTypeFromBodyType(value),
+                      }
+                    : headers,
                 ),
               )
             }
-            return
-          }
-
-          updateRequestField('body.type', value)
-          if (!headerContentType) {
-            const contentTypeValue = getTextContentTypeFromBodyType(value)
-            updateRequestField('headers', [
-              {
-                id: generateUUID(),
-                key: 'Content-Type',
-                value: contentTypeValue,
-                enabled: true,
-              },
-              ...requestHeaders,
-            ])
-          } else {
-            updateRequestField(
-              'headers',
-              requestHeaders.map((headers) =>
-                headers.key === 'Content-Type'
-                  ? { ...headers, value: getTextContentTypeFromBodyType(value) }
-                  : headers,
-              ),
-            )
-          }
-        }}
-      >
-        <SelectTrigger
-          aria-label="request body type"
-          id="request-body-type"
-          className="border-0 w-fit"
+          }}
         >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.entries(bodyTypes).map(([group, options]) => {
-            const Icon = groupIcons[group] ?? null
-            return (
-              <SelectGroup key={group}>
-                <SelectLabel className="flex items-center text-muted-foreground text-xs">
-                  {Icon && <Icon className="mr-2 size-4" />}
-                  {group}
-                </SelectLabel>
-                {options.map(({ value, label }) => (
-                  <SelectItem
-                    key={value}
-                    value={value}
-                    className="ml-2 text-xs"
-                  >
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            )
-          })}
-        </SelectContent>
-      </Select>
+          <SelectTrigger
+            aria-label="request body type"
+            id="request-body-type"
+            className="border-0 w-fit"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(bodyTypes).map(([group, options]) => {
+              const Icon = groupIcons[group] ?? null
+              return (
+                <SelectGroup key={group}>
+                  <SelectLabel className="flex items-center text-muted-foreground text-xs">
+                    {Icon && <Icon className="mr-2 size-4" />}
+                    {group}
+                  </SelectLabel>
+                  {options.map(({ value, label }) => (
+                    <SelectItem
+                      key={value}
+                      value={value}
+                      className="ml-2 text-xs"
+                    >
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              )
+            })}
+          </SelectContent>
+        </Select>
+        {request.options.method === 'get' && bodyType !== 'none' && (
+          <div className="text-warning text-xs flex gap-1" role="alert">
+            <AlertCircle className="size-4 shrink-0" aria-hidden="true" />
+            <a
+              className="hover:underline"
+              target="_blank"
+              href="https://developer.mozilla.org/docs/Web/HTTP/Methods/GET"
+              rel="noreferrer"
+            >
+              GET requests should not have a request body
+            </a>
+          </div>
+        )}
+      </div>
       <Separator />
       {renderBodyInput()}
     </>
