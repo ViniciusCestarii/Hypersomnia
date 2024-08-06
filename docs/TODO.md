@@ -14,6 +14,8 @@
 
 [x] Apply automatically the right Content-Type header when body is selected
 
-[ ] If a header will be overridden, add a warning for the user (make it yellow).
+[x] If a header will be overridden, add a warning for the user (make it yellow).
+
+[x] If a header is forbidden, add a warning for the user (make it red).
 
 [x] Add suport for EDN body
