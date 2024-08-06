@@ -11,3 +11,9 @@
 [x] Show code with status text on the response panel
 
 [ ] Store last request response on request
+
+[ ] Apply automatically the right Content-Type header when body is selected
+
+[ ] If a header will be overridded add a warning to user (make it warning yellow)
+
+[ ] Add suport for EDN body
