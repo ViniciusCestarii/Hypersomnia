@@ -4,7 +4,7 @@ import DeleteConfirmationButton from '@/components/ui/panel/delete-confirmation-
 import OrdenableInput from '@/components/ui/panel/ordenable-input'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import TypographyH3 from '@/components/ui/Typography-h3'
-import { generateUUID, getDefinedHeaders } from '@/lib/utils'
+import { cn, generateUUID, getDefinedHeaders } from '@/lib/utils'
 import { RequestHeaders } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
@@ -137,8 +137,8 @@ const RequestHeadersTab = () => {
               items={localHeaderssId}
               strategy={verticalListSortingStrategy}
             >
-              {localHeaderssId.map((id) => (
-                <SortableHeadersInput key={id} id={id} />
+              {localHeaderssId.map((id, index) => (
+                <SortableHeadersInput key={id} id={id} index={index} />
               ))}
             </SortableContext>
             <DragOverlay>
@@ -177,7 +177,7 @@ interface HeadersInputProps extends React.HTMLProps<HTMLLIElement> {
   gripProps?: ButtonProps
 }
 
-const SortableHeadersInput = ({ id }: { id: string }) => {
+const SortableHeadersInput = ({ id, index }: { id: string; index: number }) => {
   const {
     attributes,
     listeners,
@@ -193,12 +193,26 @@ const SortableHeadersInput = ({ id }: { id: string }) => {
     transition,
   }
 
+  const request = useHypersomniaStore((state) => state.selectedRequest!)
+  const headers = request.headers ?? []
+
+  const thisHeader = headers.find((header) => header.id === id)!
+  const duplicateIndex = headers.findIndex(
+    (header) => header.key === thisHeader.key,
+  )
+
+  const willBeOverriden = duplicateIndex < index
+
   return (
     <HeadersInput
       id={id}
       ref={setNodeRef}
       style={style}
-      className={isDragging ? 'opacity-50' : ''}
+      className={cn(
+        isDragging && 'opacity-50',
+        willBeOverriden && 'bg-warning/20',
+      )}
+      title={willBeOverriden ? 'This header will be overriden' : undefined}
       gripProps={{
         ref: setActivatorNodeRef,
         className: isDragging ? 'cursor-grabbing' : '',
@@ -219,6 +233,7 @@ const HeadersInput = forwardRef<HTMLLIElement, HeadersInputProps>(
     const header = headers.find((p) => p.id === id)
 
     if (!header) return null
+
     return (
       <OrdenableInput
         {...props}
