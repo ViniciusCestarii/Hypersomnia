@@ -1,18 +1,18 @@
-import {
-  AuthBasic,
-  AuthBearerToken,
-  Cookie,
-  FileSystemNode,
-  FileSystemNode as FileSystemNodeType,
-  MethodType,
-  Request,
-} from '@/types/collection'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
 import { html as beautifyHtml } from 'js-beautify'
 import { EditorProps } from '@monaco-editor/react'
 import { AxiosRequestConfig } from 'axios'
+import {
+  AuthBasic,
+  AuthBearerToken,
+  Cookie,
+  FileSystemNode,
+  HypersomniaRequest,
+  MethodType,
+  RequestBody,
+} from '@/types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -47,9 +47,9 @@ export function getStatusColor(status: number): string {
 }
 
 export const filterNodes = (
-  nodes: FileSystemNodeType[],
+  nodes: FileSystemNode[],
   filter: string,
-): FileSystemNodeType[] => {
+): FileSystemNode[] => {
   if (!filter) return nodes
 
   const lowercasedFilter = filter.toLowerCase()
@@ -71,12 +71,12 @@ export const filterNodes = (
 }
 
 type FindResult = {
-  node: FileSystemNodeType | null
+  node: FileSystemNode | null
   path: string[]
 }
 
 export const findFirstRequestNode = (
-  nodes: FileSystemNodeType[],
+  nodes: FileSystemNode[],
   currentPath: string[] = [],
 ): FindResult => {
   for (const node of nodes) {
@@ -93,9 +93,9 @@ export const findFirstRequestNode = (
 }
 
 export const findFileByPath = (
-  nodes: FileSystemNodeType[],
+  nodes: FileSystemNode[],
   path: string[],
-): FileSystemNodeType | null => {
+): FileSystemNode | null => {
   let currentNodes = nodes
 
   for (const segment of path) {
@@ -117,7 +117,7 @@ export const findFileByPath = (
 export const updateRequestInFileSystem = (
   fileSystem: FileSystemNode[],
   path: string[],
-  updatedRequest: Request,
+  updatedRequest: HypersomniaRequest,
 ): FileSystemNode[] => {
   if (path.length === 0) return fileSystem
 
@@ -174,11 +174,14 @@ export const findSystemNodeByPath = (
   return findNode(fileSystem, path)
 }
 
-export const getRequestWithQueryParams = (request: Request): string => {
+export const getRequestWithQueryParams = (
+  request: HypersomniaRequest,
+): string => {
   if (
     !request.url &&
-    request.queryParameters.filter((param) => param.key && param.enabled)
-      .length === 0
+    (request?.queryParameters ?? []).filter(
+      (param) => param.key && param.enabled,
+    ).length === 0
   )
     return ''
   const params = new URLSearchParams()
@@ -272,19 +275,17 @@ export const httpStatusCodes: { [key: number]: string } = {
   511: 'Network Authentication Required',
 }
 
-type GetBodyData = Pick<Request, 'bodyType' | 'bodyContent'>
+export const getBodyData = ({ type, content }: RequestBody) => {
+  if (content === undefined) return undefined
 
-export const getBodyData = ({ bodyType, bodyContent }: GetBodyData) => {
-  if (bodyContent === undefined) return undefined
-
-  if (bodyType === 'json') {
+  if (type === 'json') {
     try {
-      return JSON.parse(bodyContent)
+      return JSON.parse(content)
     } catch (e) {
-      return bodyContent
+      return content
     }
   }
-  return bodyContent
+  return content
 }
 
 interface GenerateEditorDefaultProps {
@@ -328,7 +329,7 @@ export const timeAgo = (requestStartTime: number): string => {
 
 export const getAuthConfig = ({
   auth,
-}: Request): AxiosRequestConfig['headers'] => {
+}: HypersomniaRequest): AxiosRequestConfig['headers'] => {
   if (!auth?.enabled) return {}
 
   switch (auth.type) {
@@ -372,3 +373,7 @@ export const getCookies = (): Cookie[] => {
 
   return result
 }
+
+export const getDefinedHeaders = () => ({
+  Accept: '*/*',
+})

@@ -39,7 +39,10 @@ const ResponseHeadersTab = () => {
           <Terminal className="size-4" />
           <AlertTitle>Some headers may not be displayed</AlertTitle>
           <AlertDescription className="text-xs">
-            Please check the Network tab in your browser&apos;s developer tools.{' '}
+            Certain headers like <code>User-Agent</code> and{' '}
+            <code>Referer</code>, may not be accessible from browser for
+            security reasons.Please check the Network tab in your browser&apos;s
+            developer tools.{' '}
             <a
               href="https://developer.mozilla.org/docs/Web/HTTP/Headers/Access-Control-Expose-Headers"
               className="underline"

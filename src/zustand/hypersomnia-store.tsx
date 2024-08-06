@@ -1,15 +1,14 @@
 import { findSystemNodeByPath, updateRequestInFileSystem } from '@/lib/utils'
+import { create, StateCreator } from 'zustand'
+import { persist } from 'zustand/middleware'
 import {
   Collection,
   Cookie,
-  QueryParameters,
-  Request,
+  CreateProject,
+  HypersomniaRequest,
+  Project,
   RequestFetchResult,
-} from '@/types/collection'
-import { v4 as uuidv4 } from 'uuid'
-import { create, StateCreator } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { CreateProject, Project } from '../types/project'
+} from '@/types'
 
 type HypersomniaStore = {
   projects: Project[]
@@ -22,24 +21,16 @@ type HypersomniaStore = {
   updateCollection: (collection: Collection) => void
   selectCollection: (id: string) => void
   selectedRequestPath: string[] | null
-  selectedRequest: Request | null
+  selectedRequest: HypersomniaRequest | null
   sendTrigger: boolean | undefined
   requestFetchResult: RequestFetchResult | null
   setRequestFetchResult: (requestFetchResult: RequestFetchResult | null) => void
   selectRequest: (path: string[]) => void
   sendRequest: () => void
-  updateSelectedRequest: (request: Request) => void
-  addQueryParam: () => void
-  updateQueryParamField: (
-    id: string,
-    field: keyof QueryParameters,
-    value: unknown,
-  ) => void
-  deleteQueryParam: (id: string) => void
-  deleteAllParams: () => void
+  updateSelectedRequest: (request: HypersomniaRequest) => void
   updateRequestField: (field: string, value: unknown) => void
   updateRequestOptionField: (
-    field: keyof Request['options'],
+    field: keyof HypersomniaRequest['options'],
     value: unknown,
   ) => void
   cookies: Cookie[]
@@ -98,6 +89,20 @@ const initialProjects: Project[] = [
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/posts',
                       doc: testMd,
+                      headers: [
+                        {
+                          id: 'f4b3a0d1-6c1c-4d2c-9f3f-1b0b1d5c3c9e',
+                          key: 'Content-Type',
+                          value: 'application/json',
+                          enabled: true,
+                        },
+                        {
+                          id: 'c3b9e7a3-4d36-4d97-9106-ac50c833b700',
+                          key: 'X-Client-Version',
+                          value: 'hypersomnia/0.0.1',
+                          enabled: true,
+                        },
+                      ],
                       queryParameters: [
                         {
                           id: '22d4ae2e-d37b-4538-a37a-c8b009c8886f',
@@ -126,7 +131,6 @@ const initialProjects: Project[] = [
                     name: 'request 2',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/users',
-                      queryParameters: [],
                       options: {
                         method: 'get',
                       },
@@ -148,7 +152,6 @@ const initialProjects: Project[] = [
                     name: 'request 3',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/posts',
-                      queryParameters: [],
                       options: {
                         method: 'post',
                         data: {
@@ -165,9 +168,10 @@ const initialProjects: Project[] = [
                 name: 'request 4',
                 request: {
                   url: 'https://jsonplaceholder.typicode.com/posts',
-                  bodyType: 'json',
-                  bodyContent: '{"title": "foo", "body": "bar", "userId": 1}',
-                  queryParameters: [],
+                  body: {
+                    type: 'json',
+                    content: '{"title": "foo", "body": "bar", "userId": 1}',
+                  },
                   options: {
                     method: 'post',
                   },
@@ -181,7 +185,6 @@ const initialProjects: Project[] = [
                     name: 'request 4',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/users',
-                      queryParameters: [],
                       options: {
                         method: 'post',
                         data: {
@@ -199,7 +202,6 @@ const initialProjects: Project[] = [
             name: 'put',
             request: {
               url: 'https://jsonplaceholder.typicode.com/posts/1',
-              queryParameters: [],
               options: {
                 method: 'put',
                 data: {
@@ -215,7 +217,6 @@ const initialProjects: Project[] = [
             name: 'Test Basic Auth',
             request: {
               url: 'https://httpbin.org/basic-auth/user/pass',
-              queryParameters: [],
               auth: {
                 type: 'basic',
                 enabled: true,
@@ -233,7 +234,6 @@ const initialProjects: Project[] = [
             name: 'Get Cookie',
             request: {
               url: 'https://yummy-cookies.vercel.app',
-              queryParameters: [],
               options: {
                 method: 'get',
               },
@@ -389,46 +389,6 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         selectedCollection: updatedCollection,
         selectedRequest: updatedRequest,
       }
-    }),
-  addQueryParam: () =>
-    set((state) => {
-      if (!state.selectedRequest) return state
-      const params = [...state.selectedRequest.queryParameters]
-      params.push({ id: uuidv4(), key: '', value: '', enabled: true })
-      state.updateRequestField('queryParameters', params)
-      return {}
-    }),
-  updateQueryParamField: (id, field, value) =>
-    set((state) => {
-      if (!state.selectedRequest) return state
-      const params = [...state.selectedRequest.queryParameters]
-      const queryParamToUpdateId =
-        state.selectedRequest.queryParameters.findIndex(
-          (param) => param.id === id,
-        )
-      params[queryParamToUpdateId] = {
-        ...params[queryParamToUpdateId],
-        [field]: value,
-      }
-      state.updateRequestField('queryParameters', params)
-      return {}
-    }),
-  deleteQueryParam: (id) =>
-    set((state) => {
-      if (!state.selectedRequest) return state
-      const params = [...state.selectedRequest.queryParameters]
-
-      state.updateRequestField(
-        'queryParameters',
-        params.filter((param) => param.id !== id),
-      )
-      return {}
-    }),
-  deleteAllParams: () =>
-    set((state) => {
-      if (!state.selectedRequest) return state
-      state.updateRequestField('queryParameters', [])
-      return {}
     }),
   updateRequestField: (field, value) =>
     set((state) => {

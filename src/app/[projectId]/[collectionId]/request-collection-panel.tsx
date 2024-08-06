@@ -6,7 +6,7 @@ import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-contain
 import RequestMethodBadge from '@/components/ui/panel/request-method-badge'
 import { Separator } from '@/components/ui/separator'
 import { filterNodes } from '@/lib/utils'
-import { FileSystemNode as FileSystemNodeType } from '@/types/collection'
+import { FileSystemNode as FileSystemNodeType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
   AlertCircle,

@@ -1,5 +1,5 @@
 import { cn, getMethodColor } from '@/lib/utils'
-import { MethodType } from '@/types/collection'
+import { MethodType } from '@/types'
 
 interface RequestMethodBadgeProps {
   method: MethodType

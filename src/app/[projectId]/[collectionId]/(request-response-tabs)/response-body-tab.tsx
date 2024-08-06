@@ -1,6 +1,6 @@
 import Editor from '@/components/ui/panel/editor'
 import { formatHtmlContent } from '@/lib/utils'
-import { BodyTypeText } from '@/types/collection'
+import { BodyTypeText } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 
 interface BodyDataType {

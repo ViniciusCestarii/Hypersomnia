@@ -22,6 +22,8 @@ import RequestParamsTab from './(request-option-tabs)/request-params-tab'
 import RequestAuthTab from './(request-option-tabs)/request-auth-tab'
 import useDefineMonacoTheme from '@/hooks/useDefineMonacoTheme'
 import RequestDocsTab from './(request-option-tabs)/request-docs-tab'
+import RequestHeadersTab from './(request-option-tabs)/request-headers-tab'
+import { Code2, Key } from 'lucide-react'
 
 const RequestOptionPanel = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest)
@@ -99,19 +101,31 @@ const RequestOptionPanel = () => {
           <TabsList className="flex justify-start">
             <TabsTrigger
               value="params"
-              className="min-w-24"
+              className="min-w-[6.25rem]"
               onClick={() => setTab('params')}
             >
-              params ({request?.queryParameters.length ?? 0})
+              params (
+              {request?.queryParameters?.filter(
+                (query) => query.key && query.enabled,
+              ).length ?? 0}
+              )
             </TabsTrigger>
             <TabsTrigger value="body" onClick={() => setTab('body')}>
-              body
+              body {request?.body && <Code2 className="size-4 ml-2" />}
             </TabsTrigger>
             <TabsTrigger value="auth" onClick={() => setTab('auth')}>
-              auth
+              auth {request?.auth?.enabled && <Key className="size-4 ml-2" />}
             </TabsTrigger>
-            <TabsTrigger value="headers" onClick={() => setTab('headers')}>
-              headers
+            <TabsTrigger
+              value="headers"
+              className="min-w-[6.5rem]"
+              onClick={() => setTab('headers')}
+            >
+              headers (
+              {request?.headers?.filter(
+                (header) => header.key && header.enabled,
+              ).length ?? 0}
+              )
             </TabsTrigger>
             <TabsTrigger value="docs" onClick={() => setTab('docs')}>
               docs
@@ -131,8 +145,8 @@ const RequestOptionPanel = () => {
             <TabsContent value="auth" className="mt-0">
               <RequestAuthTab />
             </TabsContent>
-            <TabsContent value="headers">
-              {/* Your HeadersTab component or content goes here */}
+            <TabsContent value="headers" className="mt-0">
+              <RequestHeadersTab />
             </TabsContent>
             <TabsContent value="docs" className="mt-0">
               <RequestDocsTab />

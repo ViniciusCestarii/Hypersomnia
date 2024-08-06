@@ -1,6 +1,6 @@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { AuthBearerToken } from '@/types/collection'
+import { AuthBearerToken } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 
 const BearerTokenAuthInput = () => {

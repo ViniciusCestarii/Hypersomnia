@@ -1,11 +1,11 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button, ButtonProps } from '@/components/ui/button'
-import ClipboardButton from '@/components/ui/panel/clipboard-button'
 import DeleteConfirmationButton from '@/components/ui/panel/delete-confirmation-button'
 import OrdenableInput from '@/components/ui/panel/ordenable-input'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import TypographyH3 from '@/components/ui/Typography-h3'
-import { getRequestWithQueryParams } from '@/lib/utils'
+import { getDefinedHeaders } from '@/lib/utils'
+import { RequestHeaders } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
   closestCenter,
@@ -27,62 +27,35 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Plus } from 'lucide-react'
+import { Plus, Terminal } from 'lucide-react'
 import { forwardRef, useState } from 'react'
 import { v4 } from 'uuid'
 
-const RequestParamsTab = () => {
-  const request = useHypersomniaStore((state) => state.selectedRequest!)
-
-  const requestUrlWithQuery = getRequestWithQueryParams(request)
-  const isRequestUrlWithQueryEmpty = requestUrlWithQuery === ''
-
-  return (
-    <>
-      <Alert className="bg-foreground/5">
-        <AlertTitle className="uppercase text-xs text-foreground/75 ">
-          URL preview
-        </AlertTitle>
-        <AlertDescription className="text-xss break-words pr-8 max-h-20 min-w-24 relative">
-          {isRequestUrlWithQueryEmpty ? '...' : requestUrlWithQuery}
-          <ClipboardButton
-            label="copy URL"
-            disabled={isRequestUrlWithQueryEmpty}
-            text={requestUrlWithQuery}
-            variant={'ghost'}
-            className="absolute right-0 bottom-0"
-          />
-        </AlertDescription>
-      </Alert>
-      <QueryParametersSection />
-    </>
-  )
-}
-
-const QueryParametersSection = () => {
+const RequestHeadersTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
   const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
   )
-
-  const addQueryParam = () => {
-    const newQueryParam = { id: v4(), enabled: true }
-    updateRequestField('queryParameters', [
-      ...(request.queryParameters ?? []),
-      newQueryParam,
-    ])
+  const addHeader = () => {
+    const newHeader: RequestHeaders = {
+      id: v4(),
+      key: '',
+      value: '',
+      enabled: true,
+    }
+    updateRequestField('headers', [...(request?.headers ?? []), newHeader])
   }
 
-  const deleteAllParams = () => updateRequestField('queryParameters', undefined)
+  const deleteAllHeaders = () => updateRequestField('headers', undefined)
 
-  const queryParameters = request.queryParameters ?? []
+  const headers = request.headers ?? []
 
   const handleSaveReorder = (newOrder: string[]) => {
-    const reorderedParams = newOrder
-      .map((id) => queryParameters.find((param) => param.id === id))
-      .filter((param) => param !== undefined)
+    const reorderedHeaders = newOrder
+      .map((id) => headers.find((header) => header.id === id))
+      .filter((header) => header !== undefined)
 
-    updateRequestField('queryParameters', reorderedParams)
+    updateRequestField('headers', reorderedHeaders)
   }
 
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -109,7 +82,7 @@ const QueryParametersSection = () => {
     if (!over) return
 
     if (active.id !== over.id) {
-      const items = queryParameters.map((p) => p.id)
+      const items = headers.map((p) => p.id)
       const oldIndex = items.indexOf(active.id.toString())
       const newIndex = items.indexOf(over.id.toString())
 
@@ -119,37 +92,41 @@ const QueryParametersSection = () => {
     }
   }
 
-  const localQueryParamsId = queryParameters.map((p) => p.id)
+  const localHeaderssId = headers.map((p) => p.id)
 
   return (
     <>
-      <TypographyH3 className="pt-4 px-2 text-nowrap">
-        Query Parameters
-      </TypographyH3>
+      <TypographyH3 className="pt-2 px-2 text-nowrap">Headers</TypographyH3>
       <div className="flex">
         <Button
-          onClick={addQueryParam}
+          onClick={addHeader}
           size="sm"
           variant="ghost"
-          aria-label="add query parameter"
-          title="add query parameter"
+          aria-label="add header"
+          title="add header"
           className="rounded-none h-9 flex items-center"
         >
           <Plus size={12} className="mr-1" />
           Add
         </Button>
         <DeleteConfirmationButton
-          disabled={queryParameters.length === 0}
-          onConfirm={deleteAllParams}
+          disabled={headers.length === 0}
+          onConfirm={deleteAllHeaders}
           text="Delete all"
-          aria-label="delete all query parameters"
-          title="delete all query parameters"
+          aria-label="delete all headers"
+          title="delete all headers"
           className="rounded-none h-9 flex items-center"
           iconSize={12}
         />
       </div>
       <ScrollArea type="auto" className="h-[55vh]">
-        <ul className="py-[1px]">
+        <ul className="py-[1px] text-sm">
+          {Object.entries(getDefinedHeaders()).map(([key, value]) => (
+            <li key={key} className="grid grid-cols-[0.95fr_1.05fr] px-4">
+              <span>{key}:</span>
+              <span>{value}</span>
+            </li>
+          ))}
           <DndContext
             modifiers={[restrictToVerticalAxis]}
             sensors={sensors}
@@ -158,18 +135,36 @@ const QueryParametersSection = () => {
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={localQueryParamsId}
+              items={localHeaderssId}
               strategy={verticalListSortingStrategy}
             >
-              {localQueryParamsId.map((id) => (
-                <SortableQueryParamInput key={id} id={id} />
+              {localHeaderssId.map((id) => (
+                <SortableHeadersInput key={id} id={id} />
               ))}
             </SortableContext>
             <DragOverlay>
-              {activeId ? <QueryParamInput id={activeId} isOver /> : null}
+              {activeId ? <HeadersInput id={activeId} isOver /> : null}
             </DragOverlay>
           </DndContext>
         </ul>
+        <Alert className="mt-2">
+          <Terminal className="size-4" />
+          <AlertTitle>Some headers may be overriden by browser</AlertTitle>
+          <AlertDescription className="text-xs">
+            When making requests from the browser, certain headers like{' '}
+            <code>User-Agent</code> and <code>Referer</code> may be overridden
+            for security reasons. Please check the Network tab in your
+            browser&apos;s developer tools.{' '}
+            <a
+              href="https://developer.mozilla.org/docs/Glossary/Forbidden_header_name"
+              className="underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Know more
+            </a>
+          </AlertDescription>
+        </Alert>
         <ScrollBar orientation="horizontal" />
         <ScrollBar orientation="vertical" />
       </ScrollArea>
@@ -177,13 +172,13 @@ const QueryParametersSection = () => {
   )
 }
 
-interface QueryParamInputProps extends React.HTMLProps<HTMLLIElement> {
+interface HeadersInputProps extends React.HTMLProps<HTMLLIElement> {
   id: string
   isOver?: boolean
   gripProps?: ButtonProps
 }
 
-const SortableQueryParamInput = ({ id }: { id: string }) => {
+const SortableHeadersInput = ({ id }: { id: string }) => {
   const {
     attributes,
     listeners,
@@ -200,7 +195,7 @@ const SortableQueryParamInput = ({ id }: { id: string }) => {
   }
 
   return (
-    <QueryParamInput
+    <HeadersInput
       id={id}
       ref={setNodeRef}
       style={style}
@@ -215,30 +210,30 @@ const SortableQueryParamInput = ({ id }: { id: string }) => {
   )
 }
 
-const QueryParamInput = forwardRef<HTMLLIElement, QueryParamInputProps>(
+const HeadersInput = forwardRef<HTMLLIElement, HeadersInputProps>(
   (props, ref) => {
     const request = useHypersomniaStore((state) => state.selectedRequest!)
-    const queryParameters = request.queryParameters ?? []
+    const headers = request.headers ?? []
 
     const { id } = props
 
-    const param = queryParameters.find((p) => p.id === id)
+    const header = headers.find((p) => p.id === id)
 
-    if (!param) return null
+    if (!header) return null
     return (
       <OrdenableInput
         {...props}
         ref={ref}
-        allOrdenable={queryParameters}
-        ordenable={param}
-        pathField="queryParameters"
-        inputName="query param"
-        keyTitle="key"
+        allOrdenable={headers}
+        ordenable={header}
+        pathField="headers"
+        inputName="header"
+        keyTitle="name"
       />
     )
   },
 )
 
-QueryParamInput.displayName = 'QueryParamInput'
+HeadersInput.displayName = 'HeadersInput'
 
-export default RequestParamsTab
+export default RequestHeadersTab

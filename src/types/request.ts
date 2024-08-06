@@ -1,12 +1,4 @@
-import { AxiosRequestConfig } from 'axios'
-
-/* eslint-disable no-use-before-define */
-export type FileSystemNode = {
-  name: string
-  children?: FileSystemNode[]
-  isFolder?: boolean
-  request?: Request
-}
+import { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 export type MethodType =
   | 'get'
@@ -29,50 +21,57 @@ type OverrideAxiosRequestConfig = {
   method: MethodType
 }
 
-export type QueryParameters = {
+export type RequestQueryParameters = {
   id: string
   key?: string
   value?: string
   enabled: boolean
 }
 
-type AuthType = 'basic' | 'bearer token' | 'none'
+export type RequestHeaders = {
+  id: string
+  key?: string
+  value?: string
+  enabled: boolean
+}
 
-type AuthBasic = {
+export type AuthType = 'basic' | 'bearer token' | 'none'
+
+export type AuthBasic = {
   username?: string
   password?: string
 }
 
-type AuthBearerToken = {
+export type AuthBearerToken = {
   prefix?: string
   token?: string
 }
 
-type Auth = {
+export type RequestAuth = {
   type: AuthType
   enabled: boolean
   data?: AuthBasic | AuthBearerToken
 }
 
-export type Request = {
-  url: string
-  bodyType?: BodyType
-  bodyContent?: string
-  auth?: Auth
-  doc?: string
-  queryParameters: QueryParameters[]
-  options: AxiosRequestConfig & OverrideAxiosRequestConfig
+export type RequestBody = {
+  type: BodyType
+  content: string
 }
 
-export type Collection = {
-  id: string
-  title: string
-  description: string
-  fileSystem: FileSystemNode[]
+export type RequestOptions = AxiosRequestConfig & OverrideAxiosRequestConfig
+
+export type HypersomniaRequest = {
+  url: string
+  body?: RequestBody
+  auth?: RequestAuth
+  doc?: string
+  queryParameters?: RequestQueryParameters[]
+  headers?: RequestHeaders[]
+  options: RequestOptions
 }
 
 export type RequestFetchResult = {
-  data?: unknown | null
+  data?: unknown
   timeTaken?: number | null
   requestStartTime?: number | null
   response?: AxiosResponse<unknown> | null
@@ -84,5 +83,3 @@ export type Cookie = {
   name: string
   value: string
 }
-
-export type CreateCollection = Omit<Collection, 'id'>

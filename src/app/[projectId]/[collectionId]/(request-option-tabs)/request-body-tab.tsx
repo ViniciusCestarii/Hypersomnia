@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { BodyType } from '@/types/collection'
+import { BodyType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { EditorProps } from '@monaco-editor/react'
 import { Boxes, Code2, MoreHorizontal } from 'lucide-react'
@@ -53,13 +53,13 @@ const RequestBodyTab = () => {
 
   const editorProps: EditorProps = useMemo(
     () => ({
-      onChange: (value) => updateRequestField('bodyContent', value),
+      onChange: (value) => updateRequestField('body.content', value),
     }),
     [updateRequestField],
   )
 
-  const bodyType = request.bodyType ?? 'none'
-  const bodyContent = request.bodyContent ?? ''
+  const bodyType = request.body?.type ?? 'none'
+  const bodyContent = request.body?.content ?? ''
 
   const renderBodyInput = () => {
     switch (bodyType) {
@@ -95,9 +95,11 @@ const RequestBodyTab = () => {
         value={bodyType}
         onValueChange={(value) => {
           if (value === 'none') {
-            updateRequestField('bodyContent', undefined)
+            updateRequestField('body', undefined)
+            return
           }
-          updateRequestField('bodyType', value)
+
+          updateRequestField('body.type', value)
         }}
       >
         <SelectTrigger

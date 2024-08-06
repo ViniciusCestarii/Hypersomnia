@@ -1,6 +1,6 @@
 import { Input, PasswordInput } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { AuthBasic } from '@/types/collection'
+import { AuthBasic } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 
 const BasicAuthInput = () => {
