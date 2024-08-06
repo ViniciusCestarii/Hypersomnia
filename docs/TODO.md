@@ -6,8 +6,6 @@
 
 [ ] Enable sharable URLs with data, import, export like excalidraw and store it cryptographically in Cloudflare R2
 
-[ ] Storage data in local storage using server SECRET_KEY for extra security (add key versioning to be able to update it)
-
 [x] Show code with status text on the response panel
 
 [ ] Store last request response on request
