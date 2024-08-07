@@ -405,3 +405,46 @@ export const getTextContentTypeFromBodyType = (
       return 'application/json'
   }
 }
+
+const forbiddenHeaderNames = {
+  is: [
+    'Accept',
+    'Accept-Encoding',
+    'Accept-Language',
+    'Connection',
+    'Content-Length',
+    'Cookie',
+    'Host',
+    'Origin',
+    'Referer',
+    'Transfer-Encoding',
+    'TE',
+    'Upgrade',
+    'Via',
+  ],
+  startWith: ['Proxy-', 'Sec-'],
+}
+
+export const isHeaderForbidden = (headerName?: string): boolean => {
+  if (!headerName) return false
+
+  const lowerCasedName = headerName?.toLowerCase()
+
+  if (
+    forbiddenHeaderNames.is.some(
+      (name) => lowerCasedName === name.toLowerCase(),
+    )
+  ) {
+    return true
+  }
+
+  if (
+    forbiddenHeaderNames.startWith.some((name) =>
+      lowerCasedName.startsWith(name.toLowerCase()),
+    )
+  ) {
+    return true
+  }
+
+  return false
+}
