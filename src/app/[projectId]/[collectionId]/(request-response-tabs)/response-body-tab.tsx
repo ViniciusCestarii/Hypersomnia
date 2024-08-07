@@ -39,6 +39,12 @@ const ResponseBodyTab = () => {
   if (!dataText) {
     return null
   }
+  // todo: only if body is on mode preview
+
+  // sanitize html first see https://github.com/cure53/DOMPurify
+  // if (dataText.type === 'html') {
+  //   return <div dangerouslySetInnerHTML={{ __html: dataText.text }} />
+  // }
 
   return (
     <Editor

@@ -17,3 +17,5 @@
 [x] If a header is forbidden, add a warning for the user (make it red).
 
 [x] Add suport for EDN body
+
+[ ] Add option to copy body data, view raw data, preview HTML
