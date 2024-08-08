@@ -41,7 +41,6 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
 
     const requestId = ++latestRequestRef.current
     setRequestFetchResult({ ...requestFetchResult, loading: true })
-    const isLatestRequest = requestId === latestRequestRef.current
     const requestStartTime = new Date().getTime()
 
     try {
@@ -49,6 +48,7 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
       const timeTaken =
         response.headers['request-finish-time'] - requestStartTime
       delete response.headers['request-finish-time']
+      const isLatestRequest = requestId === latestRequestRef.current
 
       if (isLatestRequest) {
         setRequestFetchResult({
@@ -62,6 +62,7 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
       }
     } catch (err) {
       console.error(err)
+      const isLatestRequest = requestId === latestRequestRef.current
 
       if (axios.isAxiosError(err)) {
         const timeTaken =
@@ -78,19 +79,18 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
             requestStartTime,
           })
         }
-      } else {
-        if (isLatestRequest) {
-          setRequestFetchResult({
-            data: null,
-            error: err as Error,
-            loading: false,
-            response: null,
-            timeTaken: null,
-            requestStartTime,
-          })
-        }
+      } else if (isLatestRequest) {
+        setRequestFetchResult({
+          data: null,
+          error: err as Error,
+          loading: false,
+          response: null,
+          timeTaken: null,
+          requestStartTime,
+        })
       }
     } finally {
+      const isLatestRequest = requestId === latestRequestRef.current
       if (isLatestRequest) {
         setCookies(getCookies())
       }
