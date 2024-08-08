@@ -4,7 +4,12 @@ import DeleteConfirmationButton from '@/components/ui/panel/delete-confirmation-
 import OrdenableInput from '@/components/ui/panel/ordenable-input'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import TypographyH3 from '@/components/ui/Typography-h3'
-import { cn, generateUUID, getDefinedHeaders } from '@/lib/utils'
+import {
+  cn,
+  generateUUID,
+  getDefinedHeaders,
+  isHeaderForbidden,
+} from '@/lib/utils'
 import { RequestHeaders } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
@@ -197,11 +202,13 @@ const SortableHeadersInput = ({ id, index }: { id: string; index: number }) => {
   const headers = request.headers ?? []
 
   const thisHeader = headers.find((header) => header.id === id)!
-  const duplicateIndex = headers.findIndex(
-    (header) => header.key === thisHeader.key,
+  const duplicateIndex = headers.findLastIndex(
+    (header) => header.key?.toLowerCase() === thisHeader.key?.toLowerCase(),
   )
 
-  const willBeOverriden = duplicateIndex < index
+  const willBeOverriden = duplicateIndex > index
+
+  const isForbiddenHeader = isHeaderForbidden(thisHeader.key)
 
   return (
     <HeadersInput
@@ -210,9 +217,16 @@ const SortableHeadersInput = ({ id, index }: { id: string; index: number }) => {
       style={style}
       className={cn(
         isDragging && 'opacity-50',
+        isForbiddenHeader && 'bg-destructive/20',
         willBeOverriden && 'bg-warning/20',
       )}
-      title={willBeOverriden ? 'This header will be overriden' : undefined}
+      title={
+        isForbiddenHeader
+          ? 'This header is forbidden by the browser'
+          : willBeOverriden
+            ? 'This header will be overriden by another header with the same name'
+            : undefined
+      }
       gripProps={{
         ref: setActivatorNodeRef,
         className: isDragging ? 'cursor-grabbing' : '',
