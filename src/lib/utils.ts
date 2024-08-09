@@ -448,3 +448,28 @@ export const isHeaderForbidden = (headerName?: string): boolean => {
 
   return false
 }
+
+export const generateNewRequestTemplate = (): FileSystemNode => ({
+  name: 'New Request',
+  isFolder: false,
+  request: {
+    url: '',
+    headers: [
+      {
+        id: 'c3b9e7a3-4d36-4d97-9106-ac50c833b700',
+        key: 'X-Client-Version',
+        value: 'hypersomnia/0.0.1',
+        enabled: true,
+      },
+    ],
+    options: {
+      method: 'get',
+    },
+  },
+})
+
+export const generateNewFolderTemplate = (): FileSystemNode => ({
+  name: 'New Folder',
+  isFolder: true,
+  children: [],
+})

@@ -59,7 +59,6 @@ export function CollectionDropdownMenu() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive">
           <Trash2 className="mr-2 h-4 w-4" />
           <span>Delete</span>

@@ -5,6 +5,7 @@ import {
   Collection,
   Cookie,
   CreateProject,
+  FileSystemNode,
   HypersomniaRequest,
   Project,
   RequestFetchResult,
@@ -24,6 +25,7 @@ type HypersomniaStore = {
   selectedRequest: HypersomniaRequest | null
   sendTrigger: boolean | undefined
   requestFetchResult: RequestFetchResult | null
+  createFileSystemNode: (requestFile: FileSystemNode) => void
   setRequestFetchResult: (requestFetchResult: RequestFetchResult | null) => void
   selectRequest: (path: string[]) => void
   sendRequest: () => void
@@ -351,6 +353,35 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       sendTrigger: !state.sendTrigger,
     })),
   setRequestFetchResult: (requestFetchResult) => set({ requestFetchResult }),
+  createFileSystemNode: (requestFile: FileSystemNode) =>
+    set((state) => {
+      const { selectedCollection, selectedProject } = state
+      if (!selectedCollection || !selectedProject) return state
+
+      // Insert the new requestFile at the beginning of the fileSystem array
+      const updatedFileSystem = [requestFile, ...selectedCollection.fileSystem]
+
+      const updatedCollection = {
+        ...selectedCollection,
+        fileSystem: updatedFileSystem,
+      }
+
+      const updatedProject = {
+        ...selectedProject,
+        collections: selectedProject.collections.map((collection) =>
+          collection.id === selectedCollection.id
+            ? updatedCollection
+            : collection,
+        ),
+      }
+
+      return {
+        projects: state.projects.map((project) =>
+          project.id === selectedProject.id ? updatedProject : project,
+        ),
+        selectedCollection: updatedCollection,
+      }
+    }),
   updateSelectedRequest: (updatedRequest) =>
     set((state) => {
       const {
