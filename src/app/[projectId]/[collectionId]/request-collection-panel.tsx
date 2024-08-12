@@ -1,21 +1,39 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-container'
 import RequestMethodBadge from '@/components/ui/panel/request-method-badge'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { filterNodes } from '@/lib/utils'
+import {
+  filterNodes,
+  generateNewFolderTemplate,
+  generateNewRequestTemplate,
+} from '@/lib/utils'
 import { FileSystemNode as FileSystemNodeType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
   AlertCircle,
+  ArrowUpDown,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  File,
   Folder,
   Maximize2,
   Minimize2,
+  Plus,
+  Terminal,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useQueryState } from 'nuqs'
@@ -46,37 +64,41 @@ const RequestCollectionPanel = () => {
         <Separator orientation="vertical" className="mr-2" />
         <h2 className="font-semibold text-nowrap">{collection?.title}</h2>
       </PanelHeaderContainer>
-      <div className="flex items-center p-2 gap-2">
-        <Label className="sr-only" htmlFor="request-filter">
-          Filter
-        </Label>
-        <Input
-          id="request-filter"
-          type="search"
-          className="h-8 rounded-none"
-          placeholder="Filter"
-          value={filter ?? ''}
-          onChange={({ target }) =>
-            setFilter(target.value.length ? target.value : null)
-          }
-        />
-        <Button
-          onClick={() => setExpandAll(!expandAll)}
-          aria-label={expandAll ? 'collapse all' : 'expand all'}
-          title={expandAll ? 'collapse all' : 'expand all'}
-          size="icon"
-          variant="ghost"
-          className="rounded-none"
-        >
-          {expandAll ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-        </Button>
-      </div>
+      <ScrollArea>
+        <div className="flex items-center p-2 gap-2 min-w-48">
+          <Label className="sr-only" htmlFor="request-filter">
+            Filter
+          </Label>
+          <Input
+            id="request-filter"
+            type="search"
+            className="h-8 rounded-none"
+            placeholder="Filter"
+            value={filter ?? ''}
+            onChange={({ target }) =>
+              setFilter(target.value.length ? target.value : null)
+            }
+          />
+          <Button
+            onClick={() => setExpandAll(!expandAll)}
+            aria-label={expandAll ? 'collapse all' : 'expand all'}
+            title={expandAll ? 'collapse all' : 'expand all'}
+            size="icon"
+            variant="ghost"
+            className="rounded-none flex-shrink-0"
+          >
+            {expandAll ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </Button>
+          <CreateRequestButton />
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
       <div className="mt-4">
         {filteredNodes.map((node) => (
           <FileSystemNode
-            key={node.name}
+            key={node.id}
             node={node}
-            path={[node.name]}
+            path={[node.id]}
             openFolders={expandAll || (!!filter && filter?.length > 0)}
           />
         ))}
@@ -123,9 +145,9 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
           <div className="ml-4">
             {node.children?.map((childNode) => (
               <FileSystemNode
-                key={childNode.name}
+                key={childNode.id}
                 node={childNode}
-                path={[...path, childNode.name]}
+                path={[...path, childNode.id]}
                 openFolders={openFolders}
               />
             ))}
@@ -150,6 +172,71 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
       <AlertTitle>Error</AlertTitle>
       <AlertDescription>This node is invalid</AlertDescription>
     </Alert>
+  )
+}
+
+const CreateRequestButton = () => {
+  const createFileSystemNode = useHypersomniaStore(
+    (state) => state.createFileSystemNode,
+  )
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          aria-label="create folder/request"
+          title="create folder/request"
+          size="icon"
+          variant="ghost"
+          className="rounded-none flex-shrink-0"
+        >
+          <Plus size={16} />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-40">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="text-xs">
+            <span>Create</span>
+          </DropdownMenuLabel>
+          <DropdownMenuItem
+            className="text-xs"
+            onClick={() => {
+              const folderNode = generateNewFolderTemplate()
+              createFileSystemNode(folderNode)
+            }}
+          >
+            <Folder className="mr-1 size-3" />
+            <span>New Folder</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-xs"
+            onClick={() => {
+              const requestNode = generateNewRequestTemplate()
+              createFileSystemNode(requestNode)
+              selectRequest([requestNode.id])
+            }}
+          >
+            <ArrowUpDown className="mr-1 size-3" />
+            <span>New HTTP request</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="text-xs">
+            <span>Import</span>
+          </DropdownMenuLabel>
+          <DropdownMenuItem className="text-xs">
+            <Terminal className="mr-1 size-3" />
+            <span>From Curl</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem className="text-xs">
+            <File className="mr-1 size-3" />
+            <span>From File</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 

@@ -18,4 +18,12 @@
 
 [x] Add suport for EDN body
 
+[ ] Fix: use a unique id for requests and folders
+
 [ ] Add option to copy body data, view raw data, preview HTML
+
+----
+
+[ ] Store state open of folders
+
+[ ] D&D to reorder folders and requests

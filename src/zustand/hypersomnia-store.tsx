@@ -5,6 +5,7 @@ import {
   Collection,
   Cookie,
   CreateProject,
+  FileSystemNode,
   HypersomniaRequest,
   Project,
   RequestFetchResult,
@@ -24,6 +25,7 @@ type HypersomniaStore = {
   selectedRequest: HypersomniaRequest | null
   sendTrigger: boolean | undefined
   requestFetchResult: RequestFetchResult | null
+  createFileSystemNode: (requestFile: FileSystemNode) => void
   setRequestFetchResult: (requestFetchResult: RequestFetchResult | null) => void
   selectRequest: (path: string[]) => void
   sendRequest: () => void
@@ -77,14 +79,17 @@ const initialProjects: Project[] = [
         description: 'Description 1',
         fileSystem: [
           {
+            id: '6ab86341-b932-4e63-b8f8-3c7fa72d537d',
             name: 'get',
             isFolder: true,
             children: [
               {
+                id: '5bf24c9d-56b5-4c19-9b7a-9ea103c47b22',
                 name: 'folder 1',
                 isFolder: true,
                 children: [
                   {
+                    id: 'b17cd125-a12a-49e3-b974-ee7bb70ba5ff',
                     name: 'request 1',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/posts',
@@ -124,10 +129,12 @@ const initialProjects: Project[] = [
                 ],
               },
               {
+                id: 'f0d65ebe-948e-4def-9074-2cde3a02d089',
                 name: 'folder 2',
                 isFolder: true,
                 children: [
                   {
+                    id: 'a08729b1-f892-4ebe-b093-94ec7a9942d8',
                     name: 'request 2',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/users',
@@ -141,14 +148,17 @@ const initialProjects: Project[] = [
             ],
           },
           {
+            id: '77bba476-a16e-4512-8b90-81674b97ae69',
             name: 'post',
             isFolder: true,
             children: [
               {
+                id: 'c949aabc-2664-448b-b068-7fb7b69421fe',
                 name: 'folder 3',
                 isFolder: true,
                 children: [
                   {
+                    id: '1d6f4cc2-ef00-499d-8167-bb501c9ba6ce',
                     name: 'request 3',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/posts',
@@ -165,6 +175,7 @@ const initialProjects: Project[] = [
                 ],
               },
               {
+                id: '07dab6d4-14ce-4207-86da-f4c68ccc3107',
                 name: 'request 4',
                 request: {
                   url: 'https://jsonplaceholder.typicode.com/posts',
@@ -178,10 +189,12 @@ const initialProjects: Project[] = [
                 },
               },
               {
+                id: '3f828e21-ff3b-4b5e-a67b-b68e896e51a0',
                 name: 'folder 4',
                 isFolder: true,
                 children: [
                   {
+                    id: '11bba476-a16e-4328-821a-81674b97ae69',
                     name: 'request 4',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/users',
@@ -199,6 +212,7 @@ const initialProjects: Project[] = [
             ],
           },
           {
+            id: '77bba476-a16e-4328-8b90-81674b97ae69',
             name: 'put',
             request: {
               url: 'https://jsonplaceholder.typicode.com/posts/1',
@@ -214,6 +228,7 @@ const initialProjects: Project[] = [
             },
           },
           {
+            id: '77bba476-a14e-4328-8b90-12674b97ae69',
             name: 'Test Basic Auth',
             request: {
               url: 'https://httpbin.org/basic-auth/user/pass',
@@ -231,6 +246,7 @@ const initialProjects: Project[] = [
             },
           },
           {
+            id: '742aa476-a16e-4328-8b90-81674b97ae69',
             name: 'Get Cookie',
             request: {
               url: 'https://yummy-cookies.vercel.app',
@@ -339,6 +355,8 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         findSystemNodeByPath(state.selectedCollection?.fileSystem, path)
           ?.request ?? null
 
+      console.log('selectedRequest', selectedRequest, path)
+
       return { selectedRequest, selectedRequestPath: path }
     })
   },
@@ -351,6 +369,35 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       sendTrigger: !state.sendTrigger,
     })),
   setRequestFetchResult: (requestFetchResult) => set({ requestFetchResult }),
+  createFileSystemNode: (requestFile: FileSystemNode) =>
+    set((state) => {
+      const { selectedCollection, selectedProject } = state
+      if (!selectedCollection || !selectedProject) return state
+
+      // Insert the new requestFile at the beginning of the fileSystem array
+      const updatedFileSystem = [requestFile, ...selectedCollection.fileSystem]
+
+      const updatedCollection = {
+        ...selectedCollection,
+        fileSystem: updatedFileSystem,
+      }
+
+      const updatedProject = {
+        ...selectedProject,
+        collections: selectedProject.collections.map((collection) =>
+          collection.id === selectedCollection.id
+            ? updatedCollection
+            : collection,
+        ),
+      }
+
+      return {
+        projects: state.projects.map((project) =>
+          project.id === selectedProject.id ? updatedProject : project,
+        ),
+        selectedCollection: updatedCollection,
+      }
+    }),
   updateSelectedRequest: (updatedRequest) =>
     set((state) => {
       const {

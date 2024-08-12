@@ -80,7 +80,8 @@ const RequestOptionPanel = () => {
               id="request-url"
               onChange={({ target }) => updateRequestField('url', target.value)}
               value={request.url}
-              className="font-semibold shrink mr-16 border-0 shadow-none focus-visible:ring-0 pl-0"
+              placeholder="https://api.example.com/"
+              className="font-semibold shrink mr-16 border-0 shadow-none focus-visible:ring-0 pl-0 placeholder:text-muted-foreground/40"
             />
             <div className="absolute right-0 pr-2 bg-background">
               <Button
