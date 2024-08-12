@@ -28,7 +28,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Ellipsis,
   File,
   Folder,
   Maximize2,
@@ -97,9 +96,9 @@ const RequestCollectionPanel = () => {
       <div className="mt-4">
         {filteredNodes.map((node) => (
           <FileSystemNode
-            key={node.name}
+            key={node.id}
             node={node}
-            path={[node.name]}
+            path={[node.id]}
             openFolders={expandAll || (!!filter && filter?.length > 0)}
           />
         ))}
@@ -146,9 +145,9 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
           <div className="ml-4">
             {node.children?.map((childNode) => (
               <FileSystemNode
-                key={childNode.name}
+                key={childNode.id}
                 node={childNode}
-                path={[...path, childNode.name]}
+                path={[...path, childNode.id]}
                 openFolders={openFolders}
               />
             ))}
@@ -180,6 +179,7 @@ const CreateRequestButton = () => {
   const createFileSystemNode = useHypersomniaStore(
     (state) => state.createFileSystemNode,
   )
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
 
   return (
     <DropdownMenu>
@@ -202,7 +202,8 @@ const CreateRequestButton = () => {
           <DropdownMenuItem
             className="text-xs"
             onClick={() => {
-              createFileSystemNode(generateNewFolderTemplate())
+              const folderNode = generateNewFolderTemplate()
+              createFileSystemNode(folderNode)
             }}
           >
             <Folder className="mr-1 size-3" />
@@ -211,7 +212,9 @@ const CreateRequestButton = () => {
           <DropdownMenuItem
             className="text-xs"
             onClick={() => {
-              createFileSystemNode(generateNewRequestTemplate())
+              const requestNode = generateNewRequestTemplate()
+              createFileSystemNode(requestNode)
+              selectRequest([requestNode.id])
             }}
           >
             <ArrowUpDown className="mr-1 size-3" />

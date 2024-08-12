@@ -2,6 +2,7 @@ import { HypersomniaRequest } from './request'
 
 /* eslint-disable no-use-before-define */
 export type FileSystemNode = {
+  id: string
   name: string
   children?: FileSystemNode[]
   isFolder?: boolean

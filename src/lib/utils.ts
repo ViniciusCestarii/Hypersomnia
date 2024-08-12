@@ -84,11 +84,11 @@ export const findFirstRequestNode = (
     if (node.isFolder) {
       const result = findFirstRequestNode(node.children ?? [], [
         ...currentPath,
-        node.name,
+        node.id,
       ])
       if (result.node) return result
     }
-    if (node.request) return { node, path: [...currentPath, node.name] }
+    if (node.request) return { node, path: [...currentPath, node.id] }
   }
   return { node: null, path: [] }
 }
@@ -100,7 +100,7 @@ export const findFileByPath = (
   let currentNodes = nodes
 
   for (const segment of path) {
-    const foundNode = currentNodes.find((node) => node.name === segment)
+    const foundNode = currentNodes.find((node) => node.id === segment)
     if (!foundNode) return null
 
     if (foundNode.isFolder) {
@@ -125,7 +125,7 @@ export const updateRequestInFileSystem = (
   const [head, ...tail] = path
 
   return fileSystem.map((node) => {
-    if (node.name === head) {
+    if (node.id === head) {
       if (tail.length === 0 && node.request) {
         return { ...node, request: updatedRequest }
       } else if (node.isFolder && node.children) {
@@ -160,7 +160,7 @@ export const findSystemNodeByPath = (
     const [head, ...tail] = path
 
     for (const node of nodes) {
-      if (node.name === head) {
+      if (node.id === head) {
         if (tail.length === 0) return node
 
         if (node.isFolder && node.children) {
@@ -450,6 +450,7 @@ export const isHeaderForbidden = (headerName?: string): boolean => {
 }
 
 export const generateNewRequestTemplate = (): FileSystemNode => ({
+  id: generateUUID(),
   name: 'New Request',
   isFolder: false,
   request: {
@@ -469,6 +470,7 @@ export const generateNewRequestTemplate = (): FileSystemNode => ({
 })
 
 export const generateNewFolderTemplate = (): FileSystemNode => ({
+  id: generateUUID(),
   name: 'New Folder',
   isFolder: true,
   children: [],
