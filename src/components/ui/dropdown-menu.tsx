@@ -90,7 +90,7 @@ const DropdownMenuItem = React.forwardRef<
     ref={ref}
     className={cn(
       'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      inset && 'pl-8',
+      inset && 'pl-4',
       className,
       variant === 'destructive' &&
         'text-destructive focus:bg-destructive focus:text-destructive-foreground',
@@ -155,7 +155,7 @@ const DropdownMenuLabel = React.forwardRef<
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={cn(
-      'px-2 py-1.5 text-sm text-muted-foreground flex flex-wrap items-center',
+      'px-2 py-1.5 text-sm text-muted-foreground flex flex-wrap items-center select-none',
       inset && 'pl-8',
       className,
     )}
