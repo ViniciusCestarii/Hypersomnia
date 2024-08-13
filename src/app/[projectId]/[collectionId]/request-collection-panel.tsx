@@ -16,6 +16,7 @@ import RequestMethodBadge from '@/components/ui/panel/request-method-badge'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import {
+  cn,
   filterNodes,
   generateNewFolderTemplate,
   generateNewRequestTemplate,
@@ -127,8 +128,14 @@ type FileSystemNodeProps = {
 
 const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
   const selectRequest = useHypersomniaStore((state) => state.selectRequest)
-
+  const selectedRequestPath = useHypersomniaStore(
+    (state) => state.selectedRequestPath,
+  )
   const [isOpen, setIsOpen] = useState(openFolders)
+
+  const selectedRequestId = selectedRequestPath
+    ? selectedRequestPath[selectedRequestPath.length - 1]
+    : undefined
 
   useEffect(() => {
     setIsOpen(openFolders)
@@ -142,7 +149,9 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
     }
   }
 
-  const padding = `1px ${path.length}rem`
+  const isSelected = selectedRequestId === node.id
+
+  const padding = `1px calc(${path.length}rem - ${isSelected ? 1 : 0}px)`
 
   if (node.isFolder) {
     return (
@@ -185,7 +194,10 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
             padding,
           }}
           onClick={handleSelectRequest}
-          className="flex items-center hover:bg-muted/80 transition-colors w-full"
+          className={cn(
+            'flex items-center hover:bg-muted/80 transition-colors w-full',
+            isSelected && 'bg-primary/[0.12] border-l border-primary',
+          )}
         >
           <RequestMethodBadge method={node.request.options.method} />
           <span className="ml-2 text-nowrap">{node.name}</span>
