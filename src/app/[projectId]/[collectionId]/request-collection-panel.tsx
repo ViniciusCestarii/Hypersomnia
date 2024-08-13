@@ -148,7 +148,7 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
       <div className="ml-4">
         <FolderContextMenu>
           <button
-            className="flex items-center cursor-pointer hover:bg-muted w-full"
+            className="flex items-center cursor-pointer hover:bg-muted/80 transition-colors w-full"
             onClick={() => setIsOpen(!isOpen)}
           >
             {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -177,7 +177,7 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
       <RequestContextMenu>
         <button
           onClick={handleSelectRequest}
-          className="ml-4 flex items-center hover:bg-muted w-full"
+          className="ml-4 flex items-center hover:bg-muted/80 transition-colors w-full"
         >
           <RequestMethodBadge method={node.request.options.method} />
           <span className="ml-2 text-nowrap">{node.name}</span>
