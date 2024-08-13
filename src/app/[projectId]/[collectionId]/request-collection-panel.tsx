@@ -142,33 +142,38 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
     }
   }
 
+  const padding = `1px ${path.length}rem`
+
   if (node.isFolder) {
-    // todo: change margin to nested padding so context menu works better
     return (
-      <div className="ml-4">
+      <>
         <FolderContextMenu>
           <button
+            style={{
+              padding,
+            }}
             className="flex items-center cursor-pointer hover:bg-muted/80 transition-colors w-full"
             onClick={() => setIsOpen(!isOpen)}
           >
-            {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-            <Folder size={16} className="ml-2" />
+            {isOpen ? (
+              <ChevronDown size={16} className="flex-shrink-0" />
+            ) : (
+              <ChevronRight size={16} className="flex-shrink-0" />
+            )}
+            <Folder size={16} className="ml-2 flex-shrink-0" />
             <span className="ml-2 text-nowrap">{node.name}</span>
           </button>
         </FolderContextMenu>
-        {isOpen && (
-          <div className="ml-4">
-            {node.children?.map((childNode) => (
-              <FileSystemNode
-                key={childNode.id}
-                node={childNode}
-                path={[...path, childNode.id]}
-                openFolders={openFolders}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+        {isOpen &&
+          node.children?.map((childNode) => (
+            <FileSystemNode
+              key={childNode.id}
+              node={childNode}
+              path={[...path, childNode.id]}
+              openFolders={openFolders}
+            />
+          ))}
+      </>
     )
   }
 
@@ -176,8 +181,11 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
     return (
       <RequestContextMenu>
         <button
+          style={{
+            padding,
+          }}
           onClick={handleSelectRequest}
-          className="ml-4 flex items-center hover:bg-muted/80 transition-colors w-full"
+          className="flex items-center hover:bg-muted/80 transition-colors w-full"
         >
           <RequestMethodBadge method={node.request.options.method} />
           <span className="ml-2 text-nowrap">{node.name}</span>
