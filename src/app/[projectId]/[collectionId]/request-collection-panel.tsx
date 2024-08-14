@@ -68,6 +68,7 @@ const RequestCollectionPanel = () => {
   const [filter, setFilter] = useQueryState('qr')
   const [expandAll, setExpandAll] = useState(false) // todo: make this work properly
 
+  // todo: move these creation functions so it can be reused
   const createNewRequest = () => {
     const newRequestNode = generateNewRequestTemplate()
     createFileSystemNode(newRequestNode)
