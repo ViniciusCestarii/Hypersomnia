@@ -475,3 +475,73 @@ export const generateNewFolderTemplate = (): FileSystemNode => ({
   isFolder: true,
   children: [],
 })
+
+const insertFileAtPath = (
+  fileSystem: FileSystemNode[],
+  path: string[],
+  file: FileSystemNode,
+): FileSystemNode[] => {
+  return fileSystem.map((node) => {
+    if (path.length === 2) {
+      const duplicatedIndex = node.children?.findIndex(
+        (child) => child.id === path[1],
+      )
+
+      if (duplicatedIndex === -1 || duplicatedIndex === undefined) {
+        return {
+          ...node,
+          children: [...(node.children || []), file],
+        }
+      }
+
+      const updatedChildren = [
+        ...(node.children?.slice(0, duplicatedIndex + 1) || []),
+        file,
+        ...(node.children?.slice(duplicatedIndex + 1) || []),
+      ]
+
+      return {
+        ...node,
+        children: updatedChildren,
+      }
+    }
+    if (node.id === path[0]) {
+      return {
+        ...node,
+        children: insertFileAtPath(node.children || [], path.slice(1), file),
+      }
+    }
+    return node
+  })
+}
+
+export const insertFile = (
+  fileSystem: FileSystemNode[],
+  path: string[],
+  file: FileSystemNode,
+) => {
+  switch (path.length) {
+    case 0:
+      return [file, ...fileSystem]
+    case 1: {
+      const duplicatedIndex = fileSystem.findIndex(
+        (node) => node.id === path[0],
+      )
+
+      if (duplicatedIndex === -1) {
+        return [...fileSystem, file]
+      }
+
+      const updatedFileSystem = [
+        ...fileSystem.slice(0, duplicatedIndex + 1),
+        file,
+        ...fileSystem.slice(duplicatedIndex + 1),
+      ]
+
+      return updatedFileSystem
+    }
+    default: {
+      return insertFileAtPath(fileSystem, path, file)
+    }
+  }
+}

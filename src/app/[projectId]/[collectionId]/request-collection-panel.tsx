@@ -52,6 +52,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
+import merge from 'lodash.merge'
 
 const RequestCollectionPanel = () => {
   const collection = useHypersomniaStore((state) => state.selectedCollection)
@@ -302,12 +303,13 @@ const RequestContextMenu = ({
   const selectRequest = useHypersomniaStore((state) => state.selectRequest)
   const duplicateRequest = () => {
     const newId = generateUUID()
-    const duplicatedNode = {
-      ...node,
+
+    // merge deep nested state
+    const duplicatedNode = merge({}, node, {
       id: newId,
       name: `${node.name} (copy)`,
-    }
-    // TODO: improve this code and fix bug duplicating and editing
+    })
+
     const fatherPath = path?.slice(0, -1) ?? []
     createFileSystemNode(duplicatedNode, path)
     selectRequest([...fatherPath, newId])
