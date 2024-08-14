@@ -437,9 +437,6 @@ const FolderContextMenu = ({
         <ContextMenuItem inset className="text-xs">
           <Pencil className="size-3 mr-2" /> <span>Rename</span>
         </ContextMenuItem>
-        <ContextMenuItem inset className="text-xs">
-          <Terminal className="size-3 mr-2" /> <span>Copy as Curl</span>
-        </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem inset className="text-xs">
           <Trash className="size-3 mr-2" /> <span>Delete</span>
