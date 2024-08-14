@@ -181,8 +181,11 @@ const DropdownMenuShortcut = ({
   ...props
 }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
-    <span
-      className={cn('ml-auto text-xs tracking-widest opacity-60', className)}
+    <kbd
+      className={cn(
+        'ml-auto text-xs tracking-widest opacity-60 font-mono',
+        className,
+      )}
       {...props}
     />
   )

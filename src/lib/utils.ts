@@ -346,7 +346,7 @@ export const getAuthConfig = ({
       const authData = auth.data as AuthBearerToken | undefined
       return {
         Authorization: `${
-          authData?.prefix || 'Bearer'
+          authData?.prefix ?? 'Bearer'
         } ${authData?.token ?? ''}`,
       }
     }
