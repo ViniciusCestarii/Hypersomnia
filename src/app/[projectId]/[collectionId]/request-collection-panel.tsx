@@ -200,7 +200,8 @@ const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
           onClick={handleSelectRequest}
           className={cn(
             'flex items-center hover:bg-muted/80 transition-colors w-full',
-            isSelected && 'bg-primary/[0.12] border-l border-primary',
+            isSelected &&
+              'bg-primary/[0.06] dark:bg-primary/[0.12] border-l border-primary',
           )}
         >
           <RequestMethodBadge method={node.request.options.method} />
