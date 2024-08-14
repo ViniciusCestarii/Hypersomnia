@@ -16,9 +16,11 @@ import RequestMethodBadge from '@/components/ui/panel/request-method-badge'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import {
+  cn,
   filterNodes,
   generateNewFolderTemplate,
   generateNewRequestTemplate,
+  generateUUID,
 } from '@/lib/utils'
 import { FileSystemNode as FileSystemNodeType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
@@ -30,14 +32,27 @@ import {
   ChevronRight,
   File,
   Folder,
+  Layers2,
   Maximize2,
   Minimize2,
+  Pencil,
   Plus,
   Terminal,
+  Trash,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
+
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
+import merge from 'lodash.merge'
 
 const RequestCollectionPanel = () => {
   const collection = useHypersomniaStore((state) => state.selectedCollection)
@@ -89,7 +104,7 @@ const RequestCollectionPanel = () => {
           >
             {expandAll ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </Button>
-          <CreateRequestButton />
+          <CollectionOptionsButton />
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
@@ -113,10 +128,18 @@ type FileSystemNodeProps = {
   openFolders: boolean
 }
 
-const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
+const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
   const selectRequest = useHypersomniaStore((state) => state.selectRequest)
+  const selectedRequestPath = useHypersomniaStore(
+    (state) => state.selectedRequestPath,
+  )
+  const { node, path } = props
 
   const [isOpen, setIsOpen] = useState(openFolders)
+
+  const selectedRequestId = selectedRequestPath
+    ? selectedRequestPath[selectedRequestPath.length - 1]
+    : undefined
 
   useEffect(() => {
     setIsOpen(openFolders)
@@ -130,39 +153,61 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
     }
   }
 
+  const isSelected = selectedRequestId === node.id
+
+  const padding = `1px calc(${path.length}rem - ${isSelected ? 1 : 0}px)`
+
   if (node.isFolder) {
     return (
-      <div className="ml-4">
-        <button
-          className="flex items-center cursor-pointer"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-          <Folder size={16} className="ml-2" />
-          <span className="ml-2 text-nowrap">{node.name}</span>
-        </button>
-        {isOpen && (
-          <div className="ml-4">
-            {node.children?.map((childNode) => (
-              <FileSystemNode
-                key={childNode.id}
-                node={childNode}
-                path={[...path, childNode.id]}
-                openFolders={openFolders}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      <>
+        <FolderContextMenu {...props}>
+          <button
+            style={{
+              padding,
+            }}
+            className="flex items-center cursor-pointer hover:bg-muted/80 transition-colors w-full"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? (
+              <ChevronDown size={16} className="flex-shrink-0" />
+            ) : (
+              <ChevronRight size={16} className="flex-shrink-0" />
+            )}
+            <Folder size={16} className="ml-2 flex-shrink-0" />
+            <span className="ml-2 text-nowrap">{node.name}</span>
+          </button>
+        </FolderContextMenu>
+        {isOpen &&
+          node.children?.map((childNode) => (
+            <FileSystemNode
+              key={childNode.id}
+              node={childNode}
+              path={[...path, childNode.id]}
+              openFolders={openFolders}
+            />
+          ))}
+      </>
     )
   }
 
   if (node.request) {
     return (
-      <button onClick={handleSelectRequest} className="ml-4 flex items-center">
-        <RequestMethodBadge method={node.request.options.method} />
-        <span className="ml-2 text-nowrap">{node.name}</span>
-      </button>
+      <RequestContextMenu {...props}>
+        <button
+          style={{
+            padding,
+          }}
+          onClick={handleSelectRequest}
+          className={cn(
+            'flex items-center hover:bg-muted/80 transition-colors w-full',
+            isSelected &&
+              'bg-primary/[0.06] dark:bg-primary/[0.12] border-l border-primary',
+          )}
+        >
+          <RequestMethodBadge method={node.request.options.method} />
+          <span className="ml-2 text-nowrap">{node.name}</span>
+        </button>
+      </RequestContextMenu>
     )
   }
 
@@ -175,7 +220,7 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
   )
 }
 
-const CreateRequestButton = () => {
+const CollectionOptionsButton = () => {
   const createFileSystemNode = useHypersomniaStore(
     (state) => state.createFileSystemNode,
   )
@@ -194,12 +239,13 @@ const CreateRequestButton = () => {
           <Plus size={16} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-40">
+      <DropdownMenuContent className="w-48">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-xs">
             <span>Create</span>
           </DropdownMenuLabel>
           <DropdownMenuItem
+            inset
             className="text-xs"
             onClick={() => {
               const folderNode = generateNewFolderTemplate()
@@ -210,6 +256,7 @@ const CreateRequestButton = () => {
             <span>New Folder</span>
           </DropdownMenuItem>
           <DropdownMenuItem
+            inset
             className="text-xs"
             onClick={() => {
               const requestNode = generateNewRequestTemplate()
@@ -226,17 +273,153 @@ const CreateRequestButton = () => {
           <DropdownMenuLabel className="text-xs">
             <span>Import</span>
           </DropdownMenuLabel>
-          <DropdownMenuItem className="text-xs">
+          <DropdownMenuItem inset className="text-xs">
             <Terminal className="mr-1 size-3" />
             <span>From Curl</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="text-xs">
+          <DropdownMenuItem inset className="text-xs">
             <File className="mr-1 size-3" />
             <span>From File</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+
+interface RequestContextMenuProps {
+  children: React.ReactNode
+  path?: string[]
+  node: FileSystemNodeType
+}
+
+const RequestContextMenu = ({
+  children,
+  path,
+  node,
+}: RequestContextMenuProps) => {
+  const createFileSystemNode = useHypersomniaStore(
+    (state) => state.createFileSystemNode,
+  )
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
+  const duplicateRequest = () => {
+    const newId = generateUUID()
+
+    // merge deep nested state
+    const duplicatedNode = merge({}, node, {
+      id: newId,
+      name: `${node.name} (copy)`,
+    })
+
+    createFileSystemNode(duplicatedNode, path)
+
+    const fatherPath = path?.slice(0, -1) ?? []
+    selectRequest([...fatherPath, newId])
+  }
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger>{children}</ContextMenuTrigger>
+      <ContextMenuContent className="w-48">
+        <ContextMenuLabel className="text-xs">Actions</ContextMenuLabel>
+        <ContextMenuItem inset className="text-xs" onClick={duplicateRequest}>
+          <Layers2 className="size-3 mr-2" /> <span>Duplicate</span>
+        </ContextMenuItem>
+        <ContextMenuItem inset className="text-xs">
+          <Pencil className="size-3 mr-2" /> <span>Rename</span>
+        </ContextMenuItem>
+        <ContextMenuItem inset className="text-xs">
+          <Terminal className="size-3 mr-2" /> <span>Copy as Curl</span>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem inset className="text-xs">
+          <Trash className="size-3 mr-2" /> <span>Delete</span>
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  )
+}
+
+interface FolderContextMenuProps {
+  children: React.ReactNode
+  path: string[]
+  node: FileSystemNodeType
+}
+
+const FolderContextMenu = ({
+  children,
+  node,
+  path,
+}: FolderContextMenuProps) => {
+  const createFileSystemNode = useHypersomniaStore(
+    (state) => state.createFileSystemNode,
+  )
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
+  const duplicateNodeWithNewIds = (node: FileSystemNodeType) => {
+    const newId = generateUUID()
+
+    const duplicatedNode: FileSystemNodeType = merge({}, node, {
+      id: newId,
+      children: node.children?.map(duplicateNodeWithNewIds),
+    })
+
+    return duplicatedNode
+  }
+
+  const duplicateFolder = () => {
+    const newId = generateUUID()
+
+    const duplicatedNode = duplicateNodeWithNewIds({
+      ...node,
+      id: newId,
+      name: `${node.name} (copy)`,
+    })
+
+    createFileSystemNode(duplicatedNode, path)
+  }
+
+  const myPath = [...path, node.id]
+
+  const createNewRequest = () => {
+    const newRequestNode = generateNewRequestTemplate()
+    createFileSystemNode(newRequestNode, myPath)
+
+    selectRequest([...path, newRequestNode.id])
+  }
+
+  const createNewFolder = () => {
+    const newFolderNode = generateNewFolderTemplate()
+    createFileSystemNode(newFolderNode, myPath)
+  }
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger>{children}</ContextMenuTrigger>
+      <ContextMenuContent className="w-48">
+        <ContextMenuLabel className="text-xs">Create</ContextMenuLabel>
+        <ContextMenuItem inset className="text-xs" onClick={createNewFolder}>
+          <Folder className="size-3 mr-2" /> <span>New Folder</span>
+        </ContextMenuItem>
+        <ContextMenuItem inset className="text-xs" onClick={createNewRequest}>
+          <ArrowUpDown className="size-3 mr-2" /> <span>New HTTP request</span>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuLabel className="text-xs">Actions</ContextMenuLabel>
+        <ContextMenuItem inset className="text-xs" onClick={duplicateFolder}>
+          <Layers2 className="size-3 mr-2" /> <span>Duplicate</span>
+        </ContextMenuItem>
+        <ContextMenuItem inset className="text-xs">
+          <Pencil className="size-3 mr-2" /> <span>Rename</span>
+        </ContextMenuItem>
+        <ContextMenuItem inset className="text-xs">
+          <Terminal className="size-3 mr-2" /> <span>Copy as Curl</span>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem inset className="text-xs">
+          <Trash className="size-3 mr-2" /> <span>Delete</span>
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   )
 }
 

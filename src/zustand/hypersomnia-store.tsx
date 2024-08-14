@@ -1,4 +1,8 @@
-import { findSystemNodeByPath, updateRequestInFileSystem } from '@/lib/utils'
+import {
+  findSystemNodeByPath,
+  insertFile,
+  updateRequestInFileSystem,
+} from '@/lib/utils'
 import { create, StateCreator } from 'zustand'
 import { persist } from 'zustand/middleware'
 import {
@@ -25,7 +29,7 @@ type HypersomniaStore = {
   selectedRequest: HypersomniaRequest | null
   sendTrigger: boolean | undefined
   requestFetchResult: RequestFetchResult | null
-  createFileSystemNode: (requestFile: FileSystemNode) => void
+  createFileSystemNode: (requestFile: FileSystemNode, path?: string[]) => void
   setRequestFetchResult: (requestFetchResult: RequestFetchResult | null) => void
   selectRequest: (path: string[]) => void
   sendRequest: () => void
@@ -355,8 +359,6 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         findSystemNodeByPath(state.selectedCollection?.fileSystem, path)
           ?.request ?? null
 
-      console.log('selectedRequest', selectedRequest, path)
-
       return { selectedRequest, selectedRequestPath: path }
     })
   },
@@ -369,13 +371,16 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       sendTrigger: !state.sendTrigger,
     })),
   setRequestFetchResult: (requestFetchResult) => set({ requestFetchResult }),
-  createFileSystemNode: (requestFile: FileSystemNode) =>
+  createFileSystemNode: (requestFile, path) =>
     set((state) => {
       const { selectedCollection, selectedProject } = state
       if (!selectedCollection || !selectedProject) return state
 
-      // Insert the new requestFile at the beginning of the fileSystem array
-      const updatedFileSystem = [requestFile, ...selectedCollection.fileSystem]
+      const updatedFileSystem = insertFile(
+        selectedCollection.fileSystem,
+        path ?? [],
+        requestFile,
+      )
 
       const updatedCollection = {
         ...selectedCollection,
