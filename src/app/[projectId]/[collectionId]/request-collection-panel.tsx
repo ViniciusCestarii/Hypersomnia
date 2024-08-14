@@ -160,7 +160,7 @@ const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
   if (node.isFolder) {
     return (
       <>
-        <FolderContextMenu>
+        <FolderContextMenu {...props}>
           <button
             style={{
               padding,
@@ -340,9 +340,40 @@ const RequestContextMenu = ({
 
 interface FolderContextMenuProps {
   children: React.ReactNode
+  path: string[]
+  node: FileSystemNodeType
 }
 
-const FolderContextMenu = ({ children }: FolderContextMenuProps) => {
+const FolderContextMenu = ({
+  children,
+  node,
+  path,
+}: FolderContextMenuProps) => {
+  const createFileSystemNode = useHypersomniaStore(
+    (state) => state.createFileSystemNode,
+  )
+  const duplicateNodeWithNewIds = (node: FileSystemNodeType) => {
+    const newId = generateUUID()
+
+    const duplicatedNode: FileSystemNodeType = merge({}, node, {
+      id: newId,
+      children: node.children?.map(duplicateNodeWithNewIds),
+    })
+
+    return duplicatedNode
+  }
+
+  const duplicateFolder = () => {
+    const newId = generateUUID()
+
+    const duplicatedNode = duplicateNodeWithNewIds({
+      ...node,
+      id: newId,
+      name: `${node.name} (copy)`,
+    })
+
+    createFileSystemNode(duplicatedNode, path)
+  }
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
@@ -356,7 +387,7 @@ const FolderContextMenu = ({ children }: FolderContextMenuProps) => {
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuLabel className="text-xs">Actions</ContextMenuLabel>
-        <ContextMenuItem inset className="text-xs">
+        <ContextMenuItem inset className="text-xs" onClick={duplicateFolder}>
           <Layers2 className="size-3 mr-2" /> <span>Duplicate</span>
         </ContextMenuItem>
         <ContextMenuItem inset className="text-xs">
