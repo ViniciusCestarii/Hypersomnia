@@ -20,6 +20,7 @@ import {
   filterNodes,
   generateNewFolderTemplate,
   generateNewRequestTemplate,
+  generateUUID,
 } from '@/lib/utils'
 import { FileSystemNode as FileSystemNodeType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
@@ -126,11 +127,13 @@ type FileSystemNodeProps = {
   openFolders: boolean
 }
 
-const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
+const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
   const selectRequest = useHypersomniaStore((state) => state.selectRequest)
   const selectedRequestPath = useHypersomniaStore(
     (state) => state.selectedRequestPath,
   )
+  const { node, path } = props
+
   const [isOpen, setIsOpen] = useState(openFolders)
 
   const selectedRequestId = selectedRequestPath
@@ -188,7 +191,7 @@ const FileSystemNode = ({ node, path, openFolders }: FileSystemNodeProps) => {
 
   if (node.request) {
     return (
-      <RequestContextMenu>
+      <RequestContextMenu {...props}>
         <button
           style={{
             padding,
@@ -284,15 +287,38 @@ const CollectionOptionsButton = () => {
 
 interface RequestContextMenuProps {
   children: React.ReactNode
+  path?: string[]
+  node: FileSystemNodeType
 }
 
-const RequestContextMenu = ({ children }: RequestContextMenuProps) => {
+const RequestContextMenu = ({
+  children,
+  path,
+  node,
+}: RequestContextMenuProps) => {
+  const createFileSystemNode = useHypersomniaStore(
+    (state) => state.createFileSystemNode,
+  )
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
+  const duplicateRequest = () => {
+    const newId = generateUUID()
+    const duplicatedNode = {
+      ...node,
+      id: newId,
+      name: `${node.name} (copy)`,
+    }
+    // TODO: improve this code and fix bug duplicating and editing
+    const fatherPath = path?.slice(0, -1) ?? []
+    createFileSystemNode(duplicatedNode, path)
+    selectRequest([...fatherPath, newId])
+  }
+
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-48">
         <ContextMenuLabel className="text-xs">Actions</ContextMenuLabel>
-        <ContextMenuItem inset className="text-xs">
+        <ContextMenuItem inset className="text-xs" onClick={duplicateRequest}>
           <Layers2 className="size-3 mr-2" /> <span>Duplicate</span>
         </ContextMenuItem>
         <ContextMenuItem inset className="text-xs">

@@ -25,7 +25,7 @@ type HypersomniaStore = {
   selectedRequest: HypersomniaRequest | null
   sendTrigger: boolean | undefined
   requestFetchResult: RequestFetchResult | null
-  createFileSystemNode: (requestFile: FileSystemNode) => void
+  createFileSystemNode: (requestFile: FileSystemNode, path?: string[]) => void
   setRequestFetchResult: (requestFetchResult: RequestFetchResult | null) => void
   selectRequest: (path: string[]) => void
   sendRequest: () => void
@@ -355,8 +355,6 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         findSystemNodeByPath(state.selectedCollection?.fileSystem, path)
           ?.request ?? null
 
-      console.log('selectedRequest', selectedRequest, path)
-
       return { selectedRequest, selectedRequestPath: path }
     })
   },
@@ -369,13 +367,95 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       sendTrigger: !state.sendTrigger,
     })),
   setRequestFetchResult: (requestFetchResult) => set({ requestFetchResult }),
-  createFileSystemNode: (requestFile: FileSystemNode) =>
+  createFileSystemNode: (requestFile, path) =>
     set((state) => {
       const { selectedCollection, selectedProject } = state
       if (!selectedCollection || !selectedProject) return state
 
-      // Insert the new requestFile at the beginning of the fileSystem array
-      const updatedFileSystem = [requestFile, ...selectedCollection.fileSystem]
+      const insertFileAtPath = (
+        fileSystem: FileSystemNode[],
+        path: string[],
+        file: FileSystemNode,
+      ): FileSystemNode[] => {
+        return fileSystem.map((node) => {
+          if (path.length === 2) {
+            const duplicatedIndex = node.children?.findIndex(
+              (child) => child.id === path[1],
+            )
+
+            if (duplicatedIndex === -1 || duplicatedIndex === undefined) {
+              return {
+                ...node,
+                children: [...(node.children || []), file],
+              }
+            }
+
+            const updatedChildren = [
+              ...(node.children?.slice(0, duplicatedIndex + 1) || []),
+              file,
+              ...(node.children?.slice(duplicatedIndex + 1) || []),
+            ]
+
+            return {
+              ...node,
+              children: updatedChildren,
+            }
+          }
+          if (node.id === path[0]) {
+            return {
+              ...node,
+              children: insertFileAtPath(
+                node.children || [],
+                path.slice(1),
+                file,
+              ),
+            }
+          }
+          return node
+        })
+      }
+
+      const insertFile = (
+        fileSystem: FileSystemNode[],
+        path: string[],
+        file: FileSystemNode,
+      ) => {
+        switch (path.length) {
+          case 0:
+            return [file, ...fileSystem]
+          case 1: {
+            const duplicatedIndex = selectedCollection.fileSystem.findIndex(
+              (node) => node.id === path[0],
+            )
+
+            if (duplicatedIndex === -1) {
+              return [...selectedCollection.fileSystem, requestFile]
+            }
+
+            const updatedFileSystem = [
+              ...selectedCollection.fileSystem.slice(0, duplicatedIndex + 1),
+              requestFile,
+              ...selectedCollection.fileSystem.slice(duplicatedIndex + 1),
+            ]
+
+            return updatedFileSystem
+          }
+          default: {
+            return insertFileAtPath(
+              selectedCollection.fileSystem,
+              path,
+              requestFile,
+            )
+          }
+        }
+      }
+
+      // Insert the new requestFile at the specified path
+      const updatedFileSystem = insertFile(
+        selectedCollection.fileSystem,
+        path ?? [],
+        requestFile,
+      )
 
       const updatedCollection = {
         ...selectedCollection,
