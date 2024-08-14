@@ -491,7 +491,7 @@ const insertFileAtPath = (
         if (duplicatedIndex === -1 || duplicatedIndex === undefined) {
           return {
             ...node,
-            children: [...(node.children || []), file],
+            children: [file, ...(node.children || [])],
           }
         }
 

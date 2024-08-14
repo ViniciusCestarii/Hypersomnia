@@ -353,6 +353,7 @@ const FolderContextMenu = ({
   const createFileSystemNode = useHypersomniaStore(
     (state) => state.createFileSystemNode,
   )
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
   const duplicateNodeWithNewIds = (node: FileSystemNodeType) => {
     const newId = generateUUID()
 
@@ -375,15 +376,30 @@ const FolderContextMenu = ({
 
     createFileSystemNode(duplicatedNode, path)
   }
+
+  const myPath = [...path, node.id]
+
+  const createNewRequest = () => {
+    const newRequestNode = generateNewRequestTemplate()
+    createFileSystemNode(newRequestNode, myPath)
+
+    selectRequest([...path, newRequestNode.id])
+  }
+
+  const createNewFolder = () => {
+    const newFolderNode = generateNewFolderTemplate()
+    createFileSystemNode(newFolderNode, myPath)
+  }
+
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-48">
         <ContextMenuLabel className="text-xs">Create</ContextMenuLabel>
-        <ContextMenuItem inset className="text-xs">
+        <ContextMenuItem inset className="text-xs" onClick={createNewFolder}>
           <Folder className="size-3 mr-2" /> <span>New Folder</span>
         </ContextMenuItem>
-        <ContextMenuItem inset className="text-xs">
+        <ContextMenuItem inset className="text-xs" onClick={createNewRequest}>
           <ArrowUpDown className="size-3 mr-2" /> <span>New HTTP request</span>
         </ContextMenuItem>
         <ContextMenuSeparator />
