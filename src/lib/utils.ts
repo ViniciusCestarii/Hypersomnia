@@ -483,34 +483,39 @@ const insertFileAtPath = (
 ): FileSystemNode[] => {
   return fileSystem.map((node) => {
     if (path.length === 2) {
-      const duplicatedIndex = node.children?.findIndex(
-        (child) => child.id === path[1],
-      )
+      if (node.id === path[0]) {
+        const duplicatedIndex = node.children?.findIndex(
+          (child) => child.id === path[1],
+        )
 
-      if (duplicatedIndex === -1 || duplicatedIndex === undefined) {
+        if (duplicatedIndex === -1 || duplicatedIndex === undefined) {
+          return {
+            ...node,
+            children: [...(node.children || []), file],
+          }
+        }
+
+        const updatedChildren = [
+          ...(node.children?.slice(0, duplicatedIndex + 1) || []),
+          file,
+          ...(node.children?.slice(duplicatedIndex + 1) || []),
+        ]
+
         return {
           ...node,
-          children: [...(node.children || []), file],
+          children: updatedChildren,
         }
       }
+      return node
+    }
 
-      const updatedChildren = [
-        ...(node.children?.slice(0, duplicatedIndex + 1) || []),
-        file,
-        ...(node.children?.slice(duplicatedIndex + 1) || []),
-      ]
-
+    if (node.isFolder && node.children) {
       return {
         ...node,
-        children: updatedChildren,
+        children: insertFileAtPath(node.children, path.slice(1), file),
       }
     }
-    if (node.id === path[0]) {
-      return {
-        ...node,
-        children: insertFileAtPath(node.children || [], path.slice(1), file),
-      }
-    }
+
     return node
   })
 }
