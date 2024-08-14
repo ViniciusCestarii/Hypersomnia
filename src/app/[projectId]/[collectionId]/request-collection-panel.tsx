@@ -310,8 +310,9 @@ const RequestContextMenu = ({
       name: `${node.name} (copy)`,
     })
 
-    const fatherPath = path?.slice(0, -1) ?? []
     createFileSystemNode(duplicatedNode, path)
+
+    const fatherPath = path?.slice(0, -1) ?? []
     selectRequest([...fatherPath, newId])
   }
 
