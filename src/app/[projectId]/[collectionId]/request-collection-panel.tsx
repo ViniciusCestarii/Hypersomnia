@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
@@ -50,15 +51,37 @@ import {
   ContextMenuItem,
   ContextMenuLabel,
   ContextMenuSeparator,
+  ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
+import useKeyCombination from '@/hooks/useKeyCombination'
 import merge from 'lodash.merge'
 
 const RequestCollectionPanel = () => {
   const collection = useHypersomniaStore((state) => state.selectedCollection)
+  const createFileSystemNode = useHypersomniaStore(
+    (state) => state.createFileSystemNode,
+  )
+
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
 
   const [filter, setFilter] = useQueryState('qr')
   const [expandAll, setExpandAll] = useState(false) // todo: make this work properly
+
+  const createNewRequest = () => {
+    const newRequestNode = generateNewRequestTemplate()
+    createFileSystemNode(newRequestNode)
+
+    selectRequest([newRequestNode.id])
+  }
+
+  const createNewFolder = () => {
+    const newFolderNode = generateNewFolderTemplate()
+    createFileSystemNode(newFolderNode)
+  }
+
+  useKeyCombination([{ keys: ['c', 'r'] }], createNewRequest)
+  useKeyCombination([{ keys: ['c', 'f'] }], createNewFolder)
 
   const filteredNodes = filterNodes(collection?.fileSystem || [], filter ?? '')
 
@@ -239,7 +262,7 @@ const CollectionOptionsButton = () => {
           <Plus size={16} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48">
+      <DropdownMenuContent className="w-56">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-xs">
             <span>Create</span>
@@ -254,6 +277,7 @@ const CollectionOptionsButton = () => {
           >
             <Folder className="mr-1 size-3" />
             <span>New Folder</span>
+            <DropdownMenuShortcut>C + F</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem
             inset
@@ -266,6 +290,7 @@ const CollectionOptionsButton = () => {
           >
             <ArrowUpDown className="mr-1 size-3" />
             <span>New HTTP request</span>
+            <DropdownMenuShortcut>C + R</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
