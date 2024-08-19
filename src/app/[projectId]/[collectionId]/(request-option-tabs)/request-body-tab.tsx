@@ -56,6 +56,7 @@ const RequestBodyTab = () => {
   const editorProps: EditorProps = useMemo(
     () => ({
       onChange: (value) => updateRequestField('body.content', value),
+      height: 'calc(100% - 4.8rem)',
     }),
     [updateRequestField],
   )

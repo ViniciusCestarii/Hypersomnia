@@ -43,7 +43,7 @@ const RequestOptionPanel = () => {
   )
 
   return (
-    <div className="flex flex-col flex-1">
+    <>
       <PanelHeaderContainer className="px-0">
         {request && (
           <div className="flex relative max-w-full w-full items-center">
@@ -97,7 +97,7 @@ const RequestOptionPanel = () => {
           </div>
         )}
       </PanelHeaderContainer>
-      <Tabs value={tab}>
+      <Tabs value={tab} className="h-full">
         <ScrollArea type="hover">
           <TabsList className="flex justify-start">
             <TabsTrigger
@@ -137,33 +137,33 @@ const RequestOptionPanel = () => {
         <Separator className="w-full" />
         {request && (
           <>
-            <TabsContent value="params">
+            <TabsContent value="params" className="h-full">
               <RequestParamsTab />
             </TabsContent>
-            <TabsContent value="body" className="mt-0">
+            <TabsContent value="body" className="mt-0 h-full">
               <RequestBodyTab />
             </TabsContent>
             <TabsContent value="auth" className="mt-0">
               <RequestAuthTab />
             </TabsContent>
-            <TabsContent value="headers" className="mt-0">
+            <TabsContent value="headers" className="mt-0 h-full">
               <RequestHeadersTab />
             </TabsContent>
-            <TabsContent value="docs" className="mt-0">
+            <TabsContent value="docs" className="mt-0 h-full">
               <RequestDocsTab />
             </TabsContent>
           </>
         )}
+        {/* todo: add button to create request or keyboard shortcut to select etc */}
+        {!request && (
+          <div className="flex justify-center items-center flex-1 h-full">
+            <TypographyP className="text-muted-foreground text-center">
+              No request selected
+            </TypographyP>
+          </div>
+        )}
       </Tabs>
-      {/* todo: add button to create request or keyboard shortcut to select etc */}
-      {!request && (
-        <div className="flex justify-center items-center flex-1 -mt-12">
-          <TypographyP className="text-muted-foreground text-center">
-            No request selected
-          </TypographyP>
-        </div>
-      )}
-    </div>
+    </>
   )
 }
 

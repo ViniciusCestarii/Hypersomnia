@@ -1,6 +1,7 @@
 import {
   findSystemNodeByPath,
   insertFile,
+  updateFileInFileSystem,
   updateRequestInFileSystem,
 } from '@/lib/utils'
 import { create, StateCreator } from 'zustand'
@@ -39,6 +40,7 @@ type HypersomniaStore = {
     field: keyof HypersomniaRequest['options'],
     value: unknown,
   ) => void
+  updateFile: (path: string[], updatedNode: FileSystemNode) => void
   cookies: Cookie[]
   setCookies: (cookies: Cookie[]) => void
 }
@@ -398,6 +400,38 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
 
       return {
         projects: state.projects.map((project) =>
+          project.id === selectedProject.id ? updatedProject : project,
+        ),
+        selectedCollection: updatedCollection,
+      }
+    }),
+  updateFile: (path, updatedNode) =>
+    set((state) => {
+      const { selectedCollection, projects, selectedProject } = state
+      if (!selectedCollection || !selectedProject) return state
+
+      const updatedFileSystem = updateFileInFileSystem(
+        selectedCollection.fileSystem,
+        path,
+        updatedNode,
+      )
+
+      const updatedCollection = {
+        ...selectedCollection,
+        fileSystem: updatedFileSystem,
+      }
+
+      const updatedProject = {
+        ...selectedProject,
+        collections: selectedProject.collections.map((collection) =>
+          collection.id === selectedCollection.id
+            ? updatedCollection
+            : collection,
+        ),
+      }
+
+      return {
+        projects: projects.map((project) =>
           project.id === selectedProject.id ? updatedProject : project,
         ),
         selectedCollection: updatedCollection,

@@ -43,7 +43,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useQueryState } from 'nuqs'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   ContextMenu,
@@ -51,7 +51,6 @@ import {
   ContextMenuItem,
   ContextMenuLabel,
   ContextMenuSeparator,
-  ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import useKeyCombination from '@/hooks/useKeyCombination'
@@ -87,8 +86,8 @@ const RequestCollectionPanel = () => {
   const filteredNodes = filterNodes(collection?.fileSystem || [], filter ?? '')
 
   return (
-    <div className="flex flex-col">
-      <PanelHeaderContainer className="pl-0">
+    <>
+      <PanelHeaderContainer className="pl-0 flex-shrink-0">
         <Link href="/" passHref>
           <Button
             aria-label="return"
@@ -103,7 +102,7 @@ const RequestCollectionPanel = () => {
         <Separator orientation="vertical" className="mr-2" />
         <h2 className="font-semibold text-nowrap">{collection?.title}</h2>
       </PanelHeaderContainer>
-      <ScrollArea>
+      <ScrollArea className="flex-shrink-0">
         <div className="flex items-center p-2 gap-2 min-w-48">
           <Label className="sr-only" htmlFor="request-filter">
             Filter
@@ -132,17 +131,21 @@ const RequestCollectionPanel = () => {
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-      <div className="mt-4">
-        {filteredNodes.map((node) => (
-          <FileSystemNode
-            key={node.id}
-            node={node}
-            path={[node.id]}
-            openFolders={expandAll || (!!filter && filter?.length > 0)}
-          />
-        ))}
-      </div>
-    </div>
+      <ScrollArea>
+        <div className="h-full max-h-full">
+          {filteredNodes.map((node) => (
+            <FileSystemNode
+              key={node.id}
+              node={node}
+              path={[node.id]}
+              openFolders={expandAll || (!!filter && filter?.length > 0)}
+            />
+          ))}
+        </div>
+        <ScrollBar orientation="vertical" />
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </>
   )
 }
 
@@ -153,7 +156,6 @@ type FileSystemNodeProps = {
 }
 
 const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
-  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
   const selectedRequestPath = useHypersomniaStore(
     (state) => state.selectedRequestPath,
   )
@@ -171,20 +173,22 @@ const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
 
   // todo: animate open/close with framer-motion
 
-  const handleSelectRequest = () => {
-    if (node.request) {
-      selectRequest(path)
-    }
-  }
+  // todo: refact and use context instead of passing down props
 
   const isSelected = selectedRequestId === node.id
 
   const padding = `1px calc(${path.length}rem - ${isSelected ? 1 : 0}px)`
 
+  const itemProps = {
+    ...props,
+    padding,
+    isSelected,
+  }
+
   if (node.isFolder) {
     return (
       <>
-        <FolderContextMenu {...props}>
+        <FolderContextMenu {...itemProps}>
           <button
             style={{
               padding,
@@ -215,24 +219,7 @@ const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
   }
 
   if (node.request) {
-    return (
-      <RequestContextMenu {...props}>
-        <button
-          style={{
-            padding,
-          }}
-          onClick={handleSelectRequest}
-          className={cn(
-            'flex items-center hover:bg-muted/80 transition-colors w-full',
-            isSelected &&
-              'bg-primary/[0.06] dark:bg-primary/[0.12] border-l border-primary',
-          )}
-        >
-          <RequestMethodBadge method={node.request.options.method} />
-          <span className="ml-2 text-nowrap">{node.name}</span>
-        </button>
-      </RequestContextMenu>
-    )
+    return <RequestItem {...itemProps} />
   }
 
   return (
@@ -241,6 +228,88 @@ const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
       <AlertTitle>Error</AlertTitle>
       <AlertDescription>This node is invalid</AlertDescription>
     </Alert>
+  )
+}
+
+interface RequestItemProps extends Omit<FileSystemNodeProps, 'openFolders'> {
+  padding: string
+  isSelected: boolean
+}
+
+const RequestItem = (props: RequestItemProps) => {
+  const { node, padding, path, isSelected } = props
+
+  const [isEditing, setIsEditing] = useState(false)
+
+  const updateFile = useHypersomniaStore((state) => state.updateFile)
+
+  const enterEditMode = () => {
+    setIsEditing(true)
+  }
+
+  const focusInput = () => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
+  const exitEditMode = () => {
+    setIsEditing(false)
+  }
+
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
+
+  const handleSelectRequest = () => {
+    selectRequest(path)
+  }
+
+  if (!node.request) {
+    return null
+  }
+
+  return (
+    <RequestContextMenu
+      {...props}
+      isEditing={isEditing}
+      enterEditMode={enterEditMode}
+      focusInput={focusInput}
+    >
+      <button
+        style={{
+          padding,
+        }}
+        onClick={handleSelectRequest}
+        className={cn(
+          'flex items-center hover:bg-muted/80 transition-colors w-full',
+          isSelected &&
+            'bg-primary/[0.06] dark:bg-primary/[0.12] border-l border-primary',
+        )}
+      >
+        <RequestMethodBadge method={node.request.options.method} />
+        <input
+          ref={inputRef}
+          onBlur={exitEditMode}
+          value={node.name}
+          onChange={({ target }) =>
+            updateFile(path, { ...node, name: target.value })
+          }
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              exitEditMode()
+            }
+          }}
+          className={cn(
+            'ml-2 bg-transparen hidden w-full',
+            isEditing && 'block',
+          )}
+        />
+        <span className={cn('ml-2 text-nowrap', isEditing && 'hidden')}>
+          {node.name}
+        </span>
+      </button>
+    </RequestContextMenu>
   )
 }
 
@@ -317,12 +386,18 @@ interface RequestContextMenuProps {
   children: React.ReactNode
   path?: string[]
   node: FileSystemNodeType
+  isEditing: boolean
+  enterEditMode: () => void
+  focusInput: () => void
 }
 
 const RequestContextMenu = ({
   children,
   path,
   node,
+  isEditing,
+  focusInput,
+  enterEditMode,
 }: RequestContextMenuProps) => {
   const createFileSystemNode = useHypersomniaStore(
     (state) => state.createFileSystemNode,
@@ -346,12 +421,20 @@ const RequestContextMenu = ({
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
-      <ContextMenuContent className="w-48">
+      <ContextMenuContent
+        className="w-48"
+        onCloseAutoFocus={(e) => {
+          if (isEditing) {
+            focusInput()
+            e.preventDefault()
+          }
+        }}
+      >
         <ContextMenuLabel className="text-xs">Actions</ContextMenuLabel>
         <ContextMenuItem inset className="text-xs" onClick={duplicateRequest}>
           <Layers2 className="size-3 mr-2" /> <span>Duplicate</span>
         </ContextMenuItem>
-        <ContextMenuItem inset className="text-xs">
+        <ContextMenuItem inset className="text-xs" onClick={enterEditMode}>
           <Pencil className="size-3 mr-2" /> <span>Rename</span>
         </ContextMenuItem>
         <ContextMenuItem inset className="text-xs">

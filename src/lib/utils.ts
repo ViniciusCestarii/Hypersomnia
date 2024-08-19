@@ -115,6 +115,30 @@ export const findFileByPath = (
   return null
 }
 
+export const updateFileInFileSystem = (
+  fileSystem: FileSystemNode[],
+  path: string[],
+  fileNode: FileSystemNode,
+): FileSystemNode[] => {
+  if (path.length === 0) return fileSystem
+
+  const [head, ...tail] = path
+
+  return fileSystem.map((node) => {
+    if (node.id === head) {
+      if (tail.length === 0 && node.request) {
+        return fileNode
+      } else if (node.isFolder && node.children) {
+        return {
+          ...node,
+          children: updateFileInFileSystem(node.children, tail, fileNode),
+        }
+      }
+    }
+    return node
+  })
+}
+
 export const updateRequestInFileSystem = (
   fileSystem: FileSystemNode[],
   path: string[],
@@ -297,7 +321,7 @@ export const generateEditorDefaultProps = ({
   theme,
 }: GenerateEditorDefaultProps): EditorProps => ({
   theme: theme === 'dark' ? 'dark' : 'light',
-  height: '80vh',
+  height: '100%',
   options: {
     minimap: { enabled: false },
     formatOnPaste: true,
