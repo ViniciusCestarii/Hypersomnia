@@ -131,16 +131,18 @@ const RequestCollectionPanel = () => {
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-      <div className="mt-4">
-        {filteredNodes.map((node) => (
-          <FileSystemNode
-            key={node.id}
-            node={node}
-            path={[node.id]}
-            openFolders={expandAll || (!!filter && filter?.length > 0)}
-          />
-        ))}
-      </div>
+      <ScrollArea type="auto" className="mt-2">
+        <div className="h-[80vh]">
+          {filteredNodes.map((node) => (
+            <FileSystemNode
+              key={node.id}
+              node={node}
+              path={[node.id]}
+              openFolders={expandAll || (!!filter && filter?.length > 0)}
+            />
+          ))}
+        </div>
+      </ScrollArea>
     </div>
   )
 }
