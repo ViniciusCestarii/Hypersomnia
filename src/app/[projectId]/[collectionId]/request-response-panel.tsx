@@ -67,7 +67,7 @@ const RequestResponsePanel = () => {
   }, [sendTrigger])
 
   return (
-    <div>
+    <>
       <PanelHeaderContainer>
         <>
           {response ? (
@@ -105,7 +105,7 @@ const RequestResponsePanel = () => {
           </>
         )}
       </PanelHeaderContainer>
-      <Tabs value={tab}>
+      <Tabs value={tab} className="h-full">
         <ScrollArea type="hover">
           <TabsList className="flex justify-start">
             <TabsTrigger value="body" onClick={() => setTab('body')}>
@@ -132,31 +132,29 @@ const RequestResponsePanel = () => {
           </TabsList>
         </ScrollArea>
         <Separator className="w-full" />
-        <div className="relative h-[80vh]">
-          {request && (
-            <>
-              <TabsContent value="body" className="mt-0">
-                <ResponseBodyTab />
-              </TabsContent>
-              <TabsContent value="headers" className="mt-0">
-                <ResponseHeadersTab />
-              </TabsContent>
+        {request && (
+          <>
+            <TabsContent value="body" className="mt-0 h-full">
+              <ResponseBodyTab />
+            </TabsContent>
+            <TabsContent value="headers" className="mt-0">
+              <ResponseHeadersTab />
+            </TabsContent>
 
-              <TabsContent value="cookies" className="mt-0">
-                {!process.env.NEXT_PUBLIC_IS_RUNNING_REMOTELY && (
-                  <ResponseCookiesTab />
-                )}
-              </TabsContent>
-            </>
-          )}
-          {loading && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center bg-background/35 z-50">
-              Loading...
-            </div>
-          )}
-        </div>
+            <TabsContent value="cookies" className="mt-0">
+              {!process.env.NEXT_PUBLIC_IS_RUNNING_REMOTELY && (
+                <ResponseCookiesTab />
+              )}
+            </TabsContent>
+          </>
+        )}
+        {loading && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center bg-background/35 z-50">
+            Loading...
+          </div>
+        )}
       </Tabs>
-    </div>
+    </>
   )
 }
 

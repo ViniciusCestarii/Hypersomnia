@@ -86,8 +86,8 @@ const RequestCollectionPanel = () => {
   const filteredNodes = filterNodes(collection?.fileSystem || [], filter ?? '')
 
   return (
-    <div className="flex flex-col">
-      <PanelHeaderContainer className="pl-0">
+    <>
+      <PanelHeaderContainer className="pl-0 flex-shrink-0">
         <Link href="/" passHref>
           <Button
             aria-label="return"
@@ -102,7 +102,7 @@ const RequestCollectionPanel = () => {
         <Separator orientation="vertical" className="mr-2" />
         <h2 className="font-semibold text-nowrap">{collection?.title}</h2>
       </PanelHeaderContainer>
-      <ScrollArea>
+      <ScrollArea className="flex-shrink-0">
         <div className="flex items-center p-2 gap-2 min-w-48">
           <Label className="sr-only" htmlFor="request-filter">
             Filter
@@ -131,8 +131,8 @@ const RequestCollectionPanel = () => {
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-      <ScrollArea type="auto" className="mt-2">
-        <div className="h-[80vh]">
+      <ScrollArea>
+        <div className="h-full max-h-full">
           {filteredNodes.map((node) => (
             <FileSystemNode
               key={node.id}
@@ -145,7 +145,7 @@ const RequestCollectionPanel = () => {
         <ScrollBar orientation="vertical" />
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-    </div>
+    </>
   )
 }
 

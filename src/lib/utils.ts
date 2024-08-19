@@ -321,7 +321,7 @@ export const generateEditorDefaultProps = ({
   theme,
 }: GenerateEditorDefaultProps): EditorProps => ({
   theme: theme === 'dark' ? 'dark' : 'light',
-  height: '80vh',
+  height: '100%',
   options: {
     minimap: { enabled: false },
     formatOnPaste: true,

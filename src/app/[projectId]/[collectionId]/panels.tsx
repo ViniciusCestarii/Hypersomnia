@@ -71,5 +71,5 @@ export default function Panels({
 }
 
 const PanelContentWrapper = ({ children }: { children: ReactNode }) => (
-  <div className="flex flex-col h-full">{children}</div>
+  <div className="flex flex-col h-full max-h-full">{children}</div>
 )

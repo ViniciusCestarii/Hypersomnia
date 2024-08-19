@@ -17,7 +17,7 @@ const RequestDocsTab = () => {
     (state) => state.updateRequestField,
   )
   return (
-    <Tabs defaultValue="write">
+    <Tabs defaultValue="write" className="h-full">
       <ScrollArea type="hover">
         <TabsList className="flex justify-start">
           <TabsTrigger value="write" className="w-1/2">
@@ -30,10 +30,11 @@ const RequestDocsTab = () => {
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
       <Separator className="w-full" />
-      <TabsContent value="write" className="mt-0">
+      <TabsContent value="write" className="mt-0 h-full">
         <Editor
           language="markdown"
           value={request?.doc ?? ''}
+          height="calc(100% - 4.8rem)"
           onChange={(value) => updateRequestField('doc', value)}
         />
       </TabsContent>

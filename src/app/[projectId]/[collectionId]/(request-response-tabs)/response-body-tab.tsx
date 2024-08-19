@@ -50,6 +50,7 @@ const ResponseBodyTab = () => {
     <Editor
       language={dataText.type}
       value={dataText.text}
+      height="calc(100% - 2.5rem)"
       options={{
         readOnly: true,
         domReadOnly: true,
