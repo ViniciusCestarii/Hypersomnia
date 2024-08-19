@@ -67,7 +67,7 @@ const RequestResponsePanel = () => {
   }, [sendTrigger])
 
   return (
-    <>
+    <div className="flex flex-col relative h-full max-h-full">
       <PanelHeaderContainer>
         <>
           {response ? (
@@ -154,7 +154,7 @@ const RequestResponsePanel = () => {
           </div>
         )}
       </Tabs>
-    </>
+    </div>
   )
 }
 
