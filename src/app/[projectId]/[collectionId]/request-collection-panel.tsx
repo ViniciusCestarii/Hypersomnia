@@ -142,6 +142,8 @@ const RequestCollectionPanel = () => {
             />
           ))}
         </div>
+        <ScrollBar orientation="vertical" />
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </div>
   )
@@ -239,6 +241,8 @@ const RequestItem = (props: RequestItemProps) => {
 
   const [isEditing, setIsEditing] = useState(false)
 
+  const updateFile = useHypersomniaStore((state) => state.updateFile)
+
   const enterEditMode = () => {
     setIsEditing(true)
   }
@@ -287,7 +291,15 @@ const RequestItem = (props: RequestItemProps) => {
         <input
           ref={inputRef}
           onBlur={exitEditMode}
-          defaultValue={node.name}
+          value={node.name}
+          onChange={({ target }) =>
+            updateFile(path, { ...node, name: target.value })
+          }
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              exitEditMode()
+            }
+          }}
           className={cn(
             'ml-2 bg-transparen hidden w-full',
             isEditing && 'block',
