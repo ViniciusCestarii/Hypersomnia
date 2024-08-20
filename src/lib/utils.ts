@@ -14,6 +14,7 @@ import {
   RequestBody,
 } from '@/types'
 import { v4 } from 'uuid'
+import { KeyCombination } from '@/hooks/useKeyCombination'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -597,3 +598,16 @@ export const insertFile = (
     }
   }
 }
+
+export const formatKeyShortcut = (keyCombination: KeyCombination): string => {
+  const keys = keyCombination.keys.join(' + ')
+  const ctrl = keyCombination.ctrlKey ? 'Ctrl + ' : ''
+  const alt = keyCombination.altKey ? 'Alt + ' : ''
+  const shift = keyCombination.shiftKey ? 'Shift + ' : ''
+
+  return `${ctrl}${alt}${shift}${keys}`.toUpperCase()
+}
+
+export const formatKeyShortcutArray = (
+  keyShortcuts: KeyCombination[],
+): string => keyShortcuts.map(formatKeyShortcut).join('| ')

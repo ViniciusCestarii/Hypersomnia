@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator'
 import {
   cn,
   filterNodes,
+  formatKeyShortcut,
   generateNewFolderTemplate,
   generateNewRequestTemplate,
   generateUUID,
@@ -55,6 +56,7 @@ import {
 } from '@/components/ui/context-menu'
 import useKeyCombination from '@/hooks/useKeyCombination'
 import merge from 'lodash.merge'
+import { keyShortcuts } from '@/lib/keyboard-shortcuts'
 
 const RequestCollectionPanel = () => {
   const collection = useHypersomniaStore((state) => state.selectedCollection)
@@ -392,8 +394,8 @@ const CollectionOptionsButton = () => {
     createFileSystemNode(newFolderNode)
   }
 
-  useKeyCombination([{ keys: ['c', 'r'] }], createNewRequest)
-  useKeyCombination([{ keys: ['c', 'f'] }], createNewFolder)
+  useKeyCombination([keyShortcuts.createRequest], createNewRequest)
+  useKeyCombination([keyShortcuts.createFolder], createNewFolder)
 
   return (
     <DropdownMenu>
@@ -416,7 +418,9 @@ const CollectionOptionsButton = () => {
           <DropdownMenuItem inset className="text-xs" onClick={createNewFolder}>
             <Folder className="mr-1 size-3" />
             <span>New Folder</span>
-            <DropdownMenuShortcut>C + F</DropdownMenuShortcut>
+            <DropdownMenuShortcut>
+              {formatKeyShortcut(keyShortcuts.createFolder)}
+            </DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem
             inset
@@ -425,7 +429,9 @@ const CollectionOptionsButton = () => {
           >
             <ArrowUpDown className="mr-1 size-3" />
             <span>New HTTP request</span>
-            <DropdownMenuShortcut>C + R</DropdownMenuShortcut>
+            <DropdownMenuShortcut>
+              {formatKeyShortcut(keyShortcuts.createRequest)}
+            </DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
