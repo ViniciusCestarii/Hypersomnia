@@ -14,20 +14,26 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import TypographyP from '@/components/ui/typography-p'
-import { requestMethods } from '@/lib/utils'
-import useHypersomniaStore from '@/zustand/hypersomnia-store'
-import { parseAsString, useQueryState } from 'nuqs'
-import RequestBodyTab from './(request-option-tabs)/request-body-tab'
-import RequestParamsTab from './(request-option-tabs)/request-params-tab'
-import RequestAuthTab from './(request-option-tabs)/request-auth-tab'
 import useDefineMonacoTheme from '@/hooks/useDefineMonacoTheme'
+import { keyShortcuts } from '@/lib/keyboard-shortcuts'
+import {
+  createNewRequest,
+  formatKeyShortcut,
+  requestMethods,
+} from '@/lib/utils'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
+import { Code2, Key } from 'lucide-react'
+import { parseAsString, useQueryState } from 'nuqs'
+import RequestAuthTab from './(request-option-tabs)/request-auth-tab'
+import RequestBodyTab from './(request-option-tabs)/request-body-tab'
 import RequestDocsTab from './(request-option-tabs)/request-docs-tab'
 import RequestHeadersTab from './(request-option-tabs)/request-headers-tab'
-import { Code2, Key } from 'lucide-react'
+import RequestParamsTab from './(request-option-tabs)/request-params-tab'
 
 const RequestOptionPanel = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest)
   const sendRequest = useHypersomniaStore((state) => state.sendRequest)
+  const isReady = useHypersomniaStore((state) => state.isReady)
   const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
   )
@@ -155,10 +161,25 @@ const RequestOptionPanel = () => {
           </>
         )}
         {/* todo: add button to create request or keyboard shortcut to select etc */}
-        {!request && (
+        {isReady && !request && (
           <div className="flex justify-center items-center flex-1 h-full">
-            <TypographyP className="text-muted-foreground text-center">
+            <TypographyP className="relative text-primary/85 flex flex-col gap-4 text-center after:content-[''] after:-z-10 after:shadow-merge-bg after:absolute after:rounded-full after:w-[200%] after:-translate-y-[calc(35%)] after:-left-1/2 after:bg-[length:24px_24px] after:aspect-square after:bg-grid">
               No request selected
+              <span className="flex gap-4 items-center text-muted-foreground text-sm">
+                Create Request
+                <kbd className="bg-background border p-1 py-0">
+                  {formatKeyShortcut(keyShortcuts.createRequest)}
+                </kbd>
+              </span>
+              <Button
+                aria-label="Create Request"
+                title="Create Request"
+                onClick={() => {
+                  createNewRequest()
+                }}
+              >
+                Create Request
+              </Button>
             </TypographyP>
           </div>
         )}
