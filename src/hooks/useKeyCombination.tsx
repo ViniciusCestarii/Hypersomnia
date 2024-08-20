@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-type KeyCombination = {
+export type KeyCombination = {
   keys: string[]
   ctrlKey?: boolean
   altKey?: boolean

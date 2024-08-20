@@ -79,6 +79,14 @@ const config = {
       fontSize: {
         xss: ['0.75rem', { lineHeight: '1rem' }],
       },
+      backgroundImage: {
+        grid: `linear-gradient(to right, hsl(var(--muted)) 1px, transparent 1px), 
+                           linear-gradient(to bottom, hsl(var(--muted)) 1px, transparent 1px)`,
+      },
+      boxShadow: {
+        'merge-bg':
+          'inset 0 0 50px hsl(var(--background)), inset 0 0 50px hsl(var(--background))',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

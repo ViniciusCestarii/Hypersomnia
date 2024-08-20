@@ -14,6 +14,8 @@ import {
   RequestBody,
 } from '@/types'
 import { v4 } from 'uuid'
+import { KeyCombination } from '@/hooks/useKeyCombination'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -516,6 +518,17 @@ export const generateNewRequestTemplate = (): FileSystemNode => ({
   },
 })
 
+export const createNewRequest = (path?: string[]) => {
+  const newRequest = generateNewRequestTemplate()
+  useHypersomniaStore.getState().createFileSystemNode(newRequest, path)
+  useHypersomniaStore.getState().selectRequest([...(path ?? []), newRequest.id])
+}
+
+export const createNewFolder = (path?: string[]) => {
+  const newRequest = generateNewFolderTemplate()
+  useHypersomniaStore.getState().createFileSystemNode(newRequest, path)
+}
+
 export const generateNewFolderTemplate = (): FileSystemNode => ({
   id: generateUUID(),
   name: 'New Folder',
@@ -523,34 +536,19 @@ export const generateNewFolderTemplate = (): FileSystemNode => ({
   children: [],
 })
 
+// TODO: create a function to duplicate file
+
 const insertFileAtPath = (
   fileSystem: FileSystemNode[],
   path: string[],
   file: FileSystemNode,
 ): FileSystemNode[] => {
   return fileSystem.map((node) => {
-    if (path.length === 2) {
+    if (path.length === 1) {
       if (node.id === path[0]) {
-        const duplicatedIndex = node.children?.findIndex(
-          (child) => child.id === path[1],
-        )
-
-        if (duplicatedIndex === -1 || duplicatedIndex === undefined) {
-          return {
-            ...node,
-            children: [file, ...(node.children || [])],
-          }
-        }
-
-        const updatedChildren = [
-          ...(node.children?.slice(0, duplicatedIndex + 1) || []),
-          file,
-          ...(node.children?.slice(duplicatedIndex + 1) || []),
-        ]
-
         return {
           ...node,
-          children: updatedChildren,
+          children: [file, ...(node.children || [])],
         }
       }
       return node
@@ -575,25 +573,21 @@ export const insertFile = (
   switch (path.length) {
     case 0:
       return [file, ...fileSystem]
-    case 1: {
-      const duplicatedIndex = fileSystem.findIndex(
-        (node) => node.id === path[0],
-      )
-
-      if (duplicatedIndex === -1) {
-        return [...fileSystem, file]
-      }
-
-      const updatedFileSystem = [
-        ...fileSystem.slice(0, duplicatedIndex + 1),
-        file,
-        ...fileSystem.slice(duplicatedIndex + 1),
-      ]
-
-      return updatedFileSystem
-    }
     default: {
       return insertFileAtPath(fileSystem, path, file)
     }
   }
 }
+
+export const formatKeyShortcut = (keyCombination: KeyCombination): string => {
+  const keys = keyCombination.keys.join(' + ')
+  const ctrl = keyCombination.ctrlKey ? 'Ctrl + ' : ''
+  const alt = keyCombination.altKey ? 'Alt + ' : ''
+  const shift = keyCombination.shiftKey ? 'Shift + ' : ''
+
+  return `${ctrl}${alt}${shift}${keys}`.toUpperCase()
+}
+
+export const formatKeyShortcutArray = (
+  keyShortcuts: KeyCombination[],
+): string => keyShortcuts.map(formatKeyShortcut).join('| ')

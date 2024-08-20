@@ -19,6 +19,8 @@ import {
 
 type HypersomniaStore = {
   projects: Project[]
+  isReady: boolean
+  setIsReady: (isReady: boolean) => void
   selectedProject: Project | null
   deleteProject: (id: string) => void
   createProject: (newProject: CreateProject) => void
@@ -313,11 +315,13 @@ const initialProjects: Project[] = [
 ]
 
 const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
+  isReady: false,
   projects: initialProjects,
   selectedProject: null,
   selectedCollection: null,
   selectedRequest: null,
   selectedRequestPath: null,
+  setIsReady: (isReady) => set({ isReady }),
   deleteProject: (id: string) =>
     set((state) => ({
       projects: state.projects.filter((project) => project.id !== id),
@@ -463,11 +467,24 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         ),
       }
 
+      const isDeletingSelectedRequest = state.selectedRequestPath?.some(
+        (selectedRequestSegment) => {
+          const fileIdToBeDeleted = path[path.length - 1]
+          return selectedRequestSegment === fileIdToBeDeleted
+        },
+      )
+
       return {
         projects: projects.map((project) =>
           project.id === selectedProject.id ? updatedProject : project,
         ),
         selectedCollection: updatedCollection,
+        selectedRequest: isDeletingSelectedRequest
+          ? null
+          : state.selectedRequest,
+        selectedRequestPath: isDeletingSelectedRequest
+          ? null
+          : state.selectedRequestPath,
       }
     }),
   updateSelectedRequest: (updatedRequest) =>

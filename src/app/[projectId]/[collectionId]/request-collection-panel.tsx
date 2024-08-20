@@ -18,9 +18,10 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import {
   cn,
+  createNewFolder,
+  createNewRequest,
   filterNodes,
-  generateNewFolderTemplate,
-  generateNewRequestTemplate,
+  formatKeyShortcut,
   generateUUID,
 } from '@/lib/utils'
 import { FileSystemNode as FileSystemNodeType } from '@/types'
@@ -55,6 +56,7 @@ import {
 } from '@/components/ui/context-menu'
 import useKeyCombination from '@/hooks/useKeyCombination'
 import merge from 'lodash.merge'
+import { keyShortcuts } from '@/lib/keyboard-shortcuts'
 
 const RequestCollectionPanel = () => {
   const collection = useHypersomniaStore((state) => state.selectedCollection)
@@ -375,25 +377,8 @@ const EditableTitle = forwardRef<HTMLInputElement, EditableTitleProps>(
 EditableTitle.displayName = 'EditableTitle'
 
 const CollectionOptionsButton = () => {
-  const createFileSystemNode = useHypersomniaStore(
-    (state) => state.createFileSystemNode,
-  )
-  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
-
-  const createNewRequest = () => {
-    const newRequestNode = generateNewRequestTemplate()
-    createFileSystemNode(newRequestNode)
-
-    selectRequest([newRequestNode.id])
-  }
-
-  const createNewFolder = () => {
-    const newFolderNode = generateNewFolderTemplate()
-    createFileSystemNode(newFolderNode)
-  }
-
-  useKeyCombination([{ keys: ['c', 'r'] }], createNewRequest)
-  useKeyCombination([{ keys: ['c', 'f'] }], createNewFolder)
+  useKeyCombination([keyShortcuts.createRequest], createNewRequest)
+  useKeyCombination([keyShortcuts.createFolder], createNewFolder)
 
   return (
     <DropdownMenu>
@@ -413,19 +398,31 @@ const CollectionOptionsButton = () => {
           <DropdownMenuLabel className="text-xs">
             <span>Create</span>
           </DropdownMenuLabel>
-          <DropdownMenuItem inset className="text-xs" onClick={createNewFolder}>
+          <DropdownMenuItem
+            inset
+            className="text-xs"
+            onClick={() => {
+              createNewFolder()
+            }}
+          >
             <Folder className="mr-1 size-3" />
             <span>New Folder</span>
-            <DropdownMenuShortcut>C + F</DropdownMenuShortcut>
+            <DropdownMenuShortcut>
+              {formatKeyShortcut(keyShortcuts.createFolder)}
+            </DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem
             inset
             className="text-xs"
-            onClick={createNewRequest}
+            onClick={() => {
+              createNewRequest()
+            }}
           >
             <ArrowUpDown className="mr-1 size-3" />
             <span>New HTTP request</span>
-            <DropdownMenuShortcut>C + R</DropdownMenuShortcut>
+            <DropdownMenuShortcut>
+              {formatKeyShortcut(keyShortcuts.createRequest)}
+            </DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -480,9 +477,10 @@ const RequestContextMenu = ({
       name: `${node.name} (copy)`,
     })
 
-    createFileSystemNode(duplicatedNode, path)
-
     const fatherPath = path?.slice(0, -1)
+
+    createFileSystemNode(duplicatedNode, fatherPath)
+
     selectRequest([...fatherPath, newId])
   }
 
@@ -534,7 +532,6 @@ const FolderContextMenu = ({
   const createFileSystemNode = useHypersomniaStore(
     (state) => state.createFileSystemNode,
   )
-  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
   const deleteFile = useHypersomniaStore((state) => state.deleteFile)
 
   const duplicateNodeWithNewIds = (node: FileSystemNodeType) => {
@@ -557,25 +554,13 @@ const FolderContextMenu = ({
       name: `${node.name} (copy)`,
     })
 
-    createFileSystemNode(duplicatedNode, path)
+    const fatherPath = path?.slice(0, -1)
+
+    createFileSystemNode(duplicatedNode, fatherPath)
   }
 
   const deleteFolder = () => {
     deleteFile(path)
-  }
-
-  const childPath = [...path, node.id]
-
-  const createNewRequest = () => {
-    const newRequestNode = generateNewRequestTemplate()
-    createFileSystemNode(newRequestNode, childPath)
-
-    selectRequest([...path, newRequestNode.id])
-  }
-
-  const createNewFolder = () => {
-    const newFolderNode = generateNewFolderTemplate()
-    createFileSystemNode(newFolderNode, childPath)
   }
 
   return (
@@ -591,10 +576,22 @@ const FolderContextMenu = ({
         }}
       >
         <ContextMenuLabel className="text-xs">Create</ContextMenuLabel>
-        <ContextMenuItem inset className="text-xs" onClick={createNewFolder}>
+        <ContextMenuItem
+          inset
+          className="text-xs"
+          onClick={() => {
+            createNewFolder(path)
+          }}
+        >
           <Folder className="size-3 mr-2" /> <span>New Folder</span>
         </ContextMenuItem>
-        <ContextMenuItem inset className="text-xs" onClick={createNewRequest}>
+        <ContextMenuItem
+          inset
+          className="text-xs"
+          onClick={() => {
+            createNewRequest(path)
+          }}
+        >
           <ArrowUpDown className="size-3 mr-2" /> <span>New HTTP request</span>
         </ContextMenuItem>
         <ContextMenuSeparator />

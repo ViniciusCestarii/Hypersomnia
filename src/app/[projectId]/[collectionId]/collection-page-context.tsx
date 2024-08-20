@@ -26,6 +26,7 @@ const CollectionPageContext = ({
   useEffect(() => {
     if (useHypersomniaStore.getState().selectedProject) {
       useHypersomniaStore.getState().selectCollection(params.collectionId)
+      useHypersomniaStore.getState().setIsReady(true)
     }
   }, [params.collectionId])
 
