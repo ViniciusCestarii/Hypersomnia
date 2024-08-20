@@ -126,7 +126,7 @@ export const updateFileInFileSystem = (
 
   return fileSystem.map((node) => {
     if (node.id === head) {
-      if (tail.length === 0 && node.request) {
+      if (tail.length === 0) {
         return fileNode
       } else if (node.isFolder && node.children) {
         return {

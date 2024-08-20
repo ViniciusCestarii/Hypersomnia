@@ -43,7 +43,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useQueryState } from 'nuqs'
-import { useEffect, useRef, useState } from 'react'
+import { forwardRef, useEffect, useRef, useState } from 'react'
 
 import {
   ContextMenu,
@@ -161,19 +161,11 @@ const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
   )
   const { node, path } = props
 
-  const [isOpen, setIsOpen] = useState(openFolders)
-
   const selectedRequestId = selectedRequestPath
     ? selectedRequestPath[selectedRequestPath.length - 1]
     : undefined
 
-  useEffect(() => {
-    setIsOpen(openFolders)
-  }, [openFolders])
-
   // todo: animate open/close with framer-motion
-
-  // todo: refact and use context instead of passing down props
 
   const isSelected = selectedRequestId === node.id
 
@@ -182,40 +174,12 @@ const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
   const itemProps = {
     ...props,
     padding,
+    openFolders,
     isSelected,
   }
 
   if (node.isFolder) {
-    return (
-      <>
-        <FolderContextMenu {...itemProps}>
-          <button
-            style={{
-              padding,
-            }}
-            className="flex items-center cursor-pointer hover:bg-muted/80 transition-colors w-full"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? (
-              <ChevronDown size={16} className="flex-shrink-0" />
-            ) : (
-              <ChevronRight size={16} className="flex-shrink-0" />
-            )}
-            <Folder size={16} className="ml-2 flex-shrink-0" />
-            <span className="ml-2 text-nowrap">{node.name}</span>
-          </button>
-        </FolderContextMenu>
-        {isOpen &&
-          node.children?.map((childNode) => (
-            <FileSystemNode
-              key={childNode.id}
-              node={childNode}
-              path={[...path, childNode.id]}
-              openFolders={openFolders}
-            />
-          ))}
-      </>
-    )
+    return <FolderItem {...itemProps} />
   }
 
   if (node.request) {
@@ -247,14 +211,14 @@ const RequestItem = (props: RequestItemProps) => {
     setIsEditing(true)
   }
 
+  const exitEditMode = () => {
+    setIsEditing(false)
+  }
+
   const focusInput = () => {
     if (inputRef.current) {
       inputRef.current.focus()
     }
-  }
-
-  const exitEditMode = () => {
-    setIsEditing(false)
   }
 
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -288,30 +252,148 @@ const RequestItem = (props: RequestItemProps) => {
         )}
       >
         <RequestMethodBadge method={node.request.options.method} />
-        <input
+        <EditableTitle
           ref={inputRef}
-          onBlur={exitEditMode}
+          isEditing={isEditing}
           value={node.name}
-          onChange={({ target }) =>
-            updateFile(path, { ...node, name: target.value })
-          }
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              exitEditMode()
-            }
-          }}
-          className={cn(
-            'ml-2 bg-transparen hidden w-full',
-            isEditing && 'block',
-          )}
+          id={'edit-request-' + node.id}
+          onChange={(value) => updateFile(path, { ...node, name: value })}
+          onBlur={exitEditMode}
         />
-        <span className={cn('ml-2 text-nowrap', isEditing && 'hidden')}>
-          {node.name}
-        </span>
       </button>
     </RequestContextMenu>
   )
 }
+
+interface FolderItemProps extends FileSystemNodeProps {
+  padding: string
+}
+
+const FolderItem = (props: FolderItemProps) => {
+  const { node, path, openFolders, padding } = props
+
+  const [isOpen, setIsOpen] = useState(openFolders)
+  const [isEditing, setIsEditing] = useState(false)
+
+  const updateFile = useHypersomniaStore((state) => state.updateFile)
+
+  const enterEditMode = () => {
+    setIsEditing(true)
+  }
+
+  const exitEditMode = () => {
+    setIsEditing(false)
+  }
+
+  const focusInput = () => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    setIsOpen(openFolders)
+  }, [openFolders])
+
+  return (
+    <>
+      <FolderContextMenu
+        {...props}
+        isEditing={isEditing}
+        enterEditMode={enterEditMode}
+        focusInput={focusInput}
+      >
+        <button
+          style={{
+            padding,
+          }}
+          className="flex items-center cursor-pointer hover:bg-muted/80 transition-colors w-full"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? (
+            <ChevronDown size={16} className="flex-shrink-0" />
+          ) : (
+            <ChevronRight size={16} className="flex-shrink-0" />
+          )}
+          <Folder size={16} className="ml-2 flex-shrink-0" />
+          <EditableTitle
+            id={'edit-folder-' + node.id}
+            ref={inputRef}
+            isEditing={isEditing}
+            value={node.name}
+            onChange={(value) => updateFile(path, { ...node, name: value })}
+            onBlur={exitEditMode}
+          />
+        </button>
+      </FolderContextMenu>
+      {isOpen &&
+        node.children?.map((childNode) => (
+          <FileSystemNode
+            key={childNode.id}
+            node={childNode}
+            path={[...path, childNode.id]}
+            openFolders={openFolders}
+          />
+        ))}
+    </>
+  )
+}
+
+interface EditableTitleProps {
+  value: string
+  id: string
+  onChange: (value: string) => void
+  onBlur: () => void
+  isEditing: boolean
+}
+
+const EditableTitle = forwardRef<HTMLInputElement, EditableTitleProps>(
+  ({ value, onChange, onBlur, isEditing, id }, ref) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        onBlur()
+      }
+
+      // Space key should not trigger the parent button
+      if (e.key === ' ') {
+        e.preventDefault()
+        onChange(value + ' ')
+      }
+    }
+
+    if (isEditing) {
+      return (
+        <>
+          <label htmlFor={id} className="sr-only">
+            {value} name
+          </label>
+          <input
+            id={id}
+            ref={ref}
+            onBlur={onBlur}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className={cn(
+              'ml-2 bg-transparent hidden w-full',
+              isEditing && 'block',
+            )}
+          />
+        </>
+      )
+    }
+
+    return (
+      <span className={cn('ml-2 text-nowrap', isEditing && 'hidden')}>
+        {value}
+      </span>
+    )
+  },
+)
+
+EditableTitle.displayName = 'EditableTitle'
 
 const CollectionOptionsButton = () => {
   const createFileSystemNode = useHypersomniaStore(
@@ -382,7 +464,7 @@ const CollectionOptionsButton = () => {
   )
 }
 
-interface RequestContextMenuProps {
+interface FileContextMenuProps {
   children: React.ReactNode
   path?: string[]
   node: FileSystemNodeType
@@ -390,6 +472,8 @@ interface RequestContextMenuProps {
   enterEditMode: () => void
   focusInput: () => void
 }
+
+type RequestContextMenuProps = FileContextMenuProps
 
 const RequestContextMenu = ({
   children,
@@ -449,16 +533,16 @@ const RequestContextMenu = ({
   )
 }
 
-interface FolderContextMenuProps {
-  children: React.ReactNode
+interface FolderContextMenuProps extends FileContextMenuProps {
   path: string[]
-  node: FileSystemNodeType
 }
-
 const FolderContextMenu = ({
   children,
   node,
   path,
+  enterEditMode,
+  focusInput,
+  isEditing,
 }: FolderContextMenuProps) => {
   const createFileSystemNode = useHypersomniaStore(
     (state) => state.createFileSystemNode,
@@ -504,7 +588,15 @@ const FolderContextMenu = ({
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
-      <ContextMenuContent className="w-48">
+      <ContextMenuContent
+        className="w-48"
+        onCloseAutoFocus={(e) => {
+          if (isEditing) {
+            focusInput()
+            e.preventDefault()
+          }
+        }}
+      >
         <ContextMenuLabel className="text-xs">Create</ContextMenuLabel>
         <ContextMenuItem inset className="text-xs" onClick={createNewFolder}>
           <Folder className="size-3 mr-2" /> <span>New Folder</span>
@@ -517,7 +609,7 @@ const FolderContextMenu = ({
         <ContextMenuItem inset className="text-xs" onClick={duplicateFolder}>
           <Layers2 className="size-3 mr-2" /> <span>Duplicate</span>
         </ContextMenuItem>
-        <ContextMenuItem inset className="text-xs">
+        <ContextMenuItem inset className="text-xs" onClick={enterEditMode}>
           <Pencil className="size-3 mr-2" /> <span>Rename</span>
         </ContextMenuItem>
         <ContextMenuSeparator />
