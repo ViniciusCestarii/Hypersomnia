@@ -13,34 +13,25 @@ const CollectionPageContext = ({
   params,
   children,
 }: CollectionPageContextProps) => {
-  const project = useHypersomniaStore((state) => state.selectedProject)
-
-  const selectProject = useHypersomniaStore((state) => state.selectProject)
-  const selectCollection = useHypersomniaStore(
-    (state) => state.selectCollection,
-  )
-
-  const setCookies = useHypersomniaStore((state) => state.setCookies)
-
   useEffect(() => {
-    selectProject(params.projectId)
+    useHypersomniaStore.getState().selectProject(params.projectId)
     useHypersomniaStore.setState((state) => ({
       requestFetchResult: {
         ...state.requestFetchResult,
         loading: false,
       },
     }))
-  }, [params.projectId, selectProject])
+  }, [params.projectId])
 
   useEffect(() => {
-    if (project) {
-      selectCollection(params.collectionId)
+    if (useHypersomniaStore.getState().selectedProject) {
+      useHypersomniaStore.getState().selectCollection(params.collectionId)
     }
-  }, [params.collectionId, project, selectCollection])
+  }, [params.collectionId])
 
   useEffect(() => {
-    setCookies(getCookies())
-  }, [setCookies])
+    useHypersomniaStore.getState().setCookies(getCookies())
+  }, [])
 
   return children
 }

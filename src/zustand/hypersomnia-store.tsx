@@ -1,6 +1,7 @@
 import {
   findSystemNodeByPath,
   insertFile,
+  removeFileInFileSystem,
   updateFileInFileSystem,
   updateRequestInFileSystem,
 } from '@/lib/utils'
@@ -41,6 +42,7 @@ type HypersomniaStore = {
     value: unknown,
   ) => void
   updateFile: (path: string[], updatedNode: FileSystemNode) => void
+  deleteFile: (path: string[]) => void
   cookies: Cookie[]
   setCookies: (cookies: Cookie[]) => void
 }
@@ -414,6 +416,37 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         selectedCollection.fileSystem,
         path,
         updatedNode,
+      )
+
+      const updatedCollection = {
+        ...selectedCollection,
+        fileSystem: updatedFileSystem,
+      }
+
+      const updatedProject = {
+        ...selectedProject,
+        collections: selectedProject.collections.map((collection) =>
+          collection.id === selectedCollection.id
+            ? updatedCollection
+            : collection,
+        ),
+      }
+
+      return {
+        projects: projects.map((project) =>
+          project.id === selectedProject.id ? updatedProject : project,
+        ),
+        selectedCollection: updatedCollection,
+      }
+    }),
+  deleteFile: (path) =>
+    set((state) => {
+      const { selectedCollection, projects, selectedProject } = state
+      if (!selectedCollection || !selectedProject) return state
+
+      const updatedFileSystem = removeFileInFileSystem(
+        selectedCollection.fileSystem,
+        path,
       )
 
       const updatedCollection = {

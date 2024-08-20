@@ -139,6 +139,29 @@ export const updateFileInFileSystem = (
   })
 }
 
+export const removeFileInFileSystem = (
+  fileSystem: FileSystemNode[],
+  path: string[],
+): FileSystemNode[] => {
+  if (path.length === 0) return fileSystem
+
+  const [head, ...tail] = path
+
+  return fileSystem.flatMap((node) => {
+    if (node.id === head) {
+      if (tail.length === 0) {
+        return []
+      } else if (node.isFolder && node.children) {
+        return {
+          ...node,
+          children: removeFileInFileSystem(node.children, tail),
+        }
+      }
+    }
+    return node
+  })
+}
+
 export const updateRequestInFileSystem = (
   fileSystem: FileSystemNode[],
   path: string[],

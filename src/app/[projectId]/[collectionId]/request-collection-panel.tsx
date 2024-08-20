@@ -58,30 +58,9 @@ import merge from 'lodash.merge'
 
 const RequestCollectionPanel = () => {
   const collection = useHypersomniaStore((state) => state.selectedCollection)
-  const createFileSystemNode = useHypersomniaStore(
-    (state) => state.createFileSystemNode,
-  )
-
-  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
 
   const [filter, setFilter] = useQueryState('qr')
   const [expandAll, setExpandAll] = useState(false) // todo: make this work properly
-
-  // todo: move these creation functions so it can be reused
-  const createNewRequest = () => {
-    const newRequestNode = generateNewRequestTemplate()
-    createFileSystemNode(newRequestNode)
-
-    selectRequest([newRequestNode.id])
-  }
-
-  const createNewFolder = () => {
-    const newFolderNode = generateNewFolderTemplate()
-    createFileSystemNode(newFolderNode)
-  }
-
-  useKeyCombination([{ keys: ['c', 'r'] }], createNewRequest)
-  useKeyCombination([{ keys: ['c', 'f'] }], createNewFolder)
 
   const filteredNodes = filterNodes(collection?.fileSystem || [], filter ?? '')
 
@@ -401,6 +380,21 @@ const CollectionOptionsButton = () => {
   )
   const selectRequest = useHypersomniaStore((state) => state.selectRequest)
 
+  const createNewRequest = () => {
+    const newRequestNode = generateNewRequestTemplate()
+    createFileSystemNode(newRequestNode)
+
+    selectRequest([newRequestNode.id])
+  }
+
+  const createNewFolder = () => {
+    const newFolderNode = generateNewFolderTemplate()
+    createFileSystemNode(newFolderNode)
+  }
+
+  useKeyCombination([{ keys: ['c', 'r'] }], createNewRequest)
+  useKeyCombination([{ keys: ['c', 'f'] }], createNewFolder)
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -419,14 +413,7 @@ const CollectionOptionsButton = () => {
           <DropdownMenuLabel className="text-xs">
             <span>Create</span>
           </DropdownMenuLabel>
-          <DropdownMenuItem
-            inset
-            className="text-xs"
-            onClick={() => {
-              const folderNode = generateNewFolderTemplate()
-              createFileSystemNode(folderNode)
-            }}
-          >
+          <DropdownMenuItem inset className="text-xs" onClick={createNewFolder}>
             <Folder className="mr-1 size-3" />
             <span>New Folder</span>
             <DropdownMenuShortcut>C + F</DropdownMenuShortcut>
@@ -434,11 +421,7 @@ const CollectionOptionsButton = () => {
           <DropdownMenuItem
             inset
             className="text-xs"
-            onClick={() => {
-              const requestNode = generateNewRequestTemplate()
-              createFileSystemNode(requestNode)
-              selectRequest([requestNode.id])
-            }}
+            onClick={createNewRequest}
           >
             <ArrowUpDown className="mr-1 size-3" />
             <span>New HTTP request</span>
@@ -466,7 +449,7 @@ const CollectionOptionsButton = () => {
 
 interface FileContextMenuProps {
   children: React.ReactNode
-  path?: string[]
+  path: string[]
   node: FileSystemNodeType
   isEditing: boolean
   enterEditMode: () => void
@@ -487,10 +470,11 @@ const RequestContextMenu = ({
     (state) => state.createFileSystemNode,
   )
   const selectRequest = useHypersomniaStore((state) => state.selectRequest)
+  const deleteFile = useHypersomniaStore((state) => state.deleteFile)
+
   const duplicateRequest = () => {
     const newId = generateUUID()
 
-    // merge deep nested state
     const duplicatedNode = merge({}, node, {
       id: newId,
       name: `${node.name} (copy)`,
@@ -498,8 +482,12 @@ const RequestContextMenu = ({
 
     createFileSystemNode(duplicatedNode, path)
 
-    const fatherPath = path?.slice(0, -1) ?? []
+    const fatherPath = path?.slice(0, -1)
     selectRequest([...fatherPath, newId])
+  }
+
+  const deleteRequest = () => {
+    deleteFile(path)
   }
 
   return (
@@ -525,7 +513,7 @@ const RequestContextMenu = ({
           <Terminal className="size-3 mr-2" /> <span>Copy as Curl</span>
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem inset className="text-xs">
+        <ContextMenuItem inset className="text-xs" onClick={deleteRequest}>
           <Trash className="size-3 mr-2" /> <span>Delete</span>
         </ContextMenuItem>
       </ContextMenuContent>
@@ -533,9 +521,8 @@ const RequestContextMenu = ({
   )
 }
 
-interface FolderContextMenuProps extends FileContextMenuProps {
-  path: string[]
-}
+type FolderContextMenuProps = FileContextMenuProps
+
 const FolderContextMenu = ({
   children,
   node,
@@ -548,6 +535,8 @@ const FolderContextMenu = ({
     (state) => state.createFileSystemNode,
   )
   const selectRequest = useHypersomniaStore((state) => state.selectRequest)
+  const deleteFile = useHypersomniaStore((state) => state.deleteFile)
+
   const duplicateNodeWithNewIds = (node: FileSystemNodeType) => {
     const newId = generateUUID()
 
@@ -571,18 +560,22 @@ const FolderContextMenu = ({
     createFileSystemNode(duplicatedNode, path)
   }
 
-  const myPath = [...path, node.id]
+  const deleteFolder = () => {
+    deleteFile(path)
+  }
+
+  const childPath = [...path, node.id]
 
   const createNewRequest = () => {
     const newRequestNode = generateNewRequestTemplate()
-    createFileSystemNode(newRequestNode, myPath)
+    createFileSystemNode(newRequestNode, childPath)
 
     selectRequest([...path, newRequestNode.id])
   }
 
   const createNewFolder = () => {
     const newFolderNode = generateNewFolderTemplate()
-    createFileSystemNode(newFolderNode, myPath)
+    createFileSystemNode(newFolderNode, childPath)
   }
 
   return (
@@ -613,7 +606,7 @@ const FolderContextMenu = ({
           <Pencil className="size-3 mr-2" /> <span>Rename</span>
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem inset className="text-xs">
+        <ContextMenuItem inset className="text-xs" onClick={deleteFolder}>
           <Trash className="size-3 mr-2" /> <span>Delete</span>
         </ContextMenuItem>
       </ContextMenuContent>
