@@ -161,19 +161,11 @@ const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
   )
   const { node, path } = props
 
-  const [isOpen, setIsOpen] = useState(openFolders)
-
   const selectedRequestId = selectedRequestPath
     ? selectedRequestPath[selectedRequestPath.length - 1]
     : undefined
 
-  useEffect(() => {
-    setIsOpen(openFolders)
-  }, [openFolders])
-
   // todo: animate open/close with framer-motion
-
-  // todo: refact and use context instead of passing down props
 
   const isSelected = selectedRequestId === node.id
 
@@ -182,40 +174,12 @@ const FileSystemNode = ({ openFolders, ...props }: FileSystemNodeProps) => {
   const itemProps = {
     ...props,
     padding,
+    openFolders,
     isSelected,
   }
 
   if (node.isFolder) {
-    return (
-      <>
-        <FolderContextMenu {...itemProps}>
-          <button
-            style={{
-              padding,
-            }}
-            className="flex items-center cursor-pointer hover:bg-muted/80 transition-colors w-full"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? (
-              <ChevronDown size={16} className="flex-shrink-0" />
-            ) : (
-              <ChevronRight size={16} className="flex-shrink-0" />
-            )}
-            <Folder size={16} className="ml-2 flex-shrink-0" />
-            <span className="ml-2 text-nowrap">{node.name}</span>
-          </button>
-        </FolderContextMenu>
-        {isOpen &&
-          node.children?.map((childNode) => (
-            <FileSystemNode
-              key={childNode.id}
-              node={childNode}
-              path={[...path, childNode.id]}
-              openFolders={openFolders}
-            />
-          ))}
-      </>
-    )
+    return <FolderItem {...itemProps} />
   }
 
   if (node.request) {
@@ -310,6 +274,51 @@ const RequestItem = (props: RequestItemProps) => {
         </span>
       </button>
     </RequestContextMenu>
+  )
+}
+
+interface FolderItemProps extends FileSystemNodeProps {
+  padding: string
+}
+
+const FolderItem = (props: FolderItemProps) => {
+  const { node, path, openFolders, padding } = props
+
+  const [isOpen, setIsOpen] = useState(openFolders)
+
+  useEffect(() => {
+    setIsOpen(openFolders)
+  }, [openFolders])
+
+  return (
+    <>
+      <FolderContextMenu {...props}>
+        <button
+          style={{
+            padding,
+          }}
+          className="flex items-center cursor-pointer hover:bg-muted/80 transition-colors w-full"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? (
+            <ChevronDown size={16} className="flex-shrink-0" />
+          ) : (
+            <ChevronRight size={16} className="flex-shrink-0" />
+          )}
+          <Folder size={16} className="ml-2 flex-shrink-0" />
+          <span className="ml-2 text-nowrap">{node.name}</span>
+        </button>
+      </FolderContextMenu>
+      {isOpen &&
+        node.children?.map((childNode) => (
+          <FileSystemNode
+            key={childNode.id}
+            node={childNode}
+            path={[...path, childNode.id]}
+            openFolders={openFolders}
+          />
+        ))}
+    </>
   )
 }
 
