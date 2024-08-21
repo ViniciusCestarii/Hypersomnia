@@ -58,6 +58,7 @@ import {
 } from '@/components/ui/context-menu'
 import useKeyCombination from '@/hooks/useKeyCombination'
 import { keyShortcuts } from '@/lib/keyboard-shortcuts'
+import { toast } from 'sonner'
 
 const RequestCollectionPanel = () => {
   const collection = useHypersomniaStore((state) => state.selectedCollection)
@@ -478,6 +479,22 @@ const RequestContextMenu = ({
     if (!node.request) return
     const textToCopy = hypersomniaRequestToCurl(node.request)
     copyToClipboard(textToCopy)
+
+    toast.success('Copied to clipboard', {
+      description: (
+        <ScrollArea type="hover">
+          <pre className="max-w-64 max-h-24">
+            <code className="break-all pb-2 pr-2">{textToCopy}</code>
+          </pre>
+          <ScrollBar orientation="vertical" />
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      ),
+      action: {
+        label: 'Close',
+        onClick: () => null,
+      },
+    })
   }
 
   return (

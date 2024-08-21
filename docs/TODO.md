@@ -1,29 +1,34 @@
-[ ] Use Zustand [Slice Pattern](https://docs.pmnd.rs/zustand/guides/slices-pattern) for global state management
+- [ ] Use Zustand [Slice Pattern](https://docs.pmnd.rs/zustand/guides/slices-pattern) for global state management
 
-[ ] Use framer-motion to animate folders on Collection page
+- [ ] Use framer-motion to animate folders on Collection page
 
-[ ] Enable sharable URLs with data, import, export like excalidraw and store it cryptographically in Cloudflare R2
+- [ ] Enable sharable URLs with data, import, export like excalidraw and store it cryptographically in Cloudflare R2
 
-[ ] Store last request response on request
+- [ ] Store last request response on request
 
-[x] Show code with status text on the response panel
+- [x] Show code with status text on the response panel
 
-[x] Apply automatically the right Content-Type header when body is selected
+- [x] Apply automatically the right Content-Type header when body is selected
 
-[x] If a header will be overridden, add a warning for the user (make it yellow).
+- [x] If a header will be overridden, add a warning for the user (make it yellow).
 
-[x] If a header is forbidden, add a warning for the user (make it red).
+- [x] If a header is forbidden, add a warning for the user (make it red).
 
-[x] Add suport for EDN body
+- [x] Add suport for EDN body
 
-[ ] Add option to copy body data, view raw data, preview HTML
+- [ ] Add option to copy body data, view raw data, preview HTML
 
-[ ] Add compatibility with [Insomnia](https://github.com/Kong/insomnia)
+- [ ] Add compatibility with [Insomnia](https://github.com/Kong/insomnia)
+  
+  - [ ] Import Insomnia data (JSON, YAML)
+  - [ ] Export Insomnia data (JSON, YAML)
+  - [x] Add export as Curl
+  - [ ] Add import from Curl
 
-[ ] Refact some schemas based on [Insomnia](https://github.com/Kong/insomnia) objects schemas
+- [ ] Refact some schemas based on [Insomnia](https://github.com/Kong/insomnia) objects schemas
 
 ----
 
-[ ] Store state open of folders
+- [ ] Store state open of folders
 
-[ ] D&D to reorder folders and requests
+- [ ] D&D to reorder folders and requests

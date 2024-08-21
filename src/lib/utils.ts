@@ -745,5 +745,7 @@ export const hypersomniaRequestToCurl = (
     curlCommand += ` \\\n  --output -`
   }
 
+  // for multline curl work on Windows we need to replace \ with ^
+
   return curlCommand
 }
