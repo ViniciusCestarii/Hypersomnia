@@ -18,13 +18,11 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import {
   cn,
-  copyToClipboard,
   createNewFolder,
   createNewRequest,
   duplicateFile,
   filterNodes,
   formatKeyShortcut,
-  hypersomniaRequestToCurl,
 } from '@/lib/utils'
 import { FileSystemNode as FileSystemNodeType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
@@ -57,8 +55,8 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import useKeyCombination from '@/hooks/useKeyCombination'
+import { copyRequestAsCurl } from '@/lib/export'
 import { keyShortcuts } from '@/lib/keyboard-shortcuts'
-import { toast } from 'sonner'
 
 const RequestCollectionPanel = () => {
   const collection = useHypersomniaStore((state) => state.selectedCollection)
@@ -477,24 +475,7 @@ const RequestContextMenu = ({
 
   const copyAsCurl = () => {
     if (!node.request) return
-    const textToCopy = hypersomniaRequestToCurl(node.request)
-    copyToClipboard(textToCopy)
-
-    toast.success('Copied to clipboard', {
-      description: (
-        <ScrollArea type="hover">
-          <pre className="max-w-64 max-h-24">
-            <code className="break-all pb-2 pr-2">{textToCopy}</code>
-          </pre>
-          <ScrollBar orientation="vertical" />
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-      ),
-      action: {
-        label: 'Close',
-        onClick: () => null,
-      },
-    })
+    copyRequestAsCurl(node.request)
   }
 
   return (
