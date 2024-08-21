@@ -1,9 +1,7 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
-import { html as beautifyHtml } from 'js-beautify'
-import { EditorProps } from '@monaco-editor/react'
-import { AxiosRequestConfig } from 'axios'
+import { KeyCombination } from '@/hooks/useKeyCombination'
 import {
   AuthBasic,
   AuthBearerToken,
@@ -12,11 +10,13 @@ import {
   HypersomniaRequest,
   MethodType,
   RequestBody,
+  RequestHeaders,
 } from '@/types'
-import { v4 } from 'uuid'
-import { KeyCombination } from '@/hooks/useKeyCombination'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
+import { EditorProps } from '@monaco-editor/react'
+import { html as beautifyHtml } from 'js-beautify'
 import merge from 'lodash.merge'
+import { v4 } from 'uuid'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -380,14 +380,17 @@ export const timeAgo = (requestStartTime: number): string => {
 
 export const getAuthConfig = ({
   auth,
-}: HypersomniaRequest): AxiosRequestConfig['headers'] => {
-  if (!auth?.enabled) return {}
+}: HypersomniaRequest):
+  | Required<Pick<RequestHeaders, 'key' | 'value'>>
+  | undefined => {
+  if (!auth?.enabled) return undefined
 
   switch (auth.type) {
     case 'basic': {
       const authData = auth.data as AuthBasic | undefined
       return {
-        Authorization: `Basic ${btoa(
+        key: 'Authorization',
+        value: `Basic ${btoa(
           `${authData?.username ?? ''}:${authData?.password ?? ''}`,
         )}`,
       }
@@ -395,13 +398,12 @@ export const getAuthConfig = ({
     case 'bearer token': {
       const authData = auth.data as AuthBearerToken | undefined
       return {
-        Authorization: `${
-          authData?.prefix ?? 'Bearer'
-        } ${authData?.token ?? ''}`,
+        key: 'Authorization',
+        value: `${authData?.prefix ?? 'Bearer'} ${authData?.token ?? ''}`,
       }
     }
     default:
-      return {}
+      return undefined
   }
 }
 
@@ -425,9 +427,15 @@ export const getCookies = (): Cookie[] => {
   return result
 }
 
-export const getDefinedHeaders = () => ({
-  Accept: '*/*',
-})
+export const getDefinedHeaders = (): Pick<
+  RequestHeaders,
+  'key' | 'value'
+>[] => [
+  {
+    key: 'Accept',
+    value: '*/*',
+  },
+]
 
 export const generateUUID = (): string => v4()
 
@@ -678,3 +686,65 @@ export const formatKeyShortcut = (keyCombination: KeyCombination): string => {
 export const formatKeyShortcutArray = (
   keyShortcuts: KeyCombination[],
 ): string => keyShortcuts.map(formatKeyShortcut).join('| ')
+
+export const mergeAllRequestHeaders = (
+  request: HypersomniaRequest,
+): Pick<RequestHeaders, 'key' | 'value'>[] => {
+  const authHeader = getAuthConfig(request)
+  const requestHeaders =
+    request?.headers?.filter((header) => header.enabled) ?? []
+
+  return [
+    ...getDefinedHeaders(),
+    ...(authHeader ? [authHeader] : []),
+    ...requestHeaders,
+  ]
+}
+
+export const hypersomniaRequestToCurl = (
+  request: HypersomniaRequest,
+): string => {
+  const { body, options } = request
+
+  const urlWithQueryParams = getRequestWithQueryParams(request)
+
+  let curlCommand = `curl -X ${options.method.toUpperCase()} "${urlWithQueryParams}"`
+
+  const allHeaders = mergeAllRequestHeaders(request)
+
+  // Add headers
+  if (allHeaders.length > 0) {
+    allHeaders.forEach((header) => {
+      if (header.key) {
+        curlCommand += ` \\\n  -H "${header.key}: ${header.value}"`
+      }
+    })
+  }
+
+  // Add body
+  if (body) {
+    if (body.type === 'json') {
+      curlCommand += ` \\\n  -d '${body.content}'`
+    } else if (
+      body.type === 'form-data' ||
+      body.type === 'x-www-form-urlencoded'
+    ) {
+      curlCommand += ` \\\n  -d '${body.content}'`
+    } else if (body.type === 'file') {
+      curlCommand += ` \\\n  --data-binary "@${body.content}"`
+    } else {
+      curlCommand += ` \\\n  -d '${body.content}'`
+    }
+  }
+
+  // Add additional options
+  if (options.timeout) {
+    curlCommand += ` \\\n  --max-time ${options.timeout}`
+  }
+
+  if (options.responseType === 'stream') {
+    curlCommand += ` \\\n  --output -`
+  }
+
+  return curlCommand
+}

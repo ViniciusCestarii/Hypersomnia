@@ -174,13 +174,13 @@ const initialProjects: Project[] = [
                     name: 'request 3',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/posts',
+                      body: {
+                        type: 'json',
+                        content:
+                          '{\n    "title": "foo",\n    "body": "bar",\n    "userId": 1\n}',
+                      },
                       options: {
                         method: 'post',
-                        data: {
-                          title: 'foo',
-                          body: 'bar',
-                          userId: 1,
-                        },
                       },
                     },
                   },
@@ -193,7 +193,8 @@ const initialProjects: Project[] = [
                   url: 'https://jsonplaceholder.typicode.com/posts',
                   body: {
                     type: 'json',
-                    content: '{"title": "foo", "body": "bar", "userId": 1}',
+                    content:
+                      '{\n    "title": "foo",\n    "body": "bar",\n    "userId": 1\n}',
                   },
                   options: {
                     method: 'post',
@@ -210,12 +211,12 @@ const initialProjects: Project[] = [
                     name: 'request 4',
                     request: {
                       url: 'https://jsonplaceholder.typicode.com/users',
+                      body: {
+                        type: 'json',
+                        content: '{\n    "name": "foo",\n    "email": "bar"\n}',
+                      },
                       options: {
                         method: 'post',
-                        data: {
-                          name: 'foo',
-                          email: 'bar',
-                        },
                       },
                     },
                   },
@@ -228,14 +229,13 @@ const initialProjects: Project[] = [
             name: 'put',
             request: {
               url: 'https://jsonplaceholder.typicode.com/posts/1',
+              body: {
+                type: 'json',
+                content:
+                  '{\n    "title": "foo",\n    "body": "bar",\n    "id": 1\n}',
+              },
               options: {
                 method: 'put',
-                data: {
-                  id: 1,
-                  title: 'foo',
-                  body: 'bar',
-                  userId: 1,
-                },
               },
             },
           },

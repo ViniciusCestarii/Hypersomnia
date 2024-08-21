@@ -18,11 +18,13 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import {
   cn,
+  copyToClipboard,
   createNewFolder,
   createNewRequest,
   duplicateFile,
   filterNodes,
   formatKeyShortcut,
+  hypersomniaRequestToCurl,
 } from '@/lib/utils'
 import { FileSystemNode as FileSystemNodeType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
@@ -472,6 +474,12 @@ const RequestContextMenu = ({
     duplicateFile(path, node)
   }
 
+  const copyAsCurl = () => {
+    if (!node.request) return
+    const textToCopy = hypersomniaRequestToCurl(node.request)
+    copyToClipboard(textToCopy)
+  }
+
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
@@ -491,7 +499,7 @@ const RequestContextMenu = ({
         <ContextMenuItem inset className="text-xs" onClick={enterEditMode}>
           <Pencil className="size-3 mr-2" /> <span>Rename</span>
         </ContextMenuItem>
-        <ContextMenuItem inset className="text-xs">
+        <ContextMenuItem inset className="text-xs" onClick={copyAsCurl}>
           <Terminal className="size-3 mr-2" /> <span>Copy as Curl</span>
         </ContextMenuItem>
         <ContextMenuSeparator />

@@ -7,20 +7,19 @@ import useFetch from '@/hooks/useFetch'
 import useIsClient from '@/hooks/useIsClient'
 import {
   cn,
-  getAuthConfig,
   getBodyData,
-  getDefinedHeaders,
   getRequestWithQueryParams,
   getStatusColor,
   httpStatusCodes,
+  mergeAllRequestHeaders,
   timeAgo,
 } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
 import ResponseBodyTab from './(request-response-tabs)/response-body-tab'
-import ResponseHeadersTab from './(request-response-tabs)/response-headers-tab'
 import ResponseCookiesTab from './(request-response-tabs)/response-cookies-tab'
+import ResponseHeadersTab from './(request-response-tabs)/response-headers-tab'
 
 const RequestResponsePanel = () => {
   const sendTrigger = useHypersomniaStore((state) => state.sendTrigger)
@@ -34,22 +33,19 @@ const RequestResponsePanel = () => {
     parseAsString.withDefault('body'),
   )
 
-  const requestHeaders = request?.headers ?? []
+  const allHeaders = request ? mergeAllRequestHeaders(request) : []
 
-  // todo: memoize values to prevent unnecessary re-renders
   const refetch = useFetch({
     ...request,
     options: {
       ...request?.options,
       headers: {
-        ...getDefinedHeaders(),
-        ...requestHeaders.reduce((acc: { [key: string]: string }, header) => {
-          if (header.enabled && header.key) {
+        ...allHeaders.reduce((acc: { [key: string]: string }, header) => {
+          if (header.key) {
             acc[header.key] = header.value ?? ''
           }
           return acc
         }, {}),
-        ...(request ? getAuthConfig(request) : {}),
       },
       data: request?.body ? getBodyData(request.body) : '',
       url: request ? getRequestWithQueryParams(request) : '',
