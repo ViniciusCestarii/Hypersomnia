@@ -125,7 +125,7 @@ const RequestHeadersTab = () => {
       </div>
       <ScrollArea type="auto" className="h-[55vh]">
         <ul className="py-[1px] text-sm">
-          {Object.entries(getDefinedHeaders()).map(([key, value]) => (
+          {getDefinedHeaders().map(({ key, value }) => (
             <li key={key} className="grid grid-cols-[0.95fr_1.05fr] px-4">
               <span>{key}:</span>
               <span>{value}</span>

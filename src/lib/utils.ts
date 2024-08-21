@@ -427,9 +427,8 @@ export const getCookies = (): Cookie[] => {
   return result
 }
 
-export const getDefinedHeaders = (): Pick<
-  RequestHeaders,
-  'key' | 'value'
+export const getDefinedHeaders = (): Required<
+  Pick<RequestHeaders, 'key' | 'value'>
 >[] => [
   {
     key: 'Accept',
