@@ -1,14 +1,12 @@
-[ ] Abandon Next.js SSR to ensure user data privacy
-
 [ ] Use Zustand [Slice Pattern](https://docs.pmnd.rs/zustand/guides/slices-pattern) for global state management
 
 [ ] Use framer-motion to animate folders on Collection page
 
 [ ] Enable sharable URLs with data, import, export like excalidraw and store it cryptographically in Cloudflare R2
 
-[x] Show code with status text on the response panel
-
 [ ] Store last request response on request
+
+[x] Show code with status text on the response panel
 
 [x] Apply automatically the right Content-Type header when body is selected
 
@@ -18,9 +16,11 @@
 
 [x] Add suport for EDN body
 
-[ ] Fix: use a unique id for requests and folders
-
 [ ] Add option to copy body data, view raw data, preview HTML
+
+[ ] Add compatibility with [Insomnia](https://github.com/Kong/insomnia)
+
+[ ] Refact some schemas based on [Insomnia](https://github.com/Kong/insomnia) objects schemas
 
 ----
 
