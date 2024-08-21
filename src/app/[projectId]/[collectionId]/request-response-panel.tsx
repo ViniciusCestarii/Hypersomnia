@@ -7,20 +7,21 @@ import useFetch from '@/hooks/useFetch'
 import useIsClient from '@/hooks/useIsClient'
 import {
   cn,
-  getAuthConfig,
   getBodyData,
-  getDefinedHeaders,
   getRequestWithQueryParams,
   getStatusColor,
   httpStatusCodes,
+  mergeAllRequestHeaders,
   timeAgo,
 } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
 import ResponseBodyTab from './(request-response-tabs)/response-body-tab'
-import ResponseHeadersTab from './(request-response-tabs)/response-headers-tab'
 import ResponseCookiesTab from './(request-response-tabs)/response-cookies-tab'
+import ResponseHeadersTab from './(request-response-tabs)/response-headers-tab'
+import { toast } from 'sonner'
+import { copyRequestAsCurl } from '@/lib/export'
 
 const RequestResponsePanel = () => {
   const sendTrigger = useHypersomniaStore((state) => state.sendTrigger)
@@ -34,22 +35,19 @@ const RequestResponsePanel = () => {
     parseAsString.withDefault('body'),
   )
 
-  const requestHeaders = request?.headers ?? []
+  const allHeaders = request ? mergeAllRequestHeaders(request) : []
 
-  // todo: memoize values to prevent unnecessary re-renders
   const refetch = useFetch({
     ...request,
     options: {
       ...request?.options,
       headers: {
-        ...getDefinedHeaders(),
-        ...requestHeaders.reduce((acc: { [key: string]: string }, header) => {
-          if (header.enabled && header.key) {
+        ...allHeaders.reduce((acc: { [key: string]: string }, header) => {
+          if (header.key) {
             acc[header.key] = header.value ?? ''
           }
           return acc
         }, {}),
-        ...(request ? getAuthConfig(request) : {}),
       },
       data: request?.body ? getBodyData(request.body) : '',
       url: request ? getRequestWithQueryParams(request) : '',
@@ -65,6 +63,20 @@ const RequestResponsePanel = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sendTrigger])
+
+  useEffect(() => {
+    if (isClient && error?.message === 'Network Error' && request) {
+      toast.error('Network Error', {
+        description:
+          'This could be due to CORS policy, network connection, bad DNS, or others issues. Try to copy as curl and run it in your terminal.',
+        action: {
+          label: 'Copy as Curl',
+          onClick: () => copyRequestAsCurl(request),
+        },
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error])
 
   return (
     <div className="flex flex-col relative h-full max-h-full">

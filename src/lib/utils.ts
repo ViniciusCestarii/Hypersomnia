@@ -1,9 +1,7 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
-import { html as beautifyHtml } from 'js-beautify'
-import { EditorProps } from '@monaco-editor/react'
-import { AxiosRequestConfig } from 'axios'
+import { KeyCombination } from '@/hooks/useKeyCombination'
 import {
   AuthBasic,
   AuthBearerToken,
@@ -12,10 +10,13 @@ import {
   HypersomniaRequest,
   MethodType,
   RequestBody,
+  RequestHeaders,
 } from '@/types'
-import { v4 } from 'uuid'
-import { KeyCombination } from '@/hooks/useKeyCombination'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
+import { EditorProps } from '@monaco-editor/react'
+import { html as beautifyHtml } from 'js-beautify'
+import merge from 'lodash.merge'
+import { v4 } from 'uuid'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -379,14 +380,17 @@ export const timeAgo = (requestStartTime: number): string => {
 
 export const getAuthConfig = ({
   auth,
-}: HypersomniaRequest): AxiosRequestConfig['headers'] => {
-  if (!auth?.enabled) return {}
+}: HypersomniaRequest):
+  | Required<Pick<RequestHeaders, 'key' | 'value'>>
+  | undefined => {
+  if (!auth?.enabled) return undefined
 
   switch (auth.type) {
     case 'basic': {
       const authData = auth.data as AuthBasic | undefined
       return {
-        Authorization: `Basic ${btoa(
+        key: 'Authorization',
+        value: `Basic ${btoa(
           `${authData?.username ?? ''}:${authData?.password ?? ''}`,
         )}`,
       }
@@ -394,13 +398,12 @@ export const getAuthConfig = ({
     case 'bearer token': {
       const authData = auth.data as AuthBearerToken | undefined
       return {
-        Authorization: `${
-          authData?.prefix ?? 'Bearer'
-        } ${authData?.token ?? ''}`,
+        key: 'Authorization',
+        value: `${authData?.prefix ?? 'Bearer'} ${authData?.token ?? ''}`,
       }
     }
     default:
-      return {}
+      return undefined
   }
 }
 
@@ -424,9 +427,14 @@ export const getCookies = (): Cookie[] => {
   return result
 }
 
-export const getDefinedHeaders = () => ({
-  Accept: '*/*',
-})
+export const getDefinedHeaders = (): Required<
+  Pick<RequestHeaders, 'key' | 'value'>
+>[] => [
+  {
+    key: 'Accept',
+    value: '*/*',
+  },
+]
 
 export const generateUUID = (): string => v4()
 
@@ -498,6 +506,38 @@ export const isHeaderForbidden = (headerName?: string): boolean => {
   return false
 }
 
+export const createNewRequest = (path?: string[]) => {
+  const newRequest = generateNewRequestTemplate()
+  useHypersomniaStore.getState().createFileSystemNode(newRequest, path)
+  useHypersomniaStore.getState().selectRequest([...(path ?? []), newRequest.id])
+}
+
+export const createNewFolder = (path?: string[]) => {
+  const newRequest = generateNewFolderTemplate()
+  useHypersomniaStore.getState().createFileSystemNode(newRequest, path)
+}
+
+export const duplicateFile = (
+  path: string[],
+  fileToDuplicate: FileSystemNode,
+) => {
+  const nodeCopy = createCopyOfNode(fileToDuplicate)
+  useHypersomniaStore.getState().duplicateFileSystemNode(nodeCopy, path)
+
+  if (!nodeCopy.isFolder) {
+    useHypersomniaStore
+      .getState()
+      .selectRequest([...path.slice(0, -1), nodeCopy.id])
+  }
+}
+
+export const generateNewFolderTemplate = (): FileSystemNode => ({
+  id: generateUUID(),
+  name: 'New Folder',
+  isFolder: true,
+  children: [],
+})
+
 export const generateNewRequestTemplate = (): FileSystemNode => ({
   id: generateUUID(),
   name: 'New Request',
@@ -518,25 +558,80 @@ export const generateNewRequestTemplate = (): FileSystemNode => ({
   },
 })
 
-export const createNewRequest = (path?: string[]) => {
-  const newRequest = generateNewRequestTemplate()
-  useHypersomniaStore.getState().createFileSystemNode(newRequest, path)
-  useHypersomniaStore.getState().selectRequest([...(path ?? []), newRequest.id])
+const duplicateNodeWithNewChildrenIds = (node: FileSystemNode) => {
+  const newId = generateUUID()
+
+  const duplicatedNode: FileSystemNode = merge({}, node, {
+    id: newId,
+    children: node.children?.map(duplicateNodeWithNewChildrenIds),
+  })
+
+  return duplicatedNode
 }
 
-export const createNewFolder = (path?: string[]) => {
-  const newRequest = generateNewFolderTemplate()
-  useHypersomniaStore.getState().createFileSystemNode(newRequest, path)
+export const insertFileNextToPath = (
+  fileSystem: FileSystemNode[],
+  path: string[],
+  file: FileSystemNode,
+): FileSystemNode[] => {
+  switch (path.length) {
+    case 0: {
+      return fileSystem
+    }
+    case 1: {
+      const duplicatedIndex = fileSystem.findIndex(
+        (node) => node.id === path[0],
+      )
+
+      if (duplicatedIndex === -1) return fileSystem
+
+      return [
+        ...fileSystem.slice(0, duplicatedIndex + 1),
+        file,
+        ...fileSystem.slice(duplicatedIndex + 1),
+      ]
+    }
+    default: {
+      return fileSystem.map((node) => {
+        // check father node
+        if (path.length === 2 && node.id === path[0] && node.children) {
+          const duplicatedIndex = node.children.findIndex(
+            (child) => child.id === path[1],
+          )
+
+          if (duplicatedIndex === -1) return node
+
+          return {
+            ...node,
+            children: [
+              ...node.children.slice(0, duplicatedIndex + 1),
+              file,
+              ...node.children.slice(duplicatedIndex + 1),
+            ],
+          }
+        }
+
+        if (node.isFolder && node.children && node.id === path[0]) {
+          return {
+            ...node,
+            children: insertFileNextToPath(node.children, path.slice(1), file),
+          }
+        }
+
+        return node
+      })
+    }
+  }
 }
 
-export const generateNewFolderTemplate = (): FileSystemNode => ({
-  id: generateUUID(),
-  name: 'New Folder',
-  isFolder: true,
-  children: [],
-})
+export const createCopyOfNode = (node: FileSystemNode): FileSystemNode => {
+  const duplicatedNode = duplicateNodeWithNewChildrenIds({
+    ...node,
+    name: `${node.name} (copy)`,
+  })
 
-// TODO: create a function to duplicate file
+  return duplicatedNode
+}
 
 const insertFileAtPath = (
   fileSystem: FileSystemNode[],
@@ -544,20 +639,19 @@ const insertFileAtPath = (
   file: FileSystemNode,
 ): FileSystemNode[] => {
   return fileSystem.map((node) => {
-    if (path.length === 1) {
-      if (node.id === path[0]) {
+    if (node.id === path[0]) {
+      if (path.length === 1) {
         return {
           ...node,
           children: [file, ...(node.children || [])],
         }
       }
-      return node
-    }
 
-    if (node.isFolder && node.children) {
-      return {
-        ...node,
-        children: insertFileAtPath(node.children, path.slice(1), file),
+      if (node.isFolder && node.children) {
+        return {
+          ...node,
+          children: insertFileAtPath(node.children, path.slice(1), file),
+        }
       }
     }
 
@@ -591,3 +685,67 @@ export const formatKeyShortcut = (keyCombination: KeyCombination): string => {
 export const formatKeyShortcutArray = (
   keyShortcuts: KeyCombination[],
 ): string => keyShortcuts.map(formatKeyShortcut).join('| ')
+
+export const mergeAllRequestHeaders = (
+  request: HypersomniaRequest,
+): Pick<RequestHeaders, 'key' | 'value'>[] => {
+  const authHeader = getAuthConfig(request)
+  const requestHeaders =
+    request?.headers?.filter((header) => header.enabled) ?? []
+
+  return [
+    ...getDefinedHeaders(),
+    ...(authHeader ? [authHeader] : []),
+    ...requestHeaders,
+  ]
+}
+
+export const hypersomniaRequestToCurl = (
+  request: HypersomniaRequest,
+): string => {
+  const { body, options } = request
+
+  const urlWithQueryParams = getRequestWithQueryParams(request)
+
+  let curlCommand = `curl -X ${options.method.toUpperCase()} "${urlWithQueryParams}"`
+
+  const allHeaders = mergeAllRequestHeaders(request)
+
+  // Add headers
+  if (allHeaders.length > 0) {
+    allHeaders.forEach((header) => {
+      if (header.key) {
+        curlCommand += ` \\\n  -H "${header.key}: ${header.value}"`
+      }
+    })
+  }
+
+  // Add body
+  if (body) {
+    if (body.type === 'json') {
+      curlCommand += ` \\\n  -d '${body.content}'`
+    } else if (
+      body.type === 'form-data' ||
+      body.type === 'x-www-form-urlencoded'
+    ) {
+      curlCommand += ` \\\n  -d '${body.content}'`
+    } else if (body.type === 'file') {
+      curlCommand += ` \\\n  --data-binary "@${body.content}"`
+    } else {
+      curlCommand += ` \\\n  -d '${body.content}'`
+    }
+  }
+
+  // Add additional options
+  if (options.timeout) {
+    curlCommand += ` \\\n  --max-time ${options.timeout}`
+  }
+
+  if (options.responseType === 'stream') {
+    curlCommand += ` \\\n  --output -`
+  }
+
+  // for multline curl work on Windows we need to replace \ with ^
+
+  return curlCommand
+}

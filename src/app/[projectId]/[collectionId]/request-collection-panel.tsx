@@ -20,9 +20,9 @@ import {
   cn,
   createNewFolder,
   createNewRequest,
+  duplicateFile,
   filterNodes,
   formatKeyShortcut,
-  generateUUID,
 } from '@/lib/utils'
 import { FileSystemNode as FileSystemNodeType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
@@ -55,7 +55,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import useKeyCombination from '@/hooks/useKeyCombination'
-import merge from 'lodash.merge'
+import { copyRequestAsCurl } from '@/lib/export'
 import { keyShortcuts } from '@/lib/keyboard-shortcuts'
 
 const RequestCollectionPanel = () => {
@@ -463,29 +463,19 @@ const RequestContextMenu = ({
   focusInput,
   enterEditMode,
 }: RequestContextMenuProps) => {
-  const createFileSystemNode = useHypersomniaStore(
-    (state) => state.createFileSystemNode,
-  )
-  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
   const deleteFile = useHypersomniaStore((state) => state.deleteFile)
-
-  const duplicateRequest = () => {
-    const newId = generateUUID()
-
-    const duplicatedNode = merge({}, node, {
-      id: newId,
-      name: `${node.name} (copy)`,
-    })
-
-    const fatherPath = path?.slice(0, -1)
-
-    createFileSystemNode(duplicatedNode, fatherPath)
-
-    selectRequest([...fatherPath, newId])
-  }
 
   const deleteRequest = () => {
     deleteFile(path)
+  }
+
+  const duplicateRequest = () => {
+    duplicateFile(path, node)
+  }
+
+  const copyAsCurl = () => {
+    if (!node.request) return
+    copyRequestAsCurl(node.request)
   }
 
   return (
@@ -507,7 +497,7 @@ const RequestContextMenu = ({
         <ContextMenuItem inset className="text-xs" onClick={enterEditMode}>
           <Pencil className="size-3 mr-2" /> <span>Rename</span>
         </ContextMenuItem>
-        <ContextMenuItem inset className="text-xs">
+        <ContextMenuItem inset className="text-xs" onClick={copyAsCurl}>
           <Terminal className="size-3 mr-2" /> <span>Copy as Curl</span>
         </ContextMenuItem>
         <ContextMenuSeparator />
@@ -529,34 +519,10 @@ const FolderContextMenu = ({
   focusInput,
   isEditing,
 }: FolderContextMenuProps) => {
-  const createFileSystemNode = useHypersomniaStore(
-    (state) => state.createFileSystemNode,
-  )
   const deleteFile = useHypersomniaStore((state) => state.deleteFile)
 
-  const duplicateNodeWithNewIds = (node: FileSystemNodeType) => {
-    const newId = generateUUID()
-
-    const duplicatedNode: FileSystemNodeType = merge({}, node, {
-      id: newId,
-      children: node.children?.map(duplicateNodeWithNewIds),
-    })
-
-    return duplicatedNode
-  }
-
   const duplicateFolder = () => {
-    const newId = generateUUID()
-
-    const duplicatedNode = duplicateNodeWithNewIds({
-      ...node,
-      id: newId,
-      name: `${node.name} (copy)`,
-    })
-
-    const fatherPath = path?.slice(0, -1)
-
-    createFileSystemNode(duplicatedNode, fatherPath)
+    duplicateFile(path, node)
   }
 
   const deleteFolder = () => {
