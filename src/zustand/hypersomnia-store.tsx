@@ -1,12 +1,11 @@
 import {
   findSystemNodeByPath,
   insertFile,
+  insertFileNextToPath,
   removeFileInFileSystem,
   updateFileInFileSystem,
   updateRequestInFileSystem,
 } from '@/lib/utils'
-import { create, StateCreator } from 'zustand'
-import { persist } from 'zustand/middleware'
 import {
   Collection,
   Cookie,
@@ -16,6 +15,8 @@ import {
   Project,
   RequestFetchResult,
 } from '@/types'
+import { create, StateCreator } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 type HypersomniaStore = {
   projects: Project[]
@@ -33,7 +34,8 @@ type HypersomniaStore = {
   selectedRequest: HypersomniaRequest | null
   sendTrigger: boolean | undefined
   requestFetchResult: RequestFetchResult | null
-  createFileSystemNode: (requestFile: FileSystemNode, path?: string[]) => void
+  createFileSystemNode: (file: FileSystemNode, path?: string[]) => void
+  duplicateFileSystemNode: (file: FileSystemNode, path: string[]) => void
   setRequestFetchResult: (requestFetchResult: RequestFetchResult | null) => void
   selectRequest: (path: string[]) => void
   sendRequest: () => void
@@ -379,7 +381,7 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       sendTrigger: !state.sendTrigger,
     })),
   setRequestFetchResult: (requestFetchResult) => set({ requestFetchResult }),
-  createFileSystemNode: (requestFile, path) =>
+  createFileSystemNode: (file, path) =>
     set((state) => {
       const { selectedCollection, selectedProject } = state
       if (!selectedCollection || !selectedProject) return state
@@ -387,7 +389,7 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       const updatedFileSystem = insertFile(
         selectedCollection.fileSystem,
         path ?? [],
-        requestFile,
+        file,
       )
 
       const updatedCollection = {
@@ -406,6 +408,38 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
 
       return {
         projects: state.projects.map((project) =>
+          project.id === selectedProject.id ? updatedProject : project,
+        ),
+        selectedCollection: updatedCollection,
+      }
+    }),
+  duplicateFileSystemNode: (duplicatedFile, originalPath) =>
+    set((state) => {
+      const { selectedCollection, projects, selectedProject } = state
+      if (!selectedCollection || !selectedProject) return state
+
+      const updatedFileSystem = insertFileNextToPath(
+        selectedCollection.fileSystem,
+        originalPath,
+        duplicatedFile,
+      )
+
+      const updatedCollection = {
+        ...selectedCollection,
+        fileSystem: updatedFileSystem,
+      }
+
+      const updatedProject = {
+        ...selectedProject,
+        collections: selectedProject.collections.map((collection) =>
+          collection.id === selectedCollection.id
+            ? updatedCollection
+            : collection,
+        ),
+      }
+
+      return {
+        projects: projects.map((project) =>
           project.id === selectedProject.id ? updatedProject : project,
         ),
         selectedCollection: updatedCollection,

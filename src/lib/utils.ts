@@ -16,6 +16,7 @@ import {
 import { v4 } from 'uuid'
 import { KeyCombination } from '@/hooks/useKeyCombination'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
+import merge from 'lodash.merge'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -498,6 +499,38 @@ export const isHeaderForbidden = (headerName?: string): boolean => {
   return false
 }
 
+export const createNewRequest = (path?: string[]) => {
+  const newRequest = generateNewRequestTemplate()
+  useHypersomniaStore.getState().createFileSystemNode(newRequest, path)
+  useHypersomniaStore.getState().selectRequest([...(path ?? []), newRequest.id])
+}
+
+export const createNewFolder = (path?: string[]) => {
+  const newRequest = generateNewFolderTemplate()
+  useHypersomniaStore.getState().createFileSystemNode(newRequest, path)
+}
+
+export const duplicateFile = (
+  path: string[],
+  fileToDuplicate: FileSystemNode,
+) => {
+  const nodeCopy = createCopyOfNode(fileToDuplicate)
+  useHypersomniaStore.getState().duplicateFileSystemNode(nodeCopy, path)
+
+  if (!nodeCopy.isFolder) {
+    useHypersomniaStore
+      .getState()
+      .selectRequest([...path.slice(0, -1), nodeCopy.id])
+  }
+}
+
+export const generateNewFolderTemplate = (): FileSystemNode => ({
+  id: generateUUID(),
+  name: 'New Folder',
+  isFolder: true,
+  children: [],
+})
+
 export const generateNewRequestTemplate = (): FileSystemNode => ({
   id: generateUUID(),
   name: 'New Request',
@@ -518,25 +551,80 @@ export const generateNewRequestTemplate = (): FileSystemNode => ({
   },
 })
 
-export const createNewRequest = (path?: string[]) => {
-  const newRequest = generateNewRequestTemplate()
-  useHypersomniaStore.getState().createFileSystemNode(newRequest, path)
-  useHypersomniaStore.getState().selectRequest([...(path ?? []), newRequest.id])
+const duplicateNodeWithNewChildrenIds = (node: FileSystemNode) => {
+  const newId = generateUUID()
+
+  const duplicatedNode: FileSystemNode = merge({}, node, {
+    id: newId,
+    children: node.children?.map(duplicateNodeWithNewChildrenIds),
+  })
+
+  return duplicatedNode
 }
 
-export const createNewFolder = (path?: string[]) => {
-  const newRequest = generateNewFolderTemplate()
-  useHypersomniaStore.getState().createFileSystemNode(newRequest, path)
+export const insertFileNextToPath = (
+  fileSystem: FileSystemNode[],
+  path: string[],
+  file: FileSystemNode,
+): FileSystemNode[] => {
+  switch (path.length) {
+    case 0: {
+      return fileSystem
+    }
+    case 1: {
+      const duplicatedIndex = fileSystem.findIndex(
+        (node) => node.id === path[0],
+      )
+
+      if (duplicatedIndex === -1) return fileSystem
+
+      return [
+        ...fileSystem.slice(0, duplicatedIndex + 1),
+        file,
+        ...fileSystem.slice(duplicatedIndex + 1),
+      ]
+    }
+    default: {
+      return fileSystem.map((node) => {
+        // check father node
+        if (path.length === 2 && node.id === path[0] && node.children) {
+          const duplicatedIndex = node.children.findIndex(
+            (child) => child.id === path[1],
+          )
+
+          if (duplicatedIndex === -1) return node
+
+          return {
+            ...node,
+            children: [
+              ...node.children.slice(0, duplicatedIndex + 1),
+              file,
+              ...node.children.slice(duplicatedIndex + 1),
+            ],
+          }
+        }
+
+        if (node.isFolder && node.children && node.id === path[0]) {
+          return {
+            ...node,
+            children: insertFileNextToPath(node.children, path.slice(1), file),
+          }
+        }
+
+        return node
+      })
+    }
+  }
 }
 
-export const generateNewFolderTemplate = (): FileSystemNode => ({
-  id: generateUUID(),
-  name: 'New Folder',
-  isFolder: true,
-  children: [],
-})
+export const createCopyOfNode = (node: FileSystemNode): FileSystemNode => {
+  const duplicatedNode = duplicateNodeWithNewChildrenIds({
+    ...node,
+    name: `${node.name} (copy)`,
+  })
 
-// TODO: create a function to duplicate file
+  return duplicatedNode
+}
 
 const insertFileAtPath = (
   fileSystem: FileSystemNode[],
@@ -544,20 +632,19 @@ const insertFileAtPath = (
   file: FileSystemNode,
 ): FileSystemNode[] => {
   return fileSystem.map((node) => {
-    if (path.length === 1) {
-      if (node.id === path[0]) {
+    if (node.id === path[0]) {
+      if (path.length === 1) {
         return {
           ...node,
           children: [file, ...(node.children || [])],
         }
       }
-      return node
-    }
 
-    if (node.isFolder && node.children) {
-      return {
-        ...node,
-        children: insertFileAtPath(node.children, path.slice(1), file),
+      if (node.isFolder && node.children) {
+        return {
+          ...node,
+          children: insertFileAtPath(node.children, path.slice(1), file),
+        }
       }
     }
 
