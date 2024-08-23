@@ -6,6 +6,7 @@ export type FileSystemNode = {
   name: string
   children?: FileSystemNode[]
   isFolder?: boolean
+  collapsed?: boolean
   request?: HypersomniaRequest
 }
 
