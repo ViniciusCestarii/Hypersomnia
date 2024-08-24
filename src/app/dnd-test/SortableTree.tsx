@@ -20,7 +20,6 @@ import {
 import {
   SortableContext,
   arrayMove,
-  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -35,6 +34,7 @@ import {
   getProjection,
   removeChildrenOf,
   setProperty,
+  sortableTreeKeyboardCoordinates,
 } from './utilities'
 
 const initialItems: TreeItems = initialProjects[0].collections[0].fileSystem
@@ -52,12 +52,10 @@ const dropAnimation: DropAnimation = {
 interface SortableTreeProps {
   defaultItems?: TreeItems
   indentationWidth?: number
-  indicator?: boolean
 }
 
 export function SortableTree({
   defaultItems = initialItems,
-  indicator,
   indentationWidth = 20,
 }: SortableTreeProps) {
   const [items, setItems] = useState(() => defaultItems)
@@ -92,10 +90,13 @@ export function SortableTree({
     items: flattenedItems,
     offset: offsetLeft,
   })
+  const [coordinateGetter] = useState(() =>
+    sortableTreeKeyboardCoordinates(sensorContext, indentationWidth),
+  )
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
+      coordinateGetter,
     }),
   )
 
@@ -127,28 +128,19 @@ export function SortableTree({
     >
       <SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
         <ul>
-          {flattenedItems.map(
-            ({ id, children, name, collapsed, depth, isFolder }) => (
-              <SortableTreeItem
-                key={id}
-                id={id}
-                value={name}
-                depth={id === activeId && projected ? projected.depth : depth}
-                indentationWidth={indentationWidth}
-                indicator={indicator}
-                collapsed={Boolean(collapsed && children?.length)}
-                onCollapse={
-                  children?.length && isFolder
-                    ? () => handleCollapse(id)
-                    : undefined
-                }
-              />
-            ),
-          )}
-          <DragOverlay
-            dropAnimation={dropAnimation}
-            modifiers={indicator ? [adjustTranslate] : undefined}
-          >
+          {flattenedItems.map(({ id, name, collapsed, depth, isFolder }) => (
+            <SortableTreeItem
+              key={id}
+              id={id}
+              value={name}
+              depth={id === activeId && projected ? projected.depth : depth}
+              indentationWidth={indentationWidth}
+              isCollapsible={isFolder}
+              collapsed={collapsed}
+              onCollapse={isFolder ? () => handleCollapse(id) : undefined}
+            />
+          ))}
+          <DragOverlay dropAnimation={dropAnimation}>
             {activeId && activeItem ? (
               <SortableTreeItem
                 id={activeId}
@@ -231,12 +223,5 @@ export function SortableTree({
         return !value
       }),
     )
-  }
-}
-
-const adjustTranslate: Modifier = ({ transform }) => {
-  return {
-    ...transform,
-    y: transform.y - 25,
   }
 }

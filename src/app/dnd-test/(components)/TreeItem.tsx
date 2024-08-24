@@ -3,13 +3,11 @@ import { Action } from './Action'
 import { Handle } from './Handle'
 import { cn } from '@/lib/utils'
 
-export interface Props extends HTMLAttributes<HTMLLIElement> {
+export interface TreeItemProps extends HTMLAttributes<HTMLLIElement> {
   childCount?: number
   clone?: boolean
   collapsed?: boolean
   depth: number
-  disableInteraction?: boolean
-  disableSelection?: boolean
   ghost?: boolean
   handleProps?: any
   indicator?: boolean
@@ -20,18 +18,15 @@ export interface Props extends HTMLAttributes<HTMLLIElement> {
   wrapperRef?(node: HTMLLIElement): void
 }
 
-export const TreeItem = forwardRef<HTMLDivElement, Props>(
+export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
   (
     {
       childCount,
       clone,
       depth,
-      disableSelection,
-      disableInteraction,
       ghost,
       handleProps,
       indentationWidth,
-      indicator,
       collapsed,
       isCollapsible,
       onCollapse,
@@ -42,6 +37,9 @@ export const TreeItem = forwardRef<HTMLDivElement, Props>(
     },
     ref,
   ) => {
+    if (value === 'folder 1') {
+      console.log(collapsed)
+    }
     return (
       <li
         ref={wrapperRef}
@@ -49,10 +47,11 @@ export const TreeItem = forwardRef<HTMLDivElement, Props>(
           paddingLeft: `${indentationWidth * depth}px`,
         }}
         {...props}
+        className={cn(props.className, ghost && 'opacity-50')}
       >
         <div ref={ref} style={style} className="flex">
           <Handle {...handleProps} />
-          {(isCollapsible || onCollapse) && (
+          {isCollapsible && (
             <Action
               onClick={onCollapse}
               className={cn(collapsed && '-rotate-90')}
@@ -62,11 +61,11 @@ export const TreeItem = forwardRef<HTMLDivElement, Props>(
           )}
           <span className="relative text-nowrap">
             {value}
-            {clone && childCount && childCount > 1 ? (
+            {clone && isCollapsible && (
               <span className="absolute -top-3 -right-8 rounded-full border-2 w-6 text-sm flex items-center justify-center aspect-square">
                 {childCount}
               </span>
-            ) : null}
+            )}
           </span>
         </div>
       </li>
