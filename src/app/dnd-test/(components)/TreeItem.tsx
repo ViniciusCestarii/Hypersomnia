@@ -16,6 +16,7 @@ export interface Props extends HTMLAttributes<HTMLLIElement> {
   indentationWidth: number
   value: string
   onCollapse?(): void
+  isCollapsible?: boolean
   wrapperRef?(node: HTMLLIElement): void
 }
 
@@ -32,6 +33,7 @@ export const TreeItem = forwardRef<HTMLDivElement, Props>(
       indentationWidth,
       indicator,
       collapsed,
+      isCollapsible,
       onCollapse,
       style,
       value,
@@ -50,7 +52,7 @@ export const TreeItem = forwardRef<HTMLDivElement, Props>(
       >
         <div ref={ref} style={style} className="flex">
           <Handle {...handleProps} />
-          {(clone || onCollapse) && (
+          {(isCollapsible || onCollapse) && (
             <Action
               onClick={onCollapse}
               className={cn(collapsed && '-rotate-90')}
