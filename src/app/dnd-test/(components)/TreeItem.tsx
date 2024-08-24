@@ -37,9 +37,6 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
     },
     ref,
   ) => {
-    if (value === 'folder 1') {
-      console.log(collapsed)
-    }
     return (
       <li
         ref={wrapperRef}
