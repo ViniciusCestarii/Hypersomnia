@@ -7,5 +7,7 @@ export default function App() {
   const [items, setItems] = useState(
     initialProjects[0].collections[0].fileSystem,
   )
-  return <SortableTree items={items} setItems={setItems} />
+  return (
+    <SortableTree items={items} filteredItems={items} setItems={setItems} />
+  )
 }

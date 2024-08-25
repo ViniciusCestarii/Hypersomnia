@@ -54,7 +54,7 @@ export const filterNodes = (
   nodes: FileSystemNode[],
   filter: string,
 ): FileSystemNode[] => {
-  if (!filter) return nodes
+  if (!filter || filter.length === 0) return nodes
 
   const lowercasedFilter = filter.toLowerCase()
 

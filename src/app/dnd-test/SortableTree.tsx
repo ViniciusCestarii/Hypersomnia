@@ -67,10 +67,19 @@ export function SortableTree({
   const selectRequest = useHypersomniaStore((state) => state.selectRequest)
 
   const flattenedItems = useMemo(() => flattenTree(items), [items])
-  const filteredFlattenedItems = useMemo(
-    () => flattenTree(filteredItems),
-    [filteredItems],
-  )
+  const filteredFlattenedItems = useMemo(() => {
+    const flattenedTree = flattenTree(filteredItems)
+    const collapsedItems = flattenedTree.reduce<string[]>(
+      (acc, { children, isOpen, id }) =>
+        !isOpen && children?.length ? [...acc, id] : acc,
+      [],
+    )
+
+    return removeChildrenOf(
+      flattenedTree,
+      activeId ? [activeId, ...collapsedItems] : collapsedItems,
+    )
+  }, [activeId, filteredItems])
 
   const projected =
     activeId && overId
