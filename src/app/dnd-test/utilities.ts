@@ -191,6 +191,20 @@ export function setProperty<T extends keyof TreeItem>(
   })
 }
 
+export function setPropertyForAll<T extends keyof TreeItem>(
+  items: TreeItems,
+  property: T,
+  setter: (value: TreeItem) => TreeItem[T],
+): TreeItems {
+  return items.map((item) => {
+    return {
+      ...item,
+      children: setPropertyForAll(item.children ?? [], property, setter),
+      [property]: setter(item),
+    }
+  })
+}
+
 function countChildren(items: TreeItem[], count = 0): number {
   return items.reduce((acc, { children }) => {
     if (children?.length) {

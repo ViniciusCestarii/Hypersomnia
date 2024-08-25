@@ -33,9 +33,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useQueryState } from 'nuqs'
-import { useState } from 'react'
 
 import { SortableTree } from '@/app/dnd-test/SortableTree'
+import { setPropertyForAll } from '@/app/dnd-test/utilities'
 import useKeyCombination from '@/hooks/useKeyCombination'
 import { keyShortcuts } from '@/lib/keyboard-shortcuts'
 
@@ -45,8 +45,27 @@ const RequestCollectionPanel = () => {
     (state) => state.updateCollection,
   )
 
+  const isAllFolderOpened = collection.fileSystem.every((item) => {
+    if (item.isFolder) {
+      return item.isOpen
+    }
+
+    return true
+  })
+
+  const toggleExpandAllFolders = () => {
+    const items = collection?.fileSystem || []
+    const expandedItems = setPropertyForAll(items, 'isOpen', (item) => {
+      if (item.isFolder) {
+        return !isAllFolderOpened
+      } else {
+        return item.isOpen
+      }
+    })
+    updateCollection({ ...collection, fileSystem: expandedItems })
+  }
+
   const [filter, setFilter] = useQueryState('qr')
-  const [expandAll, setExpandAll] = useState(false) // todo: make this work properly
 
   const filteredNodes = filterNodes(collection?.fileSystem || [], filter ?? '')
 
@@ -83,14 +102,18 @@ const RequestCollectionPanel = () => {
             }
           />
           <Button
-            onClick={() => setExpandAll(!expandAll)}
-            aria-label={expandAll ? 'collapse all' : 'expand all'}
-            title={expandAll ? 'collapse all' : 'expand all'}
+            onClick={toggleExpandAllFolders}
+            aria-label={isAllFolderOpened ? 'collapse all' : 'expand all'}
+            title={isAllFolderOpened ? 'collapse all' : 'expand all'}
             size="icon"
             variant="ghost"
             className="rounded-none flex-shrink-0"
           >
-            {expandAll ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            {isAllFolderOpened ? (
+              <Minimize2 size={16} />
+            ) : (
+              <Maximize2 size={16} />
+            )}
           </Button>
           <CollectionOptionsButton />
         </div>
