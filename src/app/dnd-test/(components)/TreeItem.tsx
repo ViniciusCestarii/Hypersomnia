@@ -111,7 +111,7 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
           className={cn(props.className, ghost && 'opacity-50')}
         >
           <div ref={ref} style={style} className="flex hover:bg-muted/80 gap-1">
-            <Handle {...handleProps} />
+            <Handle {...handleProps} cursor={clone ? 'grabbing' : 'grab'} />
             <button
               className="flex items-center cursor-pointer transition-colors w-full gap-1"
               onClick={handleItemAction}
@@ -124,6 +124,9 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
                     isOpen && 'rotate-90',
                   )}
                 />
+              )}
+              {!isFolder && node.request && (
+                <RequestMethodBadge method={node.request.options.method} />
               )}
               {isFolder && <Folder size={16} className="flex-shrink-0" />}
               <span className="relative">

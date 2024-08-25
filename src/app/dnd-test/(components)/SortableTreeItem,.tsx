@@ -16,6 +16,7 @@ const animateLayoutChanges: AnimateLayoutChanges = ({
 export function SortableTreeItem({
   id,
   depth,
+  handleProps,
   ...props
 }: SortableTreeItemProps) {
   const {
@@ -43,11 +44,12 @@ export function SortableTreeItem({
       style={style}
       depth={depth}
       ghost={isDragging}
+      {...props}
       handleProps={{
+        ...handleProps,
         ...attributes,
         ...listeners,
       }}
-      {...props}
     />
   )
 }
