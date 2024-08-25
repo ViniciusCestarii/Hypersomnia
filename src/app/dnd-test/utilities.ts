@@ -85,12 +85,13 @@ function flatten(
   items: TreeItems,
   parentId: string | null = null,
   depth = 0,
+  path: string[] = [],
 ): FlattenedItem[] {
   return items.reduce<FlattenedItem[]>((acc, item, index) => {
     return [
       ...acc,
-      { ...item, parentId, depth, index },
-      ...flatten(item.children ?? [], item.id, depth + 1),
+      { ...item, parentId, depth, index, path: [...path, item.id] },
+      ...flatten(item.children ?? [], item.id, depth + 1, [...path, item.id]),
     ]
   }, [])
 }

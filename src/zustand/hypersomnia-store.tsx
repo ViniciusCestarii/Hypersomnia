@@ -361,7 +361,27 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       )
       return { selectedCollection }
     }),
-  updateCollection: (collection) => set({ selectedCollection: collection }),
+  updateCollection: (collection) =>
+    set((state) => {
+      const { selectedProject } = state
+      if (!selectedProject) return state
+
+      const updatedCollections = selectedProject.collections.map((coll) =>
+        coll.id === collection.id ? collection : coll,
+      )
+
+      const updatedProject = {
+        ...selectedProject,
+        collections: updatedCollections,
+      }
+
+      return {
+        projects: state.projects.map((project) =>
+          project.id === selectedProject.id ? updatedProject : project,
+        ),
+        selectedCollection: collection,
+      }
+    }),
   selectRequest: (path) => {
     set((state) => {
       if (!state.selectedCollection) return state

@@ -8,6 +8,7 @@ export type TreeItems = FileSystemNode[]
 export interface FlattenedItem extends FileSystemNode {
   parentId: null | string
   depth: number
+  path: string[]
   index: number
 }
 

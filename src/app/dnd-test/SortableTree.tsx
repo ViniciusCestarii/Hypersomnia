@@ -10,7 +10,6 @@ import {
   DropAnimation,
   KeyboardSensor,
   MeasuringStrategy,
-  Modifier,
   PointerSensor,
   closestCenter,
   defaultDropAnimation,
@@ -24,7 +23,7 @@ import {
 } from '@dnd-kit/sortable'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { initialProjects } from '@/zustand/hypersomnia-store'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { SortableTreeItem } from './(components)/SortableTreeItem,'
 import type { FlattenedItem, SensorContext, TreeItems } from './types'
 import {
@@ -36,8 +35,6 @@ import {
   setProperty,
   sortableTreeKeyboardCoordinates,
 } from './utilities'
-
-const initialItems: TreeItems = initialProjects[0].collections[0].fileSystem
 
 const measuring = {
   droppable: {
@@ -52,13 +49,15 @@ const dropAnimation: DropAnimation = {
 interface SortableTreeProps {
   defaultItems?: TreeItems
   indentationWidth?: number
+  items: TreeItems
+  setItems: (items: TreeItems) => void
 }
 
 export function SortableTree({
-  defaultItems = initialItems,
+  items,
+  setItems,
   indentationWidth = 20,
 }: SortableTreeProps) {
-  const [items, setItems] = useState(() => defaultItems)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [overId, setOverId] = useState<string | null>(null)
   const [offsetLeft, setOffsetLeft] = useState(0)
@@ -115,6 +114,8 @@ export function SortableTree({
     }
   }, [flattenedItems, offsetLeft])
 
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
+
   return (
     <DndContext
       sensors={sensors}
@@ -128,28 +129,40 @@ export function SortableTree({
     >
       <SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
         <ul>
-          {flattenedItems.map(({ id, name, collapsed, depth, isFolder }) => (
-            <SortableTreeItem
-              key={id}
-              id={id}
-              value={name}
-              depth={id === activeId && projected ? projected.depth : depth}
-              indentationWidth={indentationWidth}
-              isCollapsible={isFolder}
-              collapsed={collapsed}
-              onCollapse={isFolder ? () => handleCollapse(id) : undefined}
-            />
-          ))}
+          {flattenedItems.map((flatenItem) => {
+            const { id, name, collapsed, depth, isFolder, path } = flatenItem
+
+            return (
+              <SortableTreeItem
+                key={id}
+                id={id}
+                value={name}
+                depth={id === activeId && projected ? projected.depth : depth}
+                indentationWidth={indentationWidth}
+                isCollapsible={isFolder}
+                collapsed={collapsed}
+                handleItemAction={
+                  isFolder
+                    ? () => handleCollapse(id)
+                    : () => selectRequest(path)
+                }
+                path={path}
+                node={flatenItem}
+              />
+            )
+          })}
           <DragOverlay dropAnimation={dropAnimation}>
             {activeId && activeItem ? (
               <SortableTreeItem
                 id={activeId}
-                depth={activeItem.depth}
+                depth={0}
                 clone
                 isCollapsible={activeItem.isFolder}
                 collapsed={activeItem.collapsed}
                 childCount={getChildCount(items, activeId) + 1}
                 value={activeItem.name}
+                node={activeItem}
+                path={activeItem.path}
                 indentationWidth={indentationWidth}
               />
             ) : null}
@@ -218,10 +231,9 @@ export function SortableTree({
   }
 
   function handleCollapse(id: string) {
-    setItems((items) =>
-      setProperty(items, id, 'collapsed', (value) => {
-        return !value
-      }),
-    )
+    const updatedItems = setProperty(items, id, 'collapsed', (value) => {
+      return !value
+    })
+    setItems(updatedItems)
   }
 }

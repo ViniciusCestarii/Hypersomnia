@@ -1,7 +1,36 @@
-import React, { forwardRef, HTMLAttributes } from 'react'
-import { Action } from './Action'
+import {
+  cn,
+  createNewFolder,
+  createNewRequest,
+  duplicateFile,
+} from '@/lib/utils'
+import React, { forwardRef, HTMLAttributes, useRef, useState } from 'react'
 import { Handle } from './Handle'
-import { cn } from '@/lib/utils'
+
+import RequestMethodBadge from '@/components/ui/panel/request-method-badge'
+
+import { FileSystemNode as FileSystemNodeType } from '@/types'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
+import {
+  ArrowUpDown,
+  ChevronDown,
+  ChevronRight,
+  Folder,
+  Layers2,
+  Pencil,
+  Terminal,
+  Trash,
+} from 'lucide-react'
+
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
+import { copyRequestAsCurl } from '@/lib/export'
 
 export interface TreeItemProps extends HTMLAttributes<HTMLLIElement> {
   childCount?: number
@@ -13,7 +42,9 @@ export interface TreeItemProps extends HTMLAttributes<HTMLLIElement> {
   indicator?: boolean
   indentationWidth: number
   value: string
-  onCollapse?(): void
+  handleItemAction?: () => void
+  node: FileSystemNodeType
+  path: string[]
   isCollapsible?: boolean
   wrapperRef?(node: HTMLLIElement): void
 }
@@ -29,56 +60,417 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
       indentationWidth,
       collapsed,
       isCollapsible,
-      onCollapse,
       style,
       value,
       wrapperRef,
+      handleItemAction,
+      node, // New prop to hold node data
+      path, // New prop to hold the path array
       ...props
     },
     ref,
   ) => {
+    const ContextMenuComponent = isCollapsible
+      ? FolderContextMenu
+      : RequestContextMenu // Dynamic context menu
+
+    const [isEditing, setIsEditing] = useState(false)
+
+    const updateFile = useHypersomniaStore((state) => state.updateFile)
+
+    const enterEditMode = () => {
+      setIsEditing(true)
+    }
+
+    const exitEditMode = () => {
+      setIsEditing(false)
+    }
+
+    const focusInput = () => {
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    }
+
+    const inputRef = useRef<HTMLInputElement | null>(null)
+
     return (
-      <li
-        ref={wrapperRef}
-        style={{
-          paddingLeft: `${indentationWidth * depth}px`,
-        }}
-        {...props}
-        className={cn(props.className, ghost && 'opacity-50')}
+      <ContextMenuComponent
+        node={node}
+        path={path}
+        enterEditMode={enterEditMode}
+        isEditing={isEditing}
+        focusInput={focusInput}
       >
-        <div ref={ref} style={style} className="flex">
-          <Handle {...handleProps} />
-          {isCollapsible && (
-            <Action
-              onClick={onCollapse}
-              className={cn(collapsed && '-rotate-90')}
+        <li
+          ref={wrapperRef}
+          style={{
+            paddingLeft: `${indentationWidth * depth}px`,
+          }}
+          {...props}
+          className={cn(props.className, ghost && 'opacity-50')}
+        >
+          <div ref={ref} style={style} className="flex hover:bg-muted/80 gap-1">
+            <Handle {...handleProps} />
+            <button
+              className="flex items-center cursor-pointer transition-colors w-full gap-1"
+              onClick={handleItemAction}
             >
-              {collapseIcon}
-            </Action>
-          )}
-          <span className="relative text-nowrap">
-            {value}
-            {clone && isCollapsible && (
-              <span className="absolute -top-3 -right-8 rounded-full border-2 w-6 text-sm flex items-center justify-center aspect-square">
-                {childCount}
+              {isCollapsible && (
+                <ChevronRight
+                  size={16}
+                  className={cn(
+                    'flex-shrink-0 rotate-90',
+                    collapsed && 'rotate-0',
+                  )}
+                />
+              )}
+              {isCollapsible && <Folder size={16} className="flex-shrink-0" />}
+              <span className="relative">
+                <EditableTitle
+                  ref={inputRef}
+                  isEditing={isEditing}
+                  value={value}
+                  id={`edit-${isCollapsible ? 'folder' : 'request'}-${node.id}`}
+                  onChange={(value) =>
+                    updateFile(path, { ...node, name: value })
+                  }
+                  onBlur={exitEditMode}
+                />
+                {clone && isCollapsible && (
+                  <span className="absolute -top-3 -right-8 rounded-full border-2 w-6 text-sm flex items-center justify-center aspect-square">
+                    {childCount}
+                  </span>
+                )}
               </span>
-            )}
-          </span>
-        </div>
-      </li>
+            </button>
+          </div>
+        </li>
+      </ContextMenuComponent>
     )
   },
 )
 
 TreeItem.displayName = 'TreeItem'
 
-const collapseIcon = (
-  <svg
-    width="10"
-    fill="white"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 70 41"
-  >
-    <path d="M30.76 39.2402C31.885 40.3638 33.41 40.995 35 40.995C36.59 40.995 38.115 40.3638 39.24 39.2402L68.24 10.2402C69.2998 9.10284 69.8768 7.59846 69.8494 6.04406C69.822 4.48965 69.1923 3.00657 68.093 1.90726C66.9937 0.807959 65.5106 0.178263 63.9562 0.150837C62.4018 0.123411 60.8974 0.700397 59.76 1.76024L35 26.5102L10.24 1.76024C9.10259 0.700397 7.59822 0.123411 6.04381 0.150837C4.4894 0.178263 3.00632 0.807959 1.90702 1.90726C0.807714 3.00657 0.178019 4.48965 0.150593 6.04406C0.123167 7.59846 0.700153 9.10284 1.75999 10.2402L30.76 39.2402Z" />
-  </svg>
+type FileSystemNodeProps = {
+  node: FileSystemNodeType
+  path: string[]
+}
+interface RequestItemProps extends Omit<FileSystemNodeProps, 'openFolders'> {
+  padding: string
+  isSelected: boolean
+}
+
+export const RequestItem = (props: RequestItemProps) => {
+  const { node, padding, path, isSelected } = props
+
+  const [isEditing, setIsEditing] = useState(false)
+
+  const updateFile = useHypersomniaStore((state) => state.updateFile)
+
+  const enterEditMode = () => {
+    setIsEditing(true)
+  }
+
+  const exitEditMode = () => {
+    setIsEditing(false)
+  }
+
+  const focusInput = () => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
+
+  const handleSelectRequest = () => {
+    selectRequest(path)
+  }
+
+  if (!node.request) {
+    return null
+  }
+
+  return (
+    <RequestContextMenu
+      {...props}
+      isEditing={isEditing}
+      enterEditMode={enterEditMode}
+      focusInput={focusInput}
+    >
+      <button
+        style={{
+          padding,
+        }}
+        onClick={handleSelectRequest}
+        className={cn(
+          'flex items-center hover:bg-muted/80 transition-colors w-full',
+          isSelected &&
+            'bg-primary/[0.06] dark:bg-primary/[0.12] border-l border-primary',
+        )}
+      >
+        <RequestMethodBadge method={node.request.options.method} />
+        <EditableTitle
+          ref={inputRef}
+          isEditing={isEditing}
+          value={node.name}
+          id={'edit-request-' + node.id}
+          onChange={(value) => updateFile(path, { ...node, name: value })}
+          onBlur={exitEditMode}
+        />
+      </button>
+    </RequestContextMenu>
+  )
+}
+
+interface FolderItemProps extends FileSystemNodeProps {
+  padding: string
+}
+
+export const FolderItem = (props: FolderItemProps) => {
+  const { node, path, padding } = props
+
+  const [isOpen, setIsOpen] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+
+  const updateFile = useHypersomniaStore((state) => state.updateFile)
+
+  const enterEditMode = () => {
+    setIsEditing(true)
+  }
+
+  const exitEditMode = () => {
+    setIsEditing(false)
+  }
+
+  const focusInput = () => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  return (
+    <>
+      <FolderContextMenu
+        {...props}
+        isEditing={isEditing}
+        enterEditMode={enterEditMode}
+        focusInput={focusInput}
+      >
+        <button
+          style={{
+            padding,
+          }}
+          className="flex items-center cursor-pointer hover:bg-muted/80 transition-colors w-full"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? (
+            <ChevronDown size={16} className="flex-shrink-0" />
+          ) : (
+            <ChevronRight size={16} className="flex-shrink-0" />
+          )}
+          <Folder size={16} className="ml-2 flex-shrink-0" />
+          <EditableTitle
+            id={'edit-folder-' + node.id}
+            ref={inputRef}
+            isEditing={isEditing}
+            value={node.name}
+            onChange={(value) => updateFile(path, { ...node, name: value })}
+            onBlur={exitEditMode}
+          />
+        </button>
+      </FolderContextMenu>
+    </>
+  )
+}
+
+interface EditableTitleProps {
+  value: string
+  id: string
+  onChange: (value: string) => void
+  onBlur: () => void
+  isEditing: boolean
+}
+
+const EditableTitle = forwardRef<HTMLInputElement, EditableTitleProps>(
+  ({ value, onChange, onBlur, isEditing, id }, ref) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        onBlur()
+      }
+
+      // Space key should not trigger the parent button
+      if (e.key === ' ') {
+        e.preventDefault()
+        onChange(value + ' ')
+      }
+    }
+
+    if (isEditing) {
+      return (
+        <>
+          <label htmlFor={id} className="sr-only">
+            {value} name
+          </label>
+          <input
+            id={id}
+            ref={ref}
+            onBlur={onBlur}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className={cn(
+              'ml-2 bg-transparent hidden w-full',
+              isEditing && 'block',
+            )}
+          />
+        </>
+      )
+    }
+
+    return (
+      <span className={cn('text-nowrap', isEditing && 'hidden')}>{value}</span>
+    )
+  },
 )
+
+EditableTitle.displayName = 'EditableTitle'
+
+interface FileContextMenuProps {
+  children: React.ReactNode
+  path: string[]
+  node: FileSystemNodeType
+  isEditing: boolean
+  enterEditMode: () => void
+  focusInput: () => void
+}
+
+type RequestContextMenuProps = FileContextMenuProps
+
+const RequestContextMenu = ({
+  children,
+  path,
+  node,
+  isEditing,
+  focusInput,
+  enterEditMode,
+}: RequestContextMenuProps) => {
+  const deleteFile = useHypersomniaStore((state) => state.deleteFile)
+
+  const deleteRequest = () => {
+    deleteFile(path)
+  }
+
+  const duplicateRequest = () => {
+    duplicateFile(path, node)
+  }
+
+  const copyAsCurl = () => {
+    if (!node.request) return
+    copyRequestAsCurl(node.request)
+  }
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger>{children}</ContextMenuTrigger>
+      <ContextMenuContent
+        className="w-48"
+        onCloseAutoFocus={(e) => {
+          if (isEditing) {
+            focusInput()
+            e.preventDefault()
+          }
+        }}
+      >
+        <ContextMenuLabel className="text-xs">Actions</ContextMenuLabel>
+        <ContextMenuItem inset className="text-xs" onClick={duplicateRequest}>
+          <Layers2 className="size-3 mr-2" /> <span>Duplicate</span>
+        </ContextMenuItem>
+        <ContextMenuItem inset className="text-xs" onClick={enterEditMode}>
+          <Pencil className="size-3 mr-2" /> <span>Rename</span>
+        </ContextMenuItem>
+        <ContextMenuItem inset className="text-xs" onClick={copyAsCurl}>
+          <Terminal className="size-3 mr-2" /> <span>Copy as Curl</span>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem inset className="text-xs" onClick={deleteRequest}>
+          <Trash className="size-3 mr-2" /> <span>Delete</span>
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  )
+}
+
+type FolderContextMenuProps = FileContextMenuProps
+
+const FolderContextMenu = ({
+  children,
+  node,
+  path,
+  enterEditMode,
+  focusInput,
+  isEditing,
+}: FolderContextMenuProps) => {
+  const deleteFile = useHypersomniaStore((state) => state.deleteFile)
+
+  const duplicateFolder = () => {
+    duplicateFile(path, node)
+  }
+
+  const deleteFolder = () => {
+    deleteFile(path)
+  }
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger>{children}</ContextMenuTrigger>
+      <ContextMenuContent
+        className="w-48"
+        onCloseAutoFocus={(e) => {
+          if (isEditing) {
+            focusInput()
+            e.preventDefault()
+          }
+        }}
+      >
+        <ContextMenuLabel className="text-xs">Create</ContextMenuLabel>
+        <ContextMenuItem
+          inset
+          className="text-xs"
+          onClick={() => {
+            createNewFolder(path)
+          }}
+        >
+          <Folder className="size-3 mr-2" /> <span>New Folder</span>
+        </ContextMenuItem>
+        <ContextMenuItem
+          inset
+          className="text-xs"
+          onClick={() => {
+            createNewRequest(path)
+          }}
+        >
+          <ArrowUpDown className="size-3 mr-2" /> <span>New HTTP request</span>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuLabel className="text-xs">Actions</ContextMenuLabel>
+        <ContextMenuItem inset className="text-xs" onClick={duplicateFolder}>
+          <Layers2 className="size-3 mr-2" /> <span>Duplicate</span>
+        </ContextMenuItem>
+        <ContextMenuItem inset className="text-xs" onClick={enterEditMode}>
+          <Pencil className="size-3 mr-2" /> <span>Rename</span>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem inset className="text-xs" onClick={deleteFolder}>
+          <Trash className="size-3 mr-2" /> <span>Delete</span>
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  )
+}
