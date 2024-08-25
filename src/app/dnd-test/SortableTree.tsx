@@ -96,6 +96,7 @@ export function SortableTree({
     items: flattenedItems,
     offset: offsetLeft,
   })
+  // fix: handle blur using keyboard is not working properly
   const [coordinateGetter] = useState(() =>
     sortableTreeKeyboardCoordinates(sensorContext, indentationWidth),
   )
