@@ -58,20 +58,26 @@ export const filterNodes = (
 
   const lowercasedFilter = filter.toLowerCase()
 
-  return nodes
-    .filter((node) => {
-      if (node.isFolder) {
-        const filteredChildren = filterNodes(node.children ?? [], filter)
-        return filteredChildren.length > 0
+  return nodes.flatMap((node) => {
+    if (node.isFolder) {
+      const filteredChildren = filterNodes(node.children ?? [], filter)
+      if (filteredChildren.length > 0) {
+        return [
+          {
+            ...node,
+            children: filteredChildren,
+            isOpen: true,
+          },
+        ]
+      } else {
+        return []
       }
-      return node.name.toLowerCase().includes(lowercasedFilter)
-    })
-    .map((node) => ({
-      ...node,
-      children: node.isFolder
-        ? filterNodes(node.children ?? [], filter)
-        : node.children,
-    }))
+    } else if (node.name.toLowerCase().includes(lowercasedFilter)) {
+      return [node]
+    } else {
+      return []
+    }
+  })
 }
 
 type FindResult = {

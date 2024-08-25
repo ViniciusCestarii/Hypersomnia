@@ -50,11 +50,13 @@ interface SortableTreeProps {
   defaultItems?: TreeItems
   indentationWidth?: number
   items: TreeItems
+  filteredItems: TreeItems
   setItems: (items: TreeItems) => void
 }
 
 export function SortableTree({
   items,
+  filteredItems,
   setItems,
   indentationWidth = 20,
 }: SortableTreeProps) {
@@ -62,29 +64,25 @@ export function SortableTree({
   const [overId, setOverId] = useState<string | null>(null)
   const [offsetLeft, setOffsetLeft] = useState(0)
 
-  const flattenedItems = useMemo(() => {
-    const flattenedTree = flattenTree(items)
-    const collapsedItems = flattenedTree.reduce<string[]>(
-      (acc, { children, isOpen, id }) =>
-        !isOpen && children?.length ? [...acc, id] : acc,
-      [],
-    )
+  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
 
-    return removeChildrenOf(
-      flattenedTree,
-      activeId ? [activeId, ...collapsedItems] : collapsedItems,
-    )
-  }, [activeId, items])
+  const flattenedItems = useMemo(() => flattenTree(items), [items])
+  const filteredFlattenedItems = useMemo(
+    () => flattenTree(filteredItems),
+    [filteredItems],
+  )
+
   const projected =
     activeId && overId
       ? getProjection(
-          flattenedItems,
+          filteredFlattenedItems,
           activeId,
           overId,
           offsetLeft,
           indentationWidth,
         )
       : null
+
   const sensorContext: SensorContext = useRef({
     items: flattenedItems,
     offset: offsetLeft,
@@ -100,11 +98,11 @@ export function SortableTree({
   )
 
   const sortedIds = useMemo(
-    () => flattenedItems.map(({ id }) => id),
-    [flattenedItems],
+    () => filteredFlattenedItems.map(({ id }) => id),
+    [filteredFlattenedItems],
   )
   const activeItem = activeId
-    ? flattenedItems.find(({ id }) => id === activeId)
+    ? filteredFlattenedItems.find(({ id }) => id === activeId)
     : null
 
   useEffect(() => {
@@ -113,8 +111,6 @@ export function SortableTree({
       offset: offsetLeft,
     }
   }, [flattenedItems, offsetLeft])
-
-  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
 
   return (
     <DndContext
@@ -129,7 +125,7 @@ export function SortableTree({
     >
       <SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
         <ul>
-          {flattenedItems.map((flatenItem) => {
+          {filteredFlattenedItems.map((flatenItem) => {
             const { id, name, isOpen, depth, isFolder, path } = flatenItem
 
             return (

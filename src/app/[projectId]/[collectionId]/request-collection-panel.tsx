@@ -38,14 +38,15 @@ import { SortableTree } from '@/app/dnd-test/SortableTree'
 import { setPropertyForAll } from '@/app/dnd-test/utilities'
 import useKeyCombination from '@/hooks/useKeyCombination'
 import { keyShortcuts } from '@/lib/keyboard-shortcuts'
+import { TreeItems } from '@/app/dnd-test/types'
 
 const RequestCollectionPanel = () => {
-  const collection = useHypersomniaStore((state) => state.selectedCollection!)
+  const collection = useHypersomniaStore((state) => state.selectedCollection)
   const updateCollection = useHypersomniaStore(
     (state) => state.updateCollection,
   )
 
-  const isAllFolderOpened = collection.fileSystem.every((item) => {
+  const isAllFolderOpened = collection?.fileSystem.every((item) => {
     if (item.isFolder) {
       return item.isOpen
     }
@@ -54,6 +55,7 @@ const RequestCollectionPanel = () => {
   })
 
   const toggleExpandAllFolders = () => {
+    if (!collection) return
     const items = collection?.fileSystem || []
     const expandedItems = setPropertyForAll(items, 'isOpen', (item) => {
       if (item.isFolder) {
@@ -63,6 +65,11 @@ const RequestCollectionPanel = () => {
       }
     })
     updateCollection({ ...collection, fileSystem: expandedItems })
+  }
+
+  const handleUpdateCollection = (items: TreeItems) => {
+    if (!collection) return
+    updateCollection({ ...collection, fileSystem: items })
   }
 
   const [filter, setFilter] = useQueryState('qr')
@@ -119,14 +126,12 @@ const RequestCollectionPanel = () => {
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-      {/* openFolders={expandAll || (!!filter && filter?.length > 0)} I should update the store */}
       <ScrollArea>
         <div className="h-full max-h-full">
           <SortableTree
-            items={filteredNodes}
-            setItems={(items) =>
-              updateCollection({ ...collection, fileSystem: items })
-            }
+            items={collection?.fileSystem ?? []}
+            filteredItems={filteredNodes}
+            setItems={handleUpdateCollection}
           />
         </div>
         <ScrollBar orientation="vertical" />
