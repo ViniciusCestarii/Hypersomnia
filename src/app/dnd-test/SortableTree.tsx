@@ -159,7 +159,7 @@ export function SortableTree({
                 clone
                 isFolder={activeItem.isFolder}
                 isOpen={activeItem.isOpen}
-                childCount={getChildCount(items, activeId) + 1}
+                childCount={getChildCount(items, activeId)}
                 value={activeItem.name}
                 node={activeItem}
                 path={activeItem.path}
