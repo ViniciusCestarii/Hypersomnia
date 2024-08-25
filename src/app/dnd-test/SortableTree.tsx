@@ -139,7 +139,7 @@ export function SortableTree({
                 value={name}
                 depth={id === activeId && projected ? projected.depth : depth}
                 indentationWidth={indentationWidth}
-                isCollapsible={isFolder}
+                isFolder={isFolder}
                 isOpen={isOpen}
                 handleItemAction={
                   isFolder
@@ -157,7 +157,7 @@ export function SortableTree({
                 id={activeId}
                 depth={0}
                 clone
-                isCollapsible={activeItem.isFolder}
+                isFolder={activeItem.isFolder}
                 isOpen={activeItem.isOpen}
                 childCount={getChildCount(items, activeId) + 1}
                 value={activeItem.name}

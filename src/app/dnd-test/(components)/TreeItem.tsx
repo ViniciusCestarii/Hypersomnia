@@ -45,7 +45,7 @@ export interface TreeItemProps extends HTMLAttributes<HTMLLIElement> {
   handleItemAction?: () => void
   node: FileSystemNodeType
   path: string[]
-  isCollapsible?: boolean
+  isFolder?: boolean
   wrapperRef?(node: HTMLLIElement): void
 }
 
@@ -59,18 +59,18 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
       handleProps,
       indentationWidth,
       isOpen,
-      isCollapsible,
+      isFolder,
       style,
       value,
       wrapperRef,
       handleItemAction,
-      node, // New prop to hold node data
-      path, // New prop to hold the path array
+      node,
+      path,
       ...props
     },
     ref,
   ) => {
-    const ContextMenuComponent = isCollapsible
+    const ContextMenuComponent = isFolder
       ? FolderContextMenu
       : RequestContextMenu // Dynamic context menu
 
@@ -116,7 +116,7 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
               className="flex items-center cursor-pointer transition-colors w-full gap-1"
               onClick={handleItemAction}
             >
-              {isCollapsible && (
+              {isFolder && (
                 <ChevronRight
                   size={16}
                   className={cn(
@@ -125,19 +125,19 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
                   )}
                 />
               )}
-              {isCollapsible && <Folder size={16} className="flex-shrink-0" />}
+              {isFolder && <Folder size={16} className="flex-shrink-0" />}
               <span className="relative">
                 <EditableTitle
                   ref={inputRef}
                   isEditing={isEditing}
                   value={value}
-                  id={`edit-${isCollapsible ? 'folder' : 'request'}-${node.id}`}
+                  id={`edit-${isFolder ? 'folder' : 'request'}-${node.id}`}
                   onChange={(value) =>
                     updateFile(path, { ...node, name: value })
                   }
                   onBlur={exitEditMode}
                 />
-                {clone && isCollapsible && (
+                {clone && isFolder && (
                   <span className="absolute -top-3 -right-8 rounded-full border-2 w-6 text-sm flex items-center justify-center aspect-square">
                     {childCount}
                   </span>
