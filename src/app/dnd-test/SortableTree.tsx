@@ -65,8 +65,8 @@ export function SortableTree({
   const flattenedItems = useMemo(() => {
     const flattenedTree = flattenTree(items)
     const collapsedItems = flattenedTree.reduce<string[]>(
-      (acc, { children, collapsed, id }) =>
-        collapsed && children?.length ? [...acc, id] : acc,
+      (acc, { children, isOpen, id }) =>
+        !isOpen && children?.length ? [...acc, id] : acc,
       [],
     )
 
@@ -130,7 +130,7 @@ export function SortableTree({
       <SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
         <ul>
           {flattenedItems.map((flatenItem) => {
-            const { id, name, collapsed, depth, isFolder, path } = flatenItem
+            const { id, name, isOpen, depth, isFolder, path } = flatenItem
 
             return (
               <SortableTreeItem
@@ -140,7 +140,7 @@ export function SortableTree({
                 depth={id === activeId && projected ? projected.depth : depth}
                 indentationWidth={indentationWidth}
                 isCollapsible={isFolder}
-                collapsed={collapsed}
+                isOpen={isOpen}
                 handleItemAction={
                   isFolder
                     ? () => handleCollapse(id)
@@ -158,7 +158,7 @@ export function SortableTree({
                 depth={0}
                 clone
                 isCollapsible={activeItem.isFolder}
-                collapsed={activeItem.collapsed}
+                isOpen={activeItem.isOpen}
                 childCount={getChildCount(items, activeId) + 1}
                 value={activeItem.name}
                 node={activeItem}
@@ -231,7 +231,11 @@ export function SortableTree({
   }
 
   function handleCollapse(id: string) {
-    const updatedItems = setProperty(items, id, 'collapsed', (value) => {
+    const updatedItems = setProperty(items, id, 'isOpen', (value) => {
+      if (!value === false) {
+        return undefined
+      }
+
       return !value
     })
     setItems(updatedItems)

@@ -107,11 +107,15 @@ export function buildTree(flattenedItems: FlattenedItem[]): TreeItems {
 
   for (const item of items) {
     const { id, name, children } = item
-    const parentId = item.parentId ?? root.id
-    const parent = nodes[parentId] ?? findItem(items, parentId)
+    const itemParentId = item.parentId ?? root.id
+    const parent = nodes[itemParentId] ?? findItem(items, itemParentId)
 
     nodes[id] = { id, name, children }
-    parent.children!.push(item)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { index, depth, parentId, path, ...itemWithoutSecondaryParameters } =
+      item
+
+    parent.children!.push(itemWithoutSecondaryParameters)
   }
 
   return root.children!

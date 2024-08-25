@@ -35,7 +35,7 @@ import { copyRequestAsCurl } from '@/lib/export'
 export interface TreeItemProps extends HTMLAttributes<HTMLLIElement> {
   childCount?: number
   clone?: boolean
-  collapsed?: boolean
+  isOpen?: boolean
   depth: number
   ghost?: boolean
   handleProps?: any
@@ -58,7 +58,7 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
       ghost,
       handleProps,
       indentationWidth,
-      collapsed,
+      isOpen,
       isCollapsible,
       style,
       value,
@@ -120,8 +120,8 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
                 <ChevronRight
                   size={16}
                   className={cn(
-                    'flex-shrink-0 rotate-90',
-                    collapsed && 'rotate-0',
+                    'flex-shrink-0 rotate-0',
+                    isOpen && 'rotate-90',
                   )}
                 />
               )}
