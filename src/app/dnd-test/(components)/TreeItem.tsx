@@ -9,11 +9,14 @@ import { Handle } from './Handle'
 
 import RequestMethodBadge from '@/components/ui/panel/request-method-badge'
 
-import { FileSystemNode as FileSystemNodeType } from '@/types'
+import {
+  FileSystemNodeRequest,
+  FileSystemNode as FileSystemNodeType,
+} from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
+  AlertCircle,
   ArrowUpDown,
-  ChevronDown,
   ChevronRight,
   Folder,
   Layers2,
@@ -22,6 +25,7 @@ import {
   Trash,
 } from 'lucide-react'
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -38,6 +42,7 @@ export interface TreeItemProps extends HTMLAttributes<HTMLLIElement> {
   isOpen?: boolean
   depth: number
   ghost?: boolean
+  isHighlighted?: boolean
   handleProps?: any
   indicator?: boolean
   indentationWidth: number
@@ -50,18 +55,52 @@ export interface TreeItemProps extends HTMLAttributes<HTMLLIElement> {
 }
 
 export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
+  (props, ref) => {
+    const { node } = props
+
+    if (node.isFolder) {
+      return <FolderItem ref={ref} {...props} />
+    }
+
+    if (typeof node.request !== 'undefined') {
+      return (
+        <RequestItem
+          ref={ref}
+          {...props}
+          node={{ ...node, request: node.request }}
+        />
+      )
+    }
+
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>This node is invalid</AlertDescription>
+      </Alert>
+    )
+  },
+)
+
+TreeItem.displayName = 'TreeItem'
+
+interface RequestItemProps extends TreeItemProps {
+  node: FileSystemNodeRequest
+}
+
+export const RequestItem = forwardRef<HTMLDivElement, RequestItemProps>(
   (
     {
       childCount,
       clone,
       depth,
       ghost,
+      isHighlighted,
       handleProps,
       indentationWidth,
-      isOpen,
-      isFolder,
       style,
       value,
+      isOpen,
       wrapperRef,
       handleItemAction,
       node,
@@ -70,10 +109,6 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
     },
     ref,
   ) => {
-    const ContextMenuComponent = isFolder
-      ? FolderContextMenu
-      : RequestContextMenu // Dynamic context menu
-
     const [isEditing, setIsEditing] = useState(false)
 
     const updateFile = useHypersomniaStore((state) => state.updateFile)
@@ -95,7 +130,95 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
     const inputRef = useRef<HTMLInputElement | null>(null)
 
     return (
-      <ContextMenuComponent
+      <RequestContextMenu
+        node={node}
+        path={path}
+        enterEditMode={enterEditMode}
+        isEditing={isEditing}
+        focusInput={focusInput}
+      >
+        <li
+          ref={wrapperRef}
+          style={{
+            paddingLeft: `${indentationWidth * depth - Number(isHighlighted) + 1}px`,
+          }}
+          {...props}
+          className={cn(
+            props.className,
+            'hover:bg-muted/80',
+            isHighlighted &&
+              'bg-primary/[0.06] dark:bg-primary/[0.12] border-l border-primary',
+            ghost && 'opacity-50',
+          )}
+        >
+          <div ref={ref} style={style} className="flex">
+            <Handle {...handleProps} cursor={clone ? 'grabbing' : 'grab'} />
+            <button
+              className="flex items-center cursor-pointer transition-colors w-full gap-1"
+              onClick={handleItemAction}
+            >
+              <RequestMethodBadge method={node.request.options.method} />
+              <EditableTitle
+                ref={inputRef}
+                isEditing={isEditing}
+                value={value}
+                id={`edit-request-${node.id}`}
+                onChange={(value) => updateFile(path, { ...node, name: value })}
+                onBlur={exitEditMode}
+              />
+            </button>
+          </div>
+        </li>
+      </RequestContextMenu>
+    )
+  },
+)
+
+RequestItem.displayName = 'RequestItem'
+
+export const FolderItem = forwardRef<HTMLDivElement, TreeItemProps>(
+  (
+    {
+      childCount,
+      clone,
+      depth,
+      ghost,
+      handleProps,
+      indentationWidth,
+      isOpen,
+      isHighlighted,
+      style,
+      value,
+      wrapperRef,
+      handleItemAction,
+      node,
+      path,
+      ...props
+    },
+    ref,
+  ) => {
+    const [isEditing, setIsEditing] = useState(false)
+
+    const updateFile = useHypersomniaStore((state) => state.updateFile)
+
+    const enterEditMode = () => {
+      setIsEditing(true)
+    }
+
+    const exitEditMode = () => {
+      setIsEditing(false)
+    }
+
+    const focusInput = () => {
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    }
+
+    const inputRef = useRef<HTMLInputElement | null>(null)
+
+    return (
+      <FolderContextMenu
         node={node}
         path={path}
         enterEditMode={enterEditMode}
@@ -108,39 +231,35 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
             paddingLeft: `${indentationWidth * depth}px`,
           }}
           {...props}
-          className={cn(props.className, ghost && 'opacity-50')}
+          className={cn(
+            props.className,
+            'hover:bg-muted/80',
+            ghost && 'opacity-50',
+          )}
         >
-          <div ref={ref} style={style} className="flex hover:bg-muted/80 gap-1">
+          <div ref={ref} style={style} className="flex hover:bg-muted/80">
             <Handle {...handleProps} cursor={clone ? 'grabbing' : 'grab'} />
             <button
               className="flex items-center cursor-pointer transition-colors w-full gap-1"
               onClick={handleItemAction}
             >
-              {isFolder && (
-                <ChevronRight
-                  size={16}
-                  className={cn(
-                    'flex-shrink-0 rotate-0',
-                    isOpen && 'rotate-90',
-                  )}
-                />
-              )}
-              {!isFolder && node.request && (
-                <RequestMethodBadge method={node.request.options.method} />
-              )}
-              {isFolder && <Folder size={16} className="flex-shrink-0" />}
+              <ChevronRight
+                size={16}
+                className={cn('flex-shrink-0', isOpen && 'rotate-90')}
+              />
+              <Folder size={16} className="flex-shrink-0" />
               <span className="relative">
                 <EditableTitle
                   ref={inputRef}
                   isEditing={isEditing}
                   value={value}
-                  id={`edit-${isFolder ? 'folder' : 'request'}-${node.id}`}
+                  id={`edit-folder-${node.id}`}
                   onChange={(value) =>
                     updateFile(path, { ...node, name: value })
                   }
                   onBlur={exitEditMode}
                 />
-                {clone && isFolder && (
+                {clone && (
                   <span className="absolute -top-3 -right-8 rounded-full border-2 w-6 text-sm flex items-center justify-center aspect-square">
                     {childCount}
                   </span>
@@ -149,149 +268,12 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
             </button>
           </div>
         </li>
-      </ContextMenuComponent>
+      </FolderContextMenu>
     )
   },
 )
 
-TreeItem.displayName = 'TreeItem'
-
-type FileSystemNodeProps = {
-  node: FileSystemNodeType
-  path: string[]
-}
-interface RequestItemProps extends Omit<FileSystemNodeProps, 'openFolders'> {
-  padding: string
-  isSelected: boolean
-}
-
-export const RequestItem = (props: RequestItemProps) => {
-  const { node, padding, path, isSelected } = props
-
-  const [isEditing, setIsEditing] = useState(false)
-
-  const updateFile = useHypersomniaStore((state) => state.updateFile)
-
-  const enterEditMode = () => {
-    setIsEditing(true)
-  }
-
-  const exitEditMode = () => {
-    setIsEditing(false)
-  }
-
-  const focusInput = () => {
-    if (inputRef.current) {
-      inputRef.current.focus()
-    }
-  }
-
-  const inputRef = useRef<HTMLInputElement | null>(null)
-
-  const selectRequest = useHypersomniaStore((state) => state.selectRequest)
-
-  const handleSelectRequest = () => {
-    selectRequest(path)
-  }
-
-  if (!node.request) {
-    return null
-  }
-
-  return (
-    <RequestContextMenu
-      {...props}
-      isEditing={isEditing}
-      enterEditMode={enterEditMode}
-      focusInput={focusInput}
-    >
-      <button
-        style={{
-          padding,
-        }}
-        onClick={handleSelectRequest}
-        className={cn(
-          'flex items-center hover:bg-muted/80 transition-colors w-full',
-          isSelected &&
-            'bg-primary/[0.06] dark:bg-primary/[0.12] border-l border-primary',
-        )}
-      >
-        <RequestMethodBadge method={node.request.options.method} />
-        <EditableTitle
-          ref={inputRef}
-          isEditing={isEditing}
-          value={node.name}
-          id={'edit-request-' + node.id}
-          onChange={(value) => updateFile(path, { ...node, name: value })}
-          onBlur={exitEditMode}
-        />
-      </button>
-    </RequestContextMenu>
-  )
-}
-
-interface FolderItemProps extends FileSystemNodeProps {
-  padding: string
-}
-
-export const FolderItem = (props: FolderItemProps) => {
-  const { node, path, padding } = props
-
-  const [isOpen, setIsOpen] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-
-  const updateFile = useHypersomniaStore((state) => state.updateFile)
-
-  const enterEditMode = () => {
-    setIsEditing(true)
-  }
-
-  const exitEditMode = () => {
-    setIsEditing(false)
-  }
-
-  const focusInput = () => {
-    if (inputRef.current) {
-      inputRef.current.focus()
-    }
-  }
-
-  const inputRef = useRef<HTMLInputElement | null>(null)
-
-  return (
-    <>
-      <FolderContextMenu
-        {...props}
-        isEditing={isEditing}
-        enterEditMode={enterEditMode}
-        focusInput={focusInput}
-      >
-        <button
-          style={{
-            padding,
-          }}
-          className="flex items-center cursor-pointer hover:bg-muted/80 transition-colors w-full"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? (
-            <ChevronDown size={16} className="flex-shrink-0" />
-          ) : (
-            <ChevronRight size={16} className="flex-shrink-0" />
-          )}
-          <Folder size={16} className="ml-2 flex-shrink-0" />
-          <EditableTitle
-            id={'edit-folder-' + node.id}
-            ref={inputRef}
-            isEditing={isEditing}
-            value={node.name}
-            onChange={(value) => updateFile(path, { ...node, name: value })}
-            onBlur={exitEditMode}
-          />
-        </button>
-      </FolderContextMenu>
-    </>
-  )
-}
+FolderItem.displayName = 'FolderItem'
 
 interface EditableTitleProps {
   value: string

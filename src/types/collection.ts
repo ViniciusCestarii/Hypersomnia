@@ -10,6 +10,10 @@ export type FileSystemNode = {
   request?: HypersomniaRequest
 }
 
+export type FileSystemNodeRequest = FileSystemNode & {
+  request: HypersomniaRequest
+}
+
 export type Collection = {
   id: string
   title: string

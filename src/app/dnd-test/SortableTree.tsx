@@ -65,6 +65,9 @@ export function SortableTree({
   const [offsetLeft, setOffsetLeft] = useState(0)
 
   const selectRequest = useHypersomniaStore((state) => state.selectRequest)
+  const selectedRequestPath = useHypersomniaStore(
+    (state) => state.selectedRequestPath,
+  )
 
   const flattenedItems = useMemo(() => flattenTree(items), [items])
   const filteredFlattenedItems = useMemo(() => {
@@ -147,6 +150,11 @@ export function SortableTree({
                 indentationWidth={indentationWidth}
                 isFolder={isFolder}
                 isOpen={isOpen}
+                isHighlighted={
+                  !!selectedRequestPath &&
+                  selectedRequestPath[selectedRequestPath?.length - 1] ===
+                    path[path.length - 1]
+                }
                 handleItemAction={
                   isFolder
                     ? () => handleCollapse(id)

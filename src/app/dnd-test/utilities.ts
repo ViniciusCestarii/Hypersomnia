@@ -9,6 +9,7 @@ import {
   KeyboardCode,
   KeyboardCoordinateGetter,
 } from '@dnd-kit/core'
+import { FileSystemNode } from '@/types'
 
 function getDragDepth(offset: number, indentationWidth: number) {
   return Math.round(offset / indentationWidth)
@@ -106,14 +107,19 @@ export function buildTree(flattenedItems: FlattenedItem[]): TreeItems {
   const items = flattenedItems.map((item) => ({ ...item, children: [] }))
 
   for (const item of items) {
-    const { id, name, children } = item
     const itemParentId = item.parentId ?? root.id
     const parent = nodes[itemParentId] ?? findItem(items, itemParentId)
 
-    nodes[id] = { id, name, children }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { index, depth, parentId, path, ...itemWithoutSecondaryParameters } =
-      item
+    const { id, children, isFolder, isOpen, request, name } = item
+
+    const itemWithoutSecondaryParameters: FileSystemNode = {
+      id,
+      name,
+      children,
+      isFolder,
+      isOpen,
+      request,
+    }
 
     parent.children!.push(itemWithoutSecondaryParameters)
   }
