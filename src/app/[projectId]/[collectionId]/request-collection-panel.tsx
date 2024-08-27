@@ -39,6 +39,23 @@ import { setPropertyForAll } from '@/app/dnd-test/utilities'
 import useKeyCombination from '@/hooks/useKeyCombination'
 import { keyShortcuts } from '@/lib/keyboard-shortcuts'
 import { TreeItems } from '@/app/dnd-test/types'
+import { FileSystemNode } from '@/types'
+
+const checkIfFolderIsOpen = (item: FileSystemNode): boolean => {
+  if (typeof item.isOpen !== 'undefined') {
+    return item.isOpen
+  }
+
+  if (item.children) {
+    return item.children.some((child) => checkIfFolderIsOpen(child))
+  }
+
+  return false
+}
+
+const checkIfTheresAnyOpenFolder = (items: FileSystemNode[]): boolean => {
+  return items.some((item) => checkIfFolderIsOpen(item))
+}
 
 const RequestCollectionPanel = () => {
   const collection = useHypersomniaStore((state) => state.selectedCollection)
@@ -46,20 +63,16 @@ const RequestCollectionPanel = () => {
     (state) => state.updateCollection,
   )
 
-  const isAllFolderOpened = collection?.fileSystem.every((item) => {
-    if (item.isFolder) {
-      return item.isOpen
-    }
-
-    return true
-  })
+  const isAnyFolderOpened = checkIfTheresAnyOpenFolder(
+    collection?.fileSystem ?? [],
+  )
 
   const toggleExpandAllFolders = () => {
     if (!collection) return
     const items = collection?.fileSystem || []
     const expandedItems = setPropertyForAll(items, 'isOpen', (item) => {
       if (item.isFolder) {
-        return !isAllFolderOpened
+        return !isAnyFolderOpened
       } else {
         return item.isOpen
       }
@@ -110,13 +123,13 @@ const RequestCollectionPanel = () => {
           />
           <Button
             onClick={toggleExpandAllFolders}
-            aria-label={isAllFolderOpened ? 'collapse all' : 'expand all'}
-            title={isAllFolderOpened ? 'collapse all' : 'expand all'}
+            aria-label={isAnyFolderOpened ? 'collapse all' : 'expand all'}
+            title={isAnyFolderOpened ? 'collapse all' : 'expand all'}
             size="icon"
             variant="ghost"
             className="rounded-none flex-shrink-0"
           >
-            {isAllFolderOpened ? (
+            {isAnyFolderOpened ? (
               <Minimize2 size={16} />
             ) : (
               <Maximize2 size={16} />
