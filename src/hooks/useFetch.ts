@@ -31,6 +31,7 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
   const requestFetchResult = useHypersomniaStore(
     (state) => state.requestFetchResult,
   )
+  // todo: add option to enable withCredentials to allow cookies to be sent with the request
   const setCookies = useHypersomniaStore((state) => state.setCookies)
   const latestRequestRef = useRef(0)
 
@@ -44,7 +45,7 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
     const requestStartTime = new Date().getTime()
 
     try {
-      const response = await customAxios({ ...options, withCredentials: true })
+      const response = await customAxios(options)
       const timeTaken =
         response.headers['request-finish-time'] - requestStartTime
       delete response.headers['request-finish-time']

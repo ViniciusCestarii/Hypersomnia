@@ -267,6 +267,63 @@ export const initialProjects: Project[] = [
               },
             },
           },
+          {
+            id: '742aa476-a16e-4328-8b90-81674b97a232',
+            name: 'Get Brazil PIB',
+            request: {
+              url: 'https://servicodados.ibge.gov.br/api/v3/agregados/6784/periodos/-6/variaveis/9808',
+              options: {
+                method: 'get',
+              },
+              queryParameters: [
+                {
+                  id: '2692d070-64ae-4189-8637-25850b849c73',
+                  key: 'localidades',
+                  value: 'N1[all]',
+                  enabled: true,
+                },
+              ],
+              doc: `# Brazil PIB
+          
+Get Brazil PIB data from IBGE API.
+
+\`\`\`json
+[
+  {
+    "id": "9808",
+    "variavel": "PIB - valores correntes",
+    "unidade": "Milhões de Reais",
+    "resultados": [
+      {
+        "classificacoes": [],
+        "series": [
+          {
+            "localidade": {
+              "id": "1",
+              "nivel": {
+                "id": "N1",
+                "nome": "Brasil"
+              },
+              "nome": "Brasil"
+            },
+            "serie": {
+              "2016": "6269328",
+              "2017": "6585479",
+              "2018": "7004141",
+              "2019": "7389131",
+              "2020": "7609597",
+              "2021": "9012142"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
+\`\`\`
+              `,
+            },
+          },
         ],
       },
       {
