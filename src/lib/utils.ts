@@ -332,7 +332,7 @@ export const httpStatusCodes: { [key: number]: string } = {
   511: 'Network Authentication Required',
 }
 
-export const getBodyData = ({ type, content }: RequestBody) => {
+export const getBodyData = ({ type, content }: Partial<RequestBody>) => {
   if (content === undefined) return undefined
 
   if (type === 'json') {
@@ -550,14 +550,6 @@ export const generateNewRequestTemplate = (): FileSystemNode => ({
   isFolder: false,
   request: {
     url: '',
-    headers: [
-      {
-        id: 'c3b9e7a3-4d36-4d97-9106-ac50c833b700',
-        key: 'X-Client-Version',
-        value: 'hypersomnia/0.0.1',
-        enabled: true,
-      },
-    ],
     options: {
       method: 'get',
     },

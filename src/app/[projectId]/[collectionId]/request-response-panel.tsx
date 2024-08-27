@@ -49,7 +49,7 @@ const RequestResponsePanel = () => {
           return acc
         }, {}),
       },
-      data: request?.body ? getBodyData(request.body) : '',
+      data: getBodyData(request?.body ?? {}),
       url: request ? getRequestWithQueryParams(request) : '',
     },
     enabled: false,
