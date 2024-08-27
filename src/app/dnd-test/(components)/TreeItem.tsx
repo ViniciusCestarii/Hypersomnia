@@ -140,19 +140,25 @@ export const RequestItem = forwardRef<HTMLDivElement, RequestItemProps>(
       >
         <li
           ref={wrapperRef}
-          style={{
-            paddingLeft: `${indentationWidth * depth - Number(isHighlighted) + 1}px`,
-          }}
           {...props}
+          style={{
+            paddingLeft: `${indentationWidth * depth}px`,
+          }}
           className={cn(
             props.className,
             'hover:bg-muted/80',
-            isHighlighted &&
-              'bg-primary/[0.06] dark:bg-primary/[0.12] border-l border-primary',
             ghost && 'opacity-50',
           )}
         >
-          <div ref={ref} style={style} className="flex">
+          <div
+            ref={ref}
+            style={style}
+            className={cn(
+              'flex border-l border-transparent',
+              isHighlighted &&
+                'bg-primary/[0.06] dark:bg-primary/[0.12] border-primary',
+            )}
+          >
             <Handle {...handleProps} cursor={clone ? 'grabbing' : 'grab'} />
             <button
               className="flex items-center cursor-pointer transition-colors w-full gap-1"
