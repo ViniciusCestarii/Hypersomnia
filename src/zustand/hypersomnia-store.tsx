@@ -113,12 +113,6 @@ export const initialProjects: Project[] = [
                           value: 'application/json',
                           enabled: true,
                         },
-                        {
-                          id: 'c3b9e7a3-4d36-4d97-9106-ac50c833b700',
-                          key: 'X-Client-Version',
-                          value: 'hypersomnia/0.0.1',
-                          enabled: true,
-                        },
                       ],
                       queryParameters: [
                         {
@@ -322,6 +316,16 @@ Get Brazil PIB data from IBGE API.
 ]
 \`\`\`
               `,
+            },
+          },
+          {
+            id: '742aa476-a16e-4328-8b90-81674237a232',
+            name: 'Get Brazil IBGE "Agregados"',
+            request: {
+              url: 'https://servicodados.ibge.gov.br/api/v3/agregados',
+              options: {
+                method: 'get',
+              },
             },
           },
         ],
