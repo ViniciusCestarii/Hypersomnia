@@ -41,7 +41,7 @@ const RequestDocsTab = () => {
       <TabsContent value="preview" className="mt-0">
         <ScrollArea type="auto">
           <Markdown
-            className="markdown pl-3 max-h-[75vh]"
+            className="markdown px-3 max-h-[75vh]"
             remarkPlugins={[remarkGfm]}
           >
             {request?.doc}

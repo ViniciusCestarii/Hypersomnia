@@ -6,7 +6,12 @@ export type FileSystemNode = {
   name: string
   children?: FileSystemNode[]
   isFolder?: boolean
+  isOpen?: boolean
   request?: HypersomniaRequest
+}
+
+export type FileSystemNodeRequest = FileSystemNode & {
+  request: HypersomniaRequest
 }
 
 export type Collection = {

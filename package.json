@@ -29,7 +29,6 @@
     "axios": "1.7.2",
     "class-variance-authority": "0.7.0",
     "clsx": "2.1.1",
-    "framer-motion": "11.3.21",
     "js-beautify": "1.15.1",
     "lodash.merge": "4.6.2",
     "lucide-react": "0.414.0",
