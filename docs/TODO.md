@@ -2,7 +2,7 @@
 
 - [ ] Enable sharable URLs with data, import, export like excalidraw and store it cryptographically in Cloudflare R2
 
-- [ ] Store last request response on request
+- [ ] Store lastest requests response on request
 
 - [x] Show code with status text on the response panel
 
@@ -29,4 +29,10 @@
 
 - [ ] Store state open of folders
 
-- [ ] D&D to reorder folders and requests
+- [X] D&D to reorder folders and requests
+
+----
+
+- [ ] Refact basic structure
+
+  - [ ] Remove projects (only have an array of collections)
