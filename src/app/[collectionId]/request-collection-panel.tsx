@@ -15,6 +15,7 @@ import { PanelHeaderContainer } from '@/components/ui/panel/panel-header-contain
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import {
+  cn,
   createNewFolder,
   createNewRequest,
   filterNodes,
@@ -22,6 +23,7 @@ import {
 } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
+  AlertTriangle,
   ArrowUpDown,
   ChevronLeft,
   File,
@@ -59,6 +61,7 @@ const checkIfTheresAnyOpenFolder = (items: FileSystemNode[]): boolean => {
 
 const RequestCollectionPanel = () => {
   const collection = useHypersomniaStore((state) => state.selectedCollection)
+  const isReady = useHypersomniaStore((state) => state.isReady)
   const updateCollection = useHypersomniaStore(
     (state) => state.updateCollection,
   )
@@ -104,7 +107,20 @@ const RequestCollectionPanel = () => {
           </Button>
         </Link>
         <Separator orientation="vertical" className="mr-2" />
-        <h2 className="font-semibold text-nowrap">{collection?.title}</h2>
+        {isReady && (
+          <h2
+            className={cn(
+              'font-semibold text-nowrap',
+              !collection?.title && 'text-warning flex items-center gap-1',
+            )}
+          >
+            {collection?.title ?? (
+              <>
+                <AlertTriangle className="size-4" /> Not found
+              </>
+            )}
+          </h2>
+        )}
       </PanelHeaderContainer>
       <ScrollArea className="flex-shrink-0">
         <div className="flex items-center p-2 gap-2 min-w-48">

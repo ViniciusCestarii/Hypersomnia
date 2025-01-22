@@ -164,8 +164,10 @@ const RequestOptionPanel = () => {
         )}
         {isReady && !collection && (
           <div className="flex justify-center items-center flex-1 h-full">
-            <TypographyP className="relative text-primary/85 flex flex-col gap-4 text-center after:content-[''] after:-z-10 after:shadow-merge-bg after:absolute after:rounded-full after:w-[200%] after:-translate-y-[calc(35%)] after:-left-1/2 after:bg-[length:24px_24px] after:aspect-square after:bg-grid">
-              Collection not found
+            <TypographyP className="relative text-primary/85 flex flex-col gap-4 text-center after:content-[''] after:-z-10 after:shadow-merge-bg after:absolute after:rounded-full after:w-[200%] after:-translate-y-[calc(35%)] after:-left-1/2 after:bg-[length:24px_24px] after:aspect-square after:bg-grid-warn">
+              <span className="bg-background/80 rounded-sm p-1">
+                Collection not found
+              </span>
               <Button asChild>
                 <Link href="/">Return to Home</Link>
               </Button>
