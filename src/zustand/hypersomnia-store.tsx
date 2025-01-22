@@ -9,25 +9,18 @@ import {
 import {
   Collection,
   Cookie,
-  CreateProject,
   FileSystemNode,
   HypersomniaRequest,
-  Project,
   RequestFetchResult,
 } from '@/types'
 import { create, StateCreator } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { initialProjects } from './initial-data'
+import { initialCollections } from './initial-data'
 
 type HypersomniaStore = {
-  projects: Project[]
+  collections: Collection[]
   isReady: boolean
   setIsReady: (isReady: boolean) => void
-  selectedProject: Project | null
-  deleteProject: (id: string) => void
-  createProject: (newProject: CreateProject) => void
-  updateProjects: (projects: Project[]) => void
-  selectProject: (id: string) => void
   selectedCollection: Collection | null
   updateCollection: (collection: Collection) => void
   selectCollection: (id: string) => void
@@ -54,72 +47,33 @@ type HypersomniaStore = {
 
 const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
   isReady: false,
-  projects: initialProjects,
-  selectedProject: null,
+  collections: initialCollections,
   selectedCollection: null,
   selectedRequest: null,
   selectedRequestPath: null,
   setIsReady: (isReady) => set({ isReady }),
-  deleteProject: (id: string) =>
-    set((state) => ({
-      projects: state.projects.filter((project) => project.id !== id),
-    })),
-  createProject: (newProject: CreateProject) =>
-    set((state) => {
-      const id = newProject.title.toLowerCase().replace(' ', '-')
-
-      if (state.projects.some((project) => project.id === id)) {
-        return { projects: state.projects }
-      }
-
-      const newProjectWithId = {
-        ...newProject,
-        id,
-      }
-
-      return {
-        projects: [...state.projects, newProjectWithId],
-      }
-    }),
-  updateProjects: (projects: Project[]) => set({ projects }),
-  selectProject: (id: string) =>
-    set((state) => {
-      const selectedProject = state.projects.find(
-        (project) => project.id === id,
-      )
-      return { selectedProject }
-    }),
   selectCollection: (id) =>
     set((state) => {
-      if (!state.selectedProject) return state
-      const selectedCollection = state.selectedProject.collections.find(
+      const selectedCollection = state.collections.find(
         (collection) => collection.id === id,
       )
       return { selectedCollection }
     }),
   updateCollection: (collection) =>
     set((state) => {
-      const { selectedProject } = state
-      if (!selectedProject) return state
-
-      const updatedCollections = selectedProject.collections.map((coll) =>
+      const updatedCollections = state.collections.map((coll) =>
         coll.id === collection.id ? collection : coll,
       )
 
-      const updatedProject = {
-        ...selectedProject,
-        collections: updatedCollections,
-      }
-
       return {
-        projects: state.projects.map((project) =>
-          project.id === selectedProject.id ? updatedProject : project,
-        ),
+        collections: updatedCollections,
         selectedCollection: collection,
       }
     }),
   selectRequest: (path) => {
     set((state) => {
+      if (!path.length)
+        return { selectedRequest: null, selectedRequestPath: null }
       if (!state.selectedCollection) return state
       const selectedRequest =
         findSystemNodeByPath(state.selectedCollection?.fileSystem, path)
@@ -139,8 +93,8 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
   setRequestFetchResult: (requestFetchResult) => set({ requestFetchResult }),
   createFileSystemNode: (file, path) =>
     set((state) => {
-      const { selectedCollection, selectedProject } = state
-      if (!selectedCollection || !selectedProject) return state
+      const { selectedCollection } = state
+      if (!selectedCollection) return state
 
       const updatedFileSystem = insertFile(
         selectedCollection.fileSystem,
@@ -153,26 +107,21 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         fileSystem: updatedFileSystem,
       }
 
-      const updatedProject = {
-        ...selectedProject,
-        collections: selectedProject.collections.map((collection) =>
-          collection.id === selectedCollection.id
-            ? updatedCollection
-            : collection,
-        ),
-      }
+      const updatedCollections = state.collections.map((collection) =>
+        collection.id === selectedCollection.id
+          ? updatedCollection
+          : collection,
+      )
 
       return {
-        projects: state.projects.map((project) =>
-          project.id === selectedProject.id ? updatedProject : project,
-        ),
+        collections: updatedCollections,
         selectedCollection: updatedCollection,
       }
     }),
   duplicateFileSystemNode: (duplicatedFile, originalPath) =>
     set((state) => {
-      const { selectedCollection, projects, selectedProject } = state
-      if (!selectedCollection || !selectedProject) return state
+      const { selectedCollection } = state
+      if (!selectedCollection) return state
 
       const updatedFileSystem = insertFileNextToPath(
         selectedCollection.fileSystem,
@@ -185,26 +134,21 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         fileSystem: updatedFileSystem,
       }
 
-      const updatedProject = {
-        ...selectedProject,
-        collections: selectedProject.collections.map((collection) =>
-          collection.id === selectedCollection.id
-            ? updatedCollection
-            : collection,
-        ),
-      }
+      const updatedCollections = state.collections.map((collection) =>
+        collection.id === selectedCollection.id
+          ? updatedCollection
+          : collection,
+      )
 
       return {
-        projects: projects.map((project) =>
-          project.id === selectedProject.id ? updatedProject : project,
-        ),
+        collections: updatedCollections,
         selectedCollection: updatedCollection,
       }
     }),
   updateFile: (path, updatedNode) =>
     set((state) => {
-      const { selectedCollection, projects, selectedProject } = state
-      if (!selectedCollection || !selectedProject) return state
+      const { selectedCollection } = state
+      if (!selectedCollection) return state
 
       const updatedFileSystem = updateFileInFileSystem(
         selectedCollection.fileSystem,
@@ -217,26 +161,21 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         fileSystem: updatedFileSystem,
       }
 
-      const updatedProject = {
-        ...selectedProject,
-        collections: selectedProject.collections.map((collection) =>
-          collection.id === selectedCollection.id
-            ? updatedCollection
-            : collection,
-        ),
-      }
+      const updatedCollections = state.collections.map((collection) =>
+        collection.id === selectedCollection.id
+          ? updatedCollection
+          : collection,
+      )
 
       return {
-        projects: projects.map((project) =>
-          project.id === selectedProject.id ? updatedProject : project,
-        ),
+        collections: updatedCollections,
         selectedCollection: updatedCollection,
       }
     }),
   deleteFile: (path) =>
     set((state) => {
-      const { selectedCollection, projects, selectedProject } = state
-      if (!selectedCollection || !selectedProject) return state
+      const { selectedCollection } = state
+      if (!selectedCollection) return state
 
       const updatedFileSystem = removeFileInFileSystem(
         selectedCollection.fileSystem,
@@ -248,14 +187,11 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         fileSystem: updatedFileSystem,
       }
 
-      const updatedProject = {
-        ...selectedProject,
-        collections: selectedProject.collections.map((collection) =>
-          collection.id === selectedCollection.id
-            ? updatedCollection
-            : collection,
-        ),
-      }
+      const updatedCollections = state.collections.map((collection) =>
+        collection.id === selectedCollection.id
+          ? updatedCollection
+          : collection,
+      )
 
       const isDeletingSelectedRequest = state.selectedRequestPath?.some(
         (selectedRequestSegment) => {
@@ -265,9 +201,7 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       )
 
       return {
-        projects: projects.map((project) =>
-          project.id === selectedProject.id ? updatedProject : project,
-        ),
+        collections: updatedCollections,
         selectedCollection: updatedCollection,
         selectedRequest: isDeletingSelectedRequest
           ? null
@@ -279,14 +213,8 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
     }),
   updateSelectedRequest: (updatedRequest) =>
     set((state) => {
-      const {
-        selectedRequestPath,
-        selectedCollection,
-        projects,
-        selectedProject,
-      } = state
-      if (!selectedRequestPath || !selectedCollection || !selectedProject)
-        return state
+      const { selectedRequestPath, selectedCollection } = state
+      if (!selectedRequestPath || !selectedCollection) return state
 
       const updatedFileSystem = updateRequestInFileSystem(
         selectedCollection.fileSystem,
@@ -299,19 +227,14 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         fileSystem: updatedFileSystem,
       }
 
-      const updatedProject = {
-        ...selectedProject,
-        collections: selectedProject.collections.map((collection) =>
-          collection.id === selectedCollection.id
-            ? updatedCollection
-            : collection,
-        ),
-      }
+      const updatedCollections = state.collections.map((collection) =>
+        collection.id === selectedCollection.id
+          ? updatedCollection
+          : collection,
+      )
 
       return {
-        projects: projects.map((project) =>
-          project.id === selectedProject.id ? updatedProject : project,
-        ),
+        collections: updatedCollections,
         selectedCollection: updatedCollection,
         selectedRequest: updatedRequest,
       }

@@ -4,24 +4,17 @@ import TypographyP from '@/components/ui/typography-p'
 import { Collection as CollectionType } from '../types/collection'
 import { CollectionDropdownMenu } from './collection-dropdown-menu'
 import Link from 'next/link'
-import useHypersomniaStore from '@/zustand/hypersomnia-store'
 
 interface CollectionProps {
   collection: CollectionType
 }
 
 const Collection = ({ collection }: CollectionProps) => {
-  const selectedProject = useHypersomniaStore((state) => state.selectedProject)
-
-  if (!selectedProject) {
-    return null
-  }
-
   return (
     <article>
       <header className="flex justify-between items-center">
         <Link
-          href={`/${selectedProject.id}/${collection.id}`}
+          href={`/${collection.id}`}
           className="hover:underline focus:underline"
         >
           <TypographyH2 className="border-0 pb-0">

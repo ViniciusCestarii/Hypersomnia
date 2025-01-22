@@ -6,6 +6,8 @@ import { ReactNode } from 'react'
 import RequestCollectionPanel from './request-collection-panel'
 import RequestOptionPanel from './request-option-panel'
 import RequestResponsePanel from './request-response-panel'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
+import TypographyH2 from '@/components/ui/typography-h2'
 
 interface PanelsProps {
   hypersomniaLeftPanelSize?: number

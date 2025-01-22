@@ -8,17 +8,10 @@ import useHypersomniaStore from '../zustand/hypersomnia-store'
 import Collection from './collection'
 
 const CollectionList = () => {
-  const selectedProject = useHypersomniaStore((state) => state.selectedProject)
+  const collections = useHypersomniaStore((state) => state.collections)
 
   const [filter, setFilter] = useQueryState(`qc`)
   const isClient = useIsClient()
-
-  const filteredCollections =
-    (filter
-      ? selectedProject?.collections.filter((collection) =>
-          collection.title.toLowerCase().includes(filter.toLowerCase()),
-        )
-      : selectedProject?.collections) ?? []
 
   return (
     <>
@@ -35,10 +28,10 @@ const CollectionList = () => {
         }
       />{' '}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {filteredCollections.map((collection) => (
+        {collections.map((collection) => (
           <Collection key={collection.id} collection={collection} />
         ))}
-        {filteredCollections.length === 0 && isClient && (
+        {collections.length === 0 && isClient && (
           <TypographyP>No collections found</TypographyP>
         )}
       </div>
