@@ -1,5 +1,6 @@
 'use client'
-import { initialProjects } from '@/zustand/hypersomnia-store'
+
+import { initialProjects } from '@/zustand/initial-data'
 import { SortableTree } from './SortableTree'
 import { useState } from 'react'
 
