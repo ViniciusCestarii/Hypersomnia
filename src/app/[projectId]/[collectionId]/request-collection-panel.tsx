@@ -34,11 +34,11 @@ import {
 import Link from 'next/link'
 import { useQueryState } from 'nuqs'
 
-import { SortableTree } from '@/app/dnd-test/SortableTree'
-import { setPropertyForAll } from '@/app/dnd-test/utilities'
+import { SortableTree } from '@/components/ui/dnd/SortableTree'
+import { setPropertyForAll } from '@/components/ui/dnd/utilities'
 import useKeyCombination from '@/hooks/useKeyCombination'
 import { keyShortcuts } from '@/lib/keyboard-shortcuts'
-import { TreeItems } from '@/app/dnd-test/types'
+import { TreeItems } from '@/components/ui/dnd/types'
 import { FileSystemNode } from '@/types'
 
 const checkIfFolderIsOpen = (item: FileSystemNode): boolean => {
