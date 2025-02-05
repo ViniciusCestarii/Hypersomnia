@@ -1,4 +1,4 @@
-import Panels from '@/app/[projectId]/[collectionId]/panels'
+import Panels from '@/app/[collectionId]/panels'
 import { ResizablePanelGroup } from '@/components/ui/resizable'
 import { getCookie } from '@/lib/get-cookie'
 import CollectionPageContext from './collection-page-context'
@@ -6,7 +6,6 @@ import { Toaster } from '@/components/ui/sonner'
 
 export interface ApiToolProps {
   params: {
-    projectId: string
     collectionId: string
   }
 }

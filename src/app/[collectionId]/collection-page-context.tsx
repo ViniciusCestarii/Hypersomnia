@@ -4,7 +4,6 @@ import { getCookies } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import React, { useEffect } from 'react'
 import { ApiToolProps } from './page'
-
 interface CollectionPageContextProps extends ApiToolProps {
   children: React.ReactNode
 }
@@ -14,20 +13,24 @@ const CollectionPageContext = ({
   children,
 }: CollectionPageContextProps) => {
   useEffect(() => {
-    useHypersomniaStore.getState().selectProject(params.projectId)
     useHypersomniaStore.setState((state) => ({
       requestFetchResult: {
         ...state.requestFetchResult,
         loading: false,
       },
     }))
-  }, [params.projectId])
 
-  useEffect(() => {
-    if (useHypersomniaStore.getState().selectedProject) {
-      useHypersomniaStore.getState().selectCollection(params.collectionId)
-      useHypersomniaStore.getState().setIsReady(true)
+    const state = useHypersomniaStore.getState()
+
+    const oldCollectionId = state.selectedCollection?.id
+
+    if (oldCollectionId !== params.collectionId) {
+      state.selectCollection(params.collectionId)
+      state.selectRequest([])
+      state.setRequestFetchResult(null)
     }
+
+    state.setIsReady(true)
   }, [params.collectionId])
 
   useEffect(() => {

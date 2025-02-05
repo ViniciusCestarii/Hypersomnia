@@ -82,6 +82,8 @@ const config = {
       backgroundImage: {
         grid: `linear-gradient(to right, hsl(var(--muted)) 1px, transparent 1px), 
                            linear-gradient(to bottom, hsl(var(--muted)) 1px, transparent 1px)`,
+        'grid-warn': `linear-gradient(to right, hsl(var(--warning)) 1px, transparent 1px), 
+                           linear-gradient(to bottom, hsl(var(--warning)) 1px, transparent 1px)`,
       },
       boxShadow: {
         'merge-bg':

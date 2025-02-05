@@ -29,9 +29,11 @@ import RequestBodyTab from './(request-option-tabs)/request-body-tab'
 import RequestDocsTab from './(request-option-tabs)/request-docs-tab'
 import RequestHeadersTab from './(request-option-tabs)/request-headers-tab'
 import RequestParamsTab from './(request-option-tabs)/request-params-tab'
+import Link from 'next/link'
 
 const RequestOptionPanel = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest)
+  const collection = useHypersomniaStore((state) => state.selectedCollection)
   const sendRequest = useHypersomniaStore((state) => state.sendRequest)
   const isReady = useHypersomniaStore((state) => state.isReady)
   const updateRequestField = useHypersomniaStore(
@@ -160,8 +162,19 @@ const RequestOptionPanel = () => {
             </TabsContent>
           </>
         )}
-        {/* todo: add button to create request or keyboard shortcut to select etc */}
-        {isReady && !request && (
+        {isReady && !collection && (
+          <div className="flex justify-center items-center flex-1 h-full">
+            <TypographyP className="relative text-primary/85 flex flex-col gap-4 text-center after:content-[''] after:-z-10 after:shadow-merge-bg after:absolute after:rounded-full after:w-[200%] after:-translate-y-[calc(35%)] after:-left-1/2 after:bg-[length:24px_24px] after:aspect-square after:bg-grid-warn">
+              <span className="bg-background/85 rounded-sm p-1">
+                Collection not found
+              </span>
+              <Button asChild>
+                <Link href="/">Return to Home</Link>
+              </Button>
+            </TypographyP>
+          </div>
+        )}
+        {isReady && collection && !request && (
           <div className="flex justify-center items-center flex-1 h-full">
             <TypographyP className="relative text-primary/85 flex flex-col gap-4 text-center after:content-[''] after:-z-10 after:shadow-merge-bg after:absolute after:rounded-full after:w-[200%] after:-translate-y-[calc(35%)] after:-left-1/2 after:bg-[length:24px_24px] after:aspect-square after:bg-grid">
               No request selected
