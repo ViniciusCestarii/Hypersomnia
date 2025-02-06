@@ -1,5 +1,6 @@
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { ResponsiveModal } from '@/components/ui/responsive-dialog'
+import { Collection } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 
 interface CollectionConfirmDeleteModalProps
@@ -7,11 +8,11 @@ interface CollectionConfirmDeleteModalProps
     React.ComponentProps<typeof ResponsiveModal>,
     'trigger' | 'open' | 'onOpenChange'
   > {
-  collectionId: string
+  collection: Collection
 }
 
 const CollectionConfirmDeleteModal = ({
-  collectionId,
+  collection,
   ...props
 }: CollectionConfirmDeleteModalProps) => {
   const deleteCollection = useHypersomniaStore(
@@ -20,9 +21,9 @@ const CollectionConfirmDeleteModal = ({
   return (
     <ConfirmModal
       {...props}
-      onConfirm={() => deleteCollection(collectionId)}
+      onConfirm={() => deleteCollection(collection.id)}
       title="Delete Collection"
-      description={`Are you sure that you want to delete collection ${collectionId}`}
+      description={`Are you sure that you want to delete collection ${collection.title}?`}
     />
   )
 }

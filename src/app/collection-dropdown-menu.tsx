@@ -22,11 +22,11 @@ import CollectionConfirmDeleteModal from './collection-confirm-delete-modal'
 import { useState } from 'react'
 
 interface CollectionDropdownMenuProps {
-  collectionId: Collection['id']
+  collection: Collection
 }
 
 export function CollectionDropdownMenu({
-  collectionId,
+  collection,
 }: CollectionDropdownMenuProps) {
   const [deleteCollectionOpen, setDeleteCollectionOpen] = useState(false)
   return (
@@ -80,7 +80,7 @@ export function CollectionDropdownMenu({
         </DropdownMenuContent>
       </DropdownMenu>
       <CollectionConfirmDeleteModal
-        collectionId={collectionId}
+        collection={collection}
         onOpenChange={setDeleteCollectionOpen}
         open={deleteCollectionOpen}
       />

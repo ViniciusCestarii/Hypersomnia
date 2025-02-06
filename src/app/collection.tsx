@@ -21,7 +21,7 @@ const Collection = ({ collection }: CollectionProps) => {
             {collection.title}
           </TypographyH2>
         </Link>
-        <CollectionDropdownMenu collectionId={collection.id} />
+        <CollectionDropdownMenu collection={collection} />
       </header>
       <TypographyP>{collection.description}</TypographyP>
     </article>
