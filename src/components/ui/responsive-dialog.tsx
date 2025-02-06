@@ -69,7 +69,7 @@ export function ResponsiveModal({
           <DrawerTitle>{title}</DrawerTitle>
           <DrawerDescription>{description}</DrawerDescription>
         </DrawerHeader>
-        <div className={className}>{children}</div>
+        <div className={cn('px-4 pb-4', className)}>{children}</div>
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>

@@ -12,12 +12,12 @@ interface CollectionProps {
 const Collection = ({ collection }: CollectionProps) => {
   return (
     <article>
-      <header className="flex justify-between items-center">
+      <header className="flex justify-between">
         <Link
           href={`/${collection.id}`}
           className="hover:underline focus:underline"
         >
-          <TypographyH2 className="border-0 pb-0">
+          <TypographyH2 className="border-0 pb-0 break-all">
             {collection.title}
           </TypographyH2>
         </Link>

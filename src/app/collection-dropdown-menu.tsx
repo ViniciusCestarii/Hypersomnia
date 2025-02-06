@@ -38,7 +38,7 @@ export function CollectionDropdownMenu({
             title="more options"
             size="icon"
             variant="ghost"
-            className="p-1"
+            className="p-1 mt-1"
           >
             <Ellipsis />
           </Button>

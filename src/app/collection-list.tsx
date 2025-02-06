@@ -6,6 +6,7 @@ import { useQueryState } from 'nuqs'
 import useIsClient from '../hooks/useIsClient'
 import useHypersomniaStore from '../zustand/hypersomnia-store'
 import Collection from './collection'
+import CreateCollection from './create-collection'
 
 const CollectionList = () => {
   const collections = useHypersomniaStore((state) => state.collections)
@@ -21,18 +22,21 @@ const CollectionList = () => {
 
   return (
     <>
-      <Label className="sr-only" htmlFor="collection-filter">
-        Filter
-      </Label>
-      <Input
-        id="collection-filter"
-        type="search"
-        placeholder="Filter"
-        value={filter ?? ''}
-        onChange={({ target }) =>
-          setFilter(target.value.length ? target.value : null)
-        }
-      />{' '}
+      <div className="flex">
+        <Label className="sr-only" htmlFor="collection-filter">
+          Filter
+        </Label>
+        <Input
+          id="collection-filter"
+          type="search"
+          placeholder="Filter"
+          value={filter ?? ''}
+          onChange={({ target }) =>
+            setFilter(target.value.length ? target.value : null)
+          }
+        />
+        <CreateCollection />
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {filteredCollections.map((collection) => (
           <Collection key={collection.id} collection={collection} />

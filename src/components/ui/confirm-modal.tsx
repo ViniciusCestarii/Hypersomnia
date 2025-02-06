@@ -10,7 +10,7 @@ interface ConfirmModalProps
 const ConfirmModal = ({ onConfirm, ...props }: ConfirmModalProps) => {
   return (
     <ResponsiveModal {...props}>
-      <div className="mt-auto flex flex-col sm:flex-row sm:justify-end gap-2 p-4 pt-2">
+      <div className="mt-auto flex flex-col sm:flex-row sm:justify-end gap-2 py-2">
         <Button variant="destructive" onClick={onConfirm}>
           Confirm
         </Button>

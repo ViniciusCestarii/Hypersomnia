@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-
+import slugify from '@sindresorhus/slugify'
 import { KeyCombination } from '@/hooks/useKeyCombination'
 import {
   AuthBasic,
@@ -746,4 +746,8 @@ export const hypersomniaRequestToCurl = (
   // for multline curl work on Windows we need to replace \ with ^
 
   return curlCommand
+}
+
+export function createSlug(str: string) {
+  return slugify(str)
 }
