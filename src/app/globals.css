@@ -62,6 +62,9 @@
     --chart-5: 340 75% 55%;
   }
 }
+body {
+  pointer-events: auto !important;
+}
 
 @layer base {
   * {
