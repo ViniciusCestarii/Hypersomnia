@@ -95,7 +95,7 @@ const CreateCollectionForm = ({ onSubmitEnd }: CreateCollectionFormProps) => {
             <FormItem>
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input placeholder="Title" {...field} />
+                <Input placeholder="Title" autoFocus {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
