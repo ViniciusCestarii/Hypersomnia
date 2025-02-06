@@ -17,53 +17,73 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Collection } from '@/types'
+import CollectionConfirmDeleteModal from './collection-confirm-delete-modal'
+import { useState } from 'react'
 
-export function CollectionDropdownMenu() {
+interface CollectionDropdownMenuProps {
+  collectionId: Collection['id']
+}
+
+export function CollectionDropdownMenu({
+  collectionId,
+}: CollectionDropdownMenuProps) {
+  const [deleteCollectionOpen, setDeleteCollectionOpen] = useState(false)
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          aria-label="more options"
-          title="more options"
-          size="icon"
-          variant="ghost"
-          className="p-1"
-        >
-          <Ellipsis />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Pencil className="mr-2 h-4 w-4" />
-            <span>Rename</span>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            aria-label="more options"
+            title="more options"
+            size="icon"
+            variant="ghost"
+            className="p-1"
+          >
+            <Ellipsis />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <Pencil className="mr-2 h-4 w-4" />
+              <span>Rename</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Copy className="mr-2 h-4 w-4" />
+              <span>Duplicate</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <FolderInput className="mr-2 h-4 w-4" />
+              <span>Import</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <FolderOutput className="mr-2 h-4 w-4" />
+              <span>Export</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => setDeleteCollectionOpen(true)}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            <span>Delete</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Copy className="mr-2 h-4 w-4" />
-            <span>Duplicate</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <FolderInput className="mr-2 h-4 w-4" />
-            <span>Import</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <FolderOutput className="mr-2 h-4 w-4" />
-            <span>Export</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">
-          <Trash2 className="mr-2 h-4 w-4" />
-          <span>Delete</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <CollectionConfirmDeleteModal
+        collectionId={collectionId}
+        onOpenChange={setDeleteCollectionOpen}
+        open={deleteCollectionOpen}
+      />
+    </>
   )
 }

@@ -22,6 +22,7 @@ type HypersomniaStore = {
   isReady: boolean
   setIsReady: (isReady: boolean) => void
   selectedCollection: Collection | null
+  deleteCollection: (id: Collection['id']) => void
   updateCollection: (collection: Collection) => void
   selectCollection: (id: string) => void
   selectedRequestPath: string[] | null
@@ -52,6 +53,20 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
   selectedRequest: null,
   selectedRequestPath: null,
   setIsReady: (isReady) => set({ isReady }),
+  deleteCollection: (id) =>
+    set((state) => {
+      const updatedCollections = state.collections.filter(
+        (collection) => collection.id !== id,
+      )
+
+      const selectedCollection =
+        state.selectedCollection?.id === id ? null : state.selectedCollection
+
+      return {
+        collections: updatedCollections,
+        selectedCollection,
+      }
+    }),
   selectCollection: (id) =>
     set((state) => {
       const selectedCollection = state.collections.find(
