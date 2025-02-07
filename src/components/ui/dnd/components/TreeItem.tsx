@@ -91,7 +91,9 @@ interface RequestItemProps extends TreeItemProps {
 export const RequestItem = forwardRef<HTMLDivElement, RequestItemProps>(
   (
     {
-      childCount,
+      childCount: _childCount,
+      isFolder: _isFolder,
+      isOpen: _isOpen,
       clone,
       depth,
       ghost,
@@ -100,8 +102,6 @@ export const RequestItem = forwardRef<HTMLDivElement, RequestItemProps>(
       indentationWidth,
       style,
       value,
-      isFolder,
-      isOpen,
       wrapperRef,
       handleItemAction,
       node,
@@ -186,6 +186,8 @@ RequestItem.displayName = 'RequestItem'
 export const FolderItem = forwardRef<HTMLDivElement, TreeItemProps>(
   (
     {
+      isFolder: _isFolder,
+      isHighlighted: _isHighlighted,
       childCount,
       clone,
       depth,
@@ -193,8 +195,6 @@ export const FolderItem = forwardRef<HTMLDivElement, TreeItemProps>(
       handleProps,
       indentationWidth,
       isOpen,
-      isFolder,
-      isHighlighted,
       style,
       value,
       wrapperRef,
