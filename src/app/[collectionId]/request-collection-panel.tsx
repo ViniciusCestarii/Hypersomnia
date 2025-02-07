@@ -42,6 +42,7 @@ import useKeyCombination from '@/hooks/useKeyCombination'
 import { keyShortcuts } from '@/lib/keyboard-shortcuts'
 import { TreeItems } from '@/components/ui/dnd/types'
 import { FileSystemNode } from '@/types'
+import ClearableInput from '@/components/ui/clearable-input'
 
 const checkIfFolderIsOpen = (item: FileSystemNode): boolean => {
   if (typeof item.isOpen !== 'undefined') {
@@ -125,11 +126,10 @@ const RequestCollectionPanel = () => {
       <ScrollArea className="flex-shrink-0">
         <div className="flex items-center p-2 gap-2 min-w-48">
           <Label className="sr-only" htmlFor="request-filter">
-            Filter
+            Filter requests
           </Label>
-          <Input
+          <ClearableInput
             id="request-filter"
-            type="search"
             className="h-8 rounded-none"
             placeholder="Filter"
             value={filter ?? ''}
