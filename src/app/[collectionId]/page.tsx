@@ -31,7 +31,7 @@ export default async function ApiTool(props: Props) {
     <>
       <ResizablePanelGroup
         direction="horizontal"
-        className="flex flex-1 rounded-lg border max-w-screen-xl mx-auto max-h-[calc(100vh-8rem)]"
+        className="flex flex-1 rounded-lg border max-w-screen-xl mx-auto max-h-[calc(100vh-6rem)]"
       >
         <CollectionPageContext params={params}>
           <Panels
