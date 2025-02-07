@@ -6,8 +6,6 @@ import { ReactNode } from 'react'
 import RequestCollectionPanel from './request-collection-panel'
 import RequestOptionPanel from './request-option-panel'
 import RequestResponsePanel from './request-response-panel'
-import useHypersomniaStore from '@/zustand/hypersomnia-store'
-import TypographyH2 from '@/components/ui/typography-h2'
 
 interface PanelsProps {
   hypersomniaLeftPanelSize?: number
@@ -23,12 +21,12 @@ export default function Panels({
   const [requestCollectionPanelSize, setRequestCollectionPanelSize] =
     useCookieStorage(
       'hypersomnia_left_panel_size',
-      hypersomniaLeftPanelSize ?? 15,
+      hypersomniaLeftPanelSize ?? 25,
     )
 
   const [requestOptionPanelSize, setRequestOptionPanelSize] = useCookieStorage(
     'hypersomnia_middle_panel_size',
-    hypersomniaMiddlePanelSize ?? 60,
+    hypersomniaMiddlePanelSize ?? 50,
   )
 
   const [requestResponsePanelSize, setrequestResponsePanelSize] =

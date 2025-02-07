@@ -30,12 +30,12 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <main className="flex min-h-screen flex-col">
-              <div className="px-4 flex justify-between items-center h-16">
+              <header className="px-4 mx-auto w-full max-w-screen-xl flex justify-between items-center h-16">
                 <Link href="/">
                   <TypographyH1>Hypersomnia</TypographyH1>
                 </Link>
                 <ThemeToggleButton />
-              </div>
+              </header>
               {children}{' '}
             </main>
           </ThemeProvider>
