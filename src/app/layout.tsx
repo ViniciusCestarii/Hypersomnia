@@ -30,7 +30,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <main className="flex min-h-screen flex-col">
-              <div className="flex justify-between items-center h-16">
+              <div className="px-4 flex justify-between items-center h-16">
                 <Link href="/">
                   <TypographyH1>Hypersomnia</TypographyH1>
                 </Link>

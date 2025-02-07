@@ -24,7 +24,7 @@ const CollectionList = () => {
 
   return (
     <>
-      <div className="flex gap-4 pb-4">
+      <div className="flex flex-col-reverse sm:flex-row gap-4 pb-4">
         <div className="flex w-full items-center bg-card rounded-md border border-input ring-ring ring-offset-background focus-within:ring-2 focus-within:ring-offset-2">
           <label
             htmlFor="collection-filter"

@@ -5,6 +5,10 @@ const withBundleAnalyzerWithConfig = withBundleAnalyzer({
 })
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  experimental: {
+    turbo: {},
+  },
+}
 
 export default withBundleAnalyzerWithConfig(nextConfig)
