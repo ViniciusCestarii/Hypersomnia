@@ -5,6 +5,7 @@ import TypographyH1 from '@/components/ui/typography-h1'
 import { ThemeProvider } from './theme-provider'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { ThemeToggleButton } from '@/components/ui/theme-toggle-button'
+import Link from 'next/link'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -30,7 +31,9 @@ export default function RootLayout({
           >
             <main className="flex min-h-screen flex-col">
               <div className="flex justify-between items-center h-16">
-                <TypographyH1>Hypersomnia</TypographyH1>
+                <Link href="/">
+                  <TypographyH1>Hypersomnia</TypographyH1>
+                </Link>
                 <ThemeToggleButton />
               </div>
               {children}{' '}

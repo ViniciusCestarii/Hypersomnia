@@ -1,6 +1,4 @@
-import TypographyH2 from '@/components/ui/typography-h2'
 import React from 'react'
-import TypographyP from '@/components/ui/typography-p'
 import { Collection as CollectionType } from '../types/collection'
 import { CollectionDropdownMenu } from './collection-dropdown-menu'
 import Link from 'next/link'
@@ -11,20 +9,16 @@ interface CollectionProps {
 
 const Collection = ({ collection }: CollectionProps) => {
   return (
-    <article>
-      <header className="flex justify-between">
-        <Link
-          href={`/${collection.id}`}
-          className="hover:underline focus:underline"
-        >
-          <TypographyH2 className="border-0 pb-0 break-all">
+    <div className="relative">
+      <CollectionDropdownMenu collection={collection} />
+      <Link href={`/${collection.id}`} className="group">
+        <article className="h-40 border rounded-md p-4">
+          <header className="pr-8 text-lg break-all group-hover:underline group-focus:underline">
             {collection.title}
-          </TypographyH2>
-        </Link>
-        <CollectionDropdownMenu collection={collection} />
-      </header>
-      <TypographyP>{collection.description}</TypographyP>
-    </article>
+          </header>
+        </article>
+      </Link>
+    </div>
   )
 }
 

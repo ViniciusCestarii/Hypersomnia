@@ -15,6 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { Input } from '@/components/ui/input'
 import { createSlug } from '@/lib/utils'
+import { Plus } from 'lucide-react'
 
 const CreateCollection = () => {
   const [open, setOpen] = React.useState(false)
@@ -24,7 +25,12 @@ const CreateCollection = () => {
       onOpenChange={setOpen}
       title="Create New Collection"
       description="Create a new collection to group your requests."
-      trigger={<Button>Create Collection</Button>}
+      trigger={
+        <Button>
+          <Plus className="size-4" />
+          Create Collection
+        </Button>
+      }
     >
       <CreateCollectionForm onSubmitEnd={() => setOpen(false)} />
     </ResponsiveModal>

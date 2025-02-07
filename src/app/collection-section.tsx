@@ -4,7 +4,7 @@ import CollectionList from './collection-list'
 
 const CollectionSection = () => {
   return (
-    <section>
+    <section className="max-w-screen-md w-full mx-auto px-4">
       <TypographyH2>Collections</TypographyH2>
       <Suspense>
         <CollectionList />

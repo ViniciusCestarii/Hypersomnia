@@ -38,9 +38,9 @@ export function CollectionDropdownMenu({
             title="more options"
             size="icon"
             variant="ghost"
-            className="p-1 mt-1"
+            className="p-1 absolute top-4 right-4"
           >
-            <Ellipsis />
+            <Ellipsis className="size-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
