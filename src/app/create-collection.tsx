@@ -59,8 +59,10 @@ const CreateCollectionForm = ({ onSubmitEnd }: CreateCollectionFormProps) => {
             collections.some(
               (collection) => collection.id === createSlug(title),
             )
-          )
+          ) {
             return false
+          }
+          return true
         },
         {
           message: 'Collection with this title already exists.',
@@ -69,6 +71,7 @@ const CreateCollectionForm = ({ onSubmitEnd }: CreateCollectionFormProps) => {
       .refine(
         (title) => {
           if (createSlug(title) === 'home') return false
+          return true
         },
         {
           message: `Title cannot be 'home'.`,
