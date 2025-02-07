@@ -30,7 +30,7 @@ A table:
 
 export const initialCollections: Collection[] = [
   {
-    id: 'collection-1',
+    id: 'test-collection',
     title: 'Test Collection',
     description: 'Description',
     fileSystem: [
