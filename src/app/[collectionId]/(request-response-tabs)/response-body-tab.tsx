@@ -40,7 +40,6 @@ const ResponseBodyTab = () => {
     return null
   }
   // todo: only if body is on mode preview
-
   // sanitize html first see https://github.com/cure53/DOMPurify
   // if (dataText.type === 'html') {
   //   return <div dangerouslySetInnerHTML={{ __html: dataText.text }} />
@@ -52,6 +51,7 @@ const ResponseBodyTab = () => {
       value={dataText.text}
       height="calc(100% - 2.5rem)"
       options={{
+        ariaLabel: 'Response Body',
         readOnly: true,
         domReadOnly: true,
       }}
