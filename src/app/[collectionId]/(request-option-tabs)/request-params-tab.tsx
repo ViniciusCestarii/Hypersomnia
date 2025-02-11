@@ -217,6 +217,10 @@ const SortableQueryParamInput = ({ id }: { id: string }) => {
 const QueryParamInput = forwardRef<HTMLLIElement, QueryParamInputProps>(
   (props, ref) => {
     const request = useHypersomniaStore((state) => state.selectedRequest!)
+    const selectedRequestPathString = useHypersomniaStore(
+      (state) => state.selectedRequestPathString,
+    )
+
     const queryParameters = request.queryParameters ?? []
 
     const { id } = props
@@ -227,6 +231,7 @@ const QueryParamInput = forwardRef<HTMLLIElement, QueryParamInputProps>(
     return (
       <OrdenableInput
         {...props}
+        key={selectedRequestPathString}
         ref={ref}
         allOrdenable={queryParameters}
         ordenable={param}

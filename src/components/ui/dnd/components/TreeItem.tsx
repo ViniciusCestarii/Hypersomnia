@@ -35,6 +35,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import { copyRequestAsCurl } from '@/lib/export'
+import debounce from 'lodash.debounce'
 
 export interface TreeItemProps extends HTMLAttributes<HTMLLIElement> {
   childCount?: number
@@ -297,13 +298,11 @@ const EditableTitle = forwardRef<HTMLInputElement, EditableTitleProps>(
       if (e.key === 'Enter') {
         onBlur()
       }
-
-      // Space key should not trigger the parent button
-      if (e.key === ' ') {
-        e.preventDefault()
-        onChange(value + ' ')
-      }
     }
+
+    const debouncedOnChange = debounce((value: string) => {
+      onChange(value)
+    }, 200)
 
     if (isEditing) {
       return (
@@ -315,11 +314,11 @@ const EditableTitle = forwardRef<HTMLInputElement, EditableTitleProps>(
             id={id}
             ref={ref}
             onBlur={onBlur}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
+            defaultValue={value}
+            onChange={(e) => debouncedOnChange(e.target.value)}
             onKeyDown={handleKeyDown}
             className={cn(
-              'ml-2 bg-transparent hidden w-full',
+              'ml-0 bg-transparent hidden w-full',
               isEditing && 'block',
             )}
           />

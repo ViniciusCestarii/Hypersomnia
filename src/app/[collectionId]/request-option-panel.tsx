@@ -23,25 +23,22 @@ import {
 } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { Code2, Key } from 'lucide-react'
+import Link from 'next/link'
 import { parseAsString, useQueryState } from 'nuqs'
 import RequestAuthTab from './(request-option-tabs)/request-auth-tab'
 import RequestBodyTab from './(request-option-tabs)/request-body-tab'
 import RequestDocsTab from './(request-option-tabs)/request-docs-tab'
 import RequestHeadersTab from './(request-option-tabs)/request-headers-tab'
 import RequestParamsTab from './(request-option-tabs)/request-params-tab'
-import Link from 'next/link'
+import debounce from 'lodash.debounce'
 
 const RequestOptionPanel = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest)
+  const selectedRequestPathString = useHypersomniaStore(
+    (state) => state.selectedRequestPathString,
+  )
   const collection = useHypersomniaStore((state) => state.selectedCollection)
-  const sendRequest = useHypersomniaStore((state) => state.sendRequest)
   const isReady = useHypersomniaStore((state) => state.isReady)
-  const updateRequestField = useHypersomniaStore(
-    (state) => state.updateRequestField,
-  )
-  const updateRequestOptionField = useHypersomniaStore(
-    (state) => state.updateRequestOptionField,
-  )
 
   useDefineMonacoTheme()
 
@@ -52,59 +49,7 @@ const RequestOptionPanel = () => {
 
   return (
     <>
-      <PanelHeaderContainer className="px-0">
-        {request && (
-          <div className="flex relative max-w-full w-full items-center">
-            <Label className="sr-only" htmlFor="request-method">
-              Method
-            </Label>
-            <Select
-              value={request.options.method}
-              onValueChange={(value) =>
-                updateRequestOptionField('method', value)
-              }
-            >
-              <SelectTrigger
-                aria-label="request method"
-                id="request-method"
-                className="border-0 w-fit shadow-none"
-              >
-                <RequestMethodBadge method={request.options.method} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {requestMethods.map((method) => (
-                    <SelectItem key={method} value={method}>
-                      <RequestMethodBadge method={method} />
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Label className="sr-only" htmlFor="request-url">
-              URL
-            </Label>
-            <Input
-              id="request-url"
-              onChange={({ target }) => updateRequestField('url', target.value)}
-              value={request.url}
-              placeholder="https://api.example.com/"
-              className="font-semibold shrink mr-16 border-0 shadow-none focus-visible:ring-0 pl-0 placeholder:text-muted-foreground/40"
-            />
-            <div className="absolute right-0 pr-2 bg-background">
-              <Button
-                onClick={sendRequest}
-                aria-label="send"
-                title="send"
-                variant="default"
-                className="h-6"
-              >
-                Send
-              </Button>
-            </div>
-          </div>
-        )}
-      </PanelHeaderContainer>
+      <PanelHeader key={selectedRequestPathString} />
       <Tabs value={tab} className="h-full">
         <ScrollArea type="hover">
           <TabsList className="flex justify-start">
@@ -158,7 +103,7 @@ const RequestOptionPanel = () => {
               <RequestHeadersTab />
             </TabsContent>
             <TabsContent value="docs" className="mt-0 h-full">
-              <RequestDocsTab />
+              <RequestDocsTab key={selectedRequestPathString} />
             </TabsContent>
           </>
         )}
@@ -198,6 +143,80 @@ const RequestOptionPanel = () => {
         )}
       </Tabs>
     </>
+  )
+}
+
+const PanelHeader = () => {
+  const request = useHypersomniaStore((state) => state.selectedRequest)
+  const sendRequest = useHypersomniaStore((state) => state.sendRequest)
+  const updateRequestField = useHypersomniaStore(
+    (state) => state.updateRequestField,
+  )
+  const updateRequestOptionField = useHypersomniaStore(
+    (state) => state.updateRequestOptionField,
+  )
+
+  const debouncedUpdateRequestField = debounce(
+    (field: string, value: unknown) => {
+      updateRequestField(field, value)
+    },
+    80,
+  )
+
+  return (
+    <PanelHeaderContainer className="px-0">
+      {request && (
+        <div className="flex relative max-w-full w-full items-center">
+          <Label className="sr-only" htmlFor="request-method">
+            Method
+          </Label>
+          <Select
+            value={request.options.method}
+            onValueChange={(value) => updateRequestOptionField('method', value)}
+          >
+            <SelectTrigger
+              aria-label="request method"
+              id="request-method"
+              className="border-0 w-fit shadow-none"
+            >
+              <RequestMethodBadge method={request.options.method} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {requestMethods.map((method) => (
+                  <SelectItem key={method} value={method}>
+                    <RequestMethodBadge method={method} />
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Label className="sr-only" htmlFor="request-url">
+            URL
+          </Label>
+          <Input
+            id="request-url"
+            onChange={({ target }) => {
+              debouncedUpdateRequestField('url', target.value)
+            }}
+            defaultValue={request.url}
+            placeholder="https://api.example.com/"
+            className="font-semibold shrink mr-16 border-0 shadow-none focus-visible:ring-0 pl-0 placeholder:text-muted-foreground/40"
+          />
+          <div className="absolute right-0 pr-2 bg-background">
+            <Button
+              onClick={sendRequest}
+              aria-label="send"
+              title="send"
+              variant="default"
+              className="h-6"
+            >
+              Send
+            </Button>
+          </div>
+        </div>
+      )}
+    </PanelHeaderContainer>
   )
 }
 

@@ -20,8 +20,6 @@ import { useEffect, useState } from 'react'
 import ResponseBodyTab from './(request-response-tabs)/response-body-tab'
 import ResponseCookiesTab from './(request-response-tabs)/response-cookies-tab'
 import ResponseHeadersTab from './(request-response-tabs)/response-headers-tab'
-import { toast } from 'sonner'
-import { copyRequestAsCurl } from '@/lib/export'
 
 const RequestResponsePanel = () => {
   const sendTrigger = useHypersomniaStore((state) => state.sendTrigger)
@@ -48,6 +46,10 @@ const RequestResponsePanel = () => {
           }
           return acc
         }, {}),
+        // Disable cache
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
       },
       data: getBodyData(request?.body ?? {}),
       url: request ? getRequestWithQueryParams(request) : '',
@@ -63,20 +65,6 @@ const RequestResponsePanel = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sendTrigger])
-
-  useEffect(() => {
-    if (isClient && error?.message === 'Network Error' && request) {
-      toast.error('Network Error', {
-        description:
-          'This could be due to CORS policy, network connection, bad DNS, or others issues. Try to copy as curl and run it in your terminal.',
-        action: {
-          label: 'Copy as Curl',
-          onClick: () => copyRequestAsCurl(request),
-        },
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [error])
 
   return (
     <div className="flex flex-col relative h-full max-h-full">

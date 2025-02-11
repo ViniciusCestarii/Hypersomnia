@@ -1,10 +1,11 @@
-import dynamic from 'next/dynamic'
+import Loading from '@/components/ui/loading'
 import Editor from '@/components/ui/panel/editor'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
-import Loading from '@/components/ui/loading'
+import debounce from 'lodash.debounce'
+import dynamic from 'next/dynamic'
 import remarkGfm from 'remark-gfm'
 
 const Markdown = dynamic(() => import('react-markdown'), {
@@ -16,6 +17,13 @@ const RequestDocsTab = () => {
   const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
   )
+  const debouncedUpdateRequestField = debounce(
+    (field: string, value: unknown) => {
+      updateRequestField(field, value)
+    },
+    80,
+  )
+
   return (
     <Tabs defaultValue="write" className="h-full">
       <ScrollArea type="hover">
@@ -33,9 +41,9 @@ const RequestDocsTab = () => {
       <TabsContent value="write" className="mt-0 h-full">
         <Editor
           language="markdown"
-          value={request?.doc ?? ''}
+          defaultValue={request?.doc}
           height="calc(100% - 4.8rem)"
-          onChange={(value) => updateRequestField('doc', value)}
+          onChange={(value) => debouncedUpdateRequestField('doc', value)}
         />
       </TabsContent>
       <TabsContent value="preview" className="mt-0">

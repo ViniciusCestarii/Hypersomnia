@@ -27,6 +27,7 @@ type HypersomniaStore = {
   updateCollection: (collection: Collection) => void
   selectCollection: (id: string) => void
   selectedRequestPath: string[] | null
+  selectedRequestPathString: string | null
   selectedRequest: HypersomniaRequest | null
   sendTrigger: boolean | undefined
   requestFetchResult: RequestFetchResult | null
@@ -53,6 +54,7 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
   selectedCollection: null,
   selectedRequest: null,
   selectedRequestPath: null,
+  selectedRequestPathString: null,
   setIsReady: (isReady) => set({ isReady }),
   createCollection: (collection) =>
     set((state) => {
@@ -98,13 +100,21 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
   selectRequest: (path) => {
     set((state) => {
       if (!path.length)
-        return { selectedRequest: null, selectedRequestPath: null }
+        return {
+          selectedRequest: null,
+          selectedRequestPath: null,
+          selectedRequestPathString: null,
+        }
       if (!state.selectedCollection) return state
       const selectedRequest =
         findSystemNodeByPath(state.selectedCollection?.fileSystem, path)
           ?.request ?? null
 
-      return { selectedRequest, selectedRequestPath: path }
+      return {
+        selectedRequest,
+        selectedRequestPath: path,
+        selectedRequestPathString: path.join('/'),
+      }
     })
   },
   cookies: [],
@@ -234,6 +244,9 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
         selectedRequestPath: isDeletingSelectedRequest
           ? null
           : state.selectedRequestPath,
+        selectedRequestPathString: isDeletingSelectedRequest
+          ? null
+          : state.selectedRequestPathString,
       }
     }),
   updateSelectedRequest: (updatedRequest) =>
