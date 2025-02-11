@@ -1,4 +1,5 @@
 import { forwardRef } from 'react'
+import debounce from 'lodash.debounce'
 import { Button, ButtonProps } from '../button'
 import { cn } from '@/lib/utils'
 import { GripVertical } from 'lucide-react'
@@ -43,6 +44,12 @@ const OrdenableInput = forwardRef<HTMLLIElement, OrdenableInputProps>(
     const updateRequestField = useHypersomniaStore(
       (state) => state.updateRequestField,
     )
+    const debouncedUpdateRequestField = debounce(
+      (field: string, value: unknown) => {
+        updateRequestField(field, value)
+      },
+      80,
+    )
 
     const { id } = ordenable
     const keyInputId = `${inputName.replace(' ', '-')}-${keyTitle}-${id}-${isOver}`
@@ -61,7 +68,7 @@ const OrdenableInput = forwardRef<HTMLLIElement, OrdenableInputProps>(
       const index = allOrdenable.findIndex((o) => o.id === id)
       if (index !== -1) {
         allOrdenable[index] = newOrdenable
-        updateRequestField(pathField, allOrdenable)
+        debouncedUpdateRequestField(pathField, allOrdenable)
       }
     }
 
@@ -93,7 +100,7 @@ const OrdenableInput = forwardRef<HTMLLIElement, OrdenableInputProps>(
         <Input
           id={keyInputId}
           type="text"
-          value={ordenable.key ?? ''}
+          defaultValue={ordenable.key ?? ''}
           className={cn(
             'h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase',
             isOver && 'cursor-grabbing',
@@ -109,7 +116,7 @@ const OrdenableInput = forwardRef<HTMLLIElement, OrdenableInputProps>(
         <Input
           id={valueInputId}
           type="text"
-          value={ordenable.value ?? ''}
+          defaultValue={ordenable.value ?? ''}
           className={cn(
             'h-9 rounded-none border-none placeholder:text-muted-foreground/50 placeholder:text-xs placeholder:uppercase',
             isOver && 'cursor-grabbing',
@@ -139,7 +146,6 @@ const OrdenableInput = forwardRef<HTMLLIElement, OrdenableInputProps>(
               ordenable.enabled ? `disable ${inputName}` : `enable ${inputName}`
             }
             className={cn(isOver && 'cursor-grabbing')}
-            // if no key is provided, the checkbox is disabled
             title={
               !ordenable.key
                 ? `${keyTitle} is required`

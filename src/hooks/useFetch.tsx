@@ -1,7 +1,10 @@
+import { copyRequestAsCurl } from '@/lib/export'
 import { getCookies } from '@/lib/utils'
+import { HypersomniaRequest } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
-import axios, { AxiosRequestConfig } from 'axios'
+import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 import { useCallback, useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 
 interface UseFetchProps {
   url?: string
@@ -31,11 +34,12 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
   const requestFetchResult = useHypersomniaStore(
     (state) => state.requestFetchResult,
   )
+  const request = useHypersomniaStore((state) => state.selectedRequest!)
   // todo: add option to enable withCredentials to allow cookies to be sent with the request
   const setCookies = useHypersomniaStore((state) => state.setCookies)
   const latestRequestRef = useRef(0)
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     if (!url || !options) {
       return
     }
@@ -62,10 +66,11 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
         })
       }
     } catch (err) {
-      console.error(err)
+      console.error('Request err:', err)
       const isLatestRequest = requestId === latestRequestRef.current
 
       if (axios.isAxiosError(err)) {
+        toastError(err, request)
         const timeTaken =
           err.response?.headers['request-finish-time'] - requestStartTime
         delete err.response?.headers['request-finish-time']
@@ -81,6 +86,7 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
           })
         }
       } else if (isLatestRequest) {
+        console.log('Err:', err)
         setRequestFetchResult({
           data: null,
           error: err as Error,
@@ -96,15 +102,28 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
         setCookies(getCookies())
       }
     }
-  }, [url, options, setRequestFetchResult, requestFetchResult, setCookies])
+  }
 
   useEffect(() => {
     if (enabled) {
       fetchData()
     }
-  }, [fetchData, enabled])
+  })
 
   return fetchData
 }
 
 export default useFetch
+
+const toastError = (error: AxiosError, request: HypersomniaRequest) => {
+  if (error?.message === 'Network Error') {
+    toast.error('Network Error', {
+      description:
+        'This could be due to CORS policy, network connection, bad DNS, or others issues. Try to copy as curl and run it in your terminal.',
+      action: {
+        label: 'Copy as Curl',
+        onClick: () => copyRequestAsCurl(request),
+      },
+    })
+  }
+}

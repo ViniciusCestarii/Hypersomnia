@@ -1,13 +1,12 @@
-import { useState, useEffect } from 'react'
-import dynamic from 'next/dynamic'
+import Loading from '@/components/ui/loading'
 import Editor from '@/components/ui/panel/editor'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
-import Loading from '@/components/ui/loading'
+import debounce from 'lodash.debounce'
+import dynamic from 'next/dynamic'
 import remarkGfm from 'remark-gfm'
-import useDebounce from '@/hooks/useDebounce'
 
 const Markdown = dynamic(() => import('react-markdown'), {
   loading: () => <Loading className="h-[75vh]" />,
@@ -18,16 +17,12 @@ const RequestDocsTab = () => {
   const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
   )
-
-  const [localDoc, setLocalDoc] = useState(request?.doc)
-
-  const debouncedDoc = useDebounce(localDoc, 200)
-
-  useEffect(() => {
-    if (debouncedDoc !== request?.doc) {
-      updateRequestField('doc', debouncedDoc)
-    }
-  })
+  const debouncedUpdateRequestField = debounce(
+    (field: string, value: unknown) => {
+      updateRequestField(field, value)
+    },
+    80,
+  )
 
   return (
     <Tabs defaultValue="write" className="h-full">
@@ -46,9 +41,9 @@ const RequestDocsTab = () => {
       <TabsContent value="write" className="mt-0 h-full">
         <Editor
           language="markdown"
-          value={localDoc}
+          defaultValue={request?.doc}
           height="calc(100% - 4.8rem)"
-          onChange={setLocalDoc}
+          onChange={(value) => debouncedUpdateRequestField('doc', value)}
         />
       </TabsContent>
       <TabsContent value="preview" className="mt-0">
@@ -57,7 +52,7 @@ const RequestDocsTab = () => {
             className="markdown px-3 max-h-[75vh]"
             remarkPlugins={[remarkGfm]}
           >
-            {localDoc}
+            {request?.doc}
           </Markdown>
           <ScrollBar orientation="horizontal" />
           <ScrollBar orientation="vertical" />

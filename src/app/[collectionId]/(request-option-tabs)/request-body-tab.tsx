@@ -15,8 +15,8 @@ import { generateUUID, getTextContentTypeFromBodyType } from '@/lib/utils'
 import { BodyType } from '@/types'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { EditorProps } from '@monaco-editor/react'
+import debounce from 'lodash.debounce'
 import { AlertCircle, Boxes, Code2, MoreHorizontal } from 'lucide-react'
-import { useMemo } from 'react'
 
 interface BodyTypeOption {
   value: BodyType
@@ -53,30 +53,32 @@ const RequestBodyTab = () => {
     (state) => state.updateRequestField,
   )
 
-  const editorProps: EditorProps = useMemo(
-    () => ({
-      onChange: (value) => updateRequestField('body.content', value),
-      height: 'calc(100% - 4.8rem)',
-    }),
-    [updateRequestField],
+  const debouncedUpdateRequestField = debounce(
+    (field: string, value: unknown) => {
+      updateRequestField(field, value)
+    },
+    80,
   )
 
+  const editorProps: EditorProps = {
+    onChange: (value) => debouncedUpdateRequestField('body.content', value),
+    height: 'calc(100% - 4.8rem)',
+    value: request.body?.content ?? '',
+  }
+
   const bodyType = request.body?.type ?? 'none'
-  const bodyContent = request.body?.content ?? ''
 
   const renderBodyInput = () => {
     switch (bodyType) {
       case 'json':
-        return <Editor {...editorProps} language="json" value={bodyContent} />
+        return <Editor {...editorProps} language="json" />
       case 'xml':
-        return <Editor {...editorProps} language="xml" value={bodyContent} />
+        return <Editor {...editorProps} language="xml" />
       case 'yaml':
-        return <Editor {...editorProps} language="yaml" value={bodyContent} />
+        return <Editor {...editorProps} language="yaml" />
       case 'edn':
       case 'plain-text':
-        return (
-          <Editor {...editorProps} language="plaintext" value={bodyContent} />
-        )
+        return <Editor {...editorProps} language="plaintext" />
       case 'file':
         return (
           <Input

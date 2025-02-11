@@ -37,6 +37,9 @@ const groupIcons: Record<string, React.ElementType> = {
 
 const RequestAuthTab = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest!)
+  const selectedRequestPathString = useHypersomniaStore(
+    (state) => state.selectedRequestPathString,
+  )
   const updateRequestField = useHypersomniaStore(
     (state) => state.updateRequestField,
   )
@@ -46,9 +49,9 @@ const RequestAuthTab = () => {
   const renderAuthInput = () => {
     switch (authType) {
       case 'basic':
-        return <BasicAuthInput />
+        return <BasicAuthInput key={selectedRequestPathString} />
       case 'bearer token':
-        return <BearerTokenAuthInput />
+        return <BearerTokenAuthInput key={selectedRequestPathString} />
       default:
         return null
     }

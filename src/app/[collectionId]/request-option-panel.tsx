@@ -23,20 +23,19 @@ import {
 } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { Code2, Key } from 'lucide-react'
+import Link from 'next/link'
 import { parseAsString, useQueryState } from 'nuqs'
 import RequestAuthTab from './(request-option-tabs)/request-auth-tab'
 import RequestBodyTab from './(request-option-tabs)/request-body-tab'
 import RequestDocsTab from './(request-option-tabs)/request-docs-tab'
 import RequestHeadersTab from './(request-option-tabs)/request-headers-tab'
 import RequestParamsTab from './(request-option-tabs)/request-params-tab'
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import useDebounce from '@/hooks/useDebounce'
+import debounce from 'lodash.debounce'
 
 const RequestOptionPanel = () => {
   const request = useHypersomniaStore((state) => state.selectedRequest)
-  const selectedRequestPath = useHypersomniaStore(
-    (state) => state.selectedRequestPath,
+  const selectedRequestPathString = useHypersomniaStore(
+    (state) => state.selectedRequestPathString,
   )
   const collection = useHypersomniaStore((state) => state.selectedCollection)
   const isReady = useHypersomniaStore((state) => state.isReady)
@@ -50,7 +49,7 @@ const RequestOptionPanel = () => {
 
   return (
     <>
-      <PanelHeader key={selectedRequestPath?.join('/')} />
+      <PanelHeader key={selectedRequestPathString} />
       <Tabs value={tab} className="h-full">
         <ScrollArea type="hover">
           <TabsList className="flex justify-start">
@@ -104,7 +103,7 @@ const RequestOptionPanel = () => {
               <RequestHeadersTab />
             </TabsContent>
             <TabsContent value="docs" className="mt-0 h-full">
-              <RequestDocsTab key={selectedRequestPath?.join('/')} />
+              <RequestDocsTab key={selectedRequestPathString} />
             </TabsContent>
           </>
         )}
@@ -157,15 +156,12 @@ const PanelHeader = () => {
     (state) => state.updateRequestOptionField,
   )
 
-  const [localUrl, setLocalUrl] = useState(request?.url)
-
-  const debouncedUrl = useDebounce(localUrl, 80)
-
-  useEffect(() => {
-    if (debouncedUrl !== request?.url) {
-      updateRequestField('url', debouncedUrl)
-    }
-  })
+  const debouncedUpdateRequestField = debounce(
+    (field: string, value: unknown) => {
+      updateRequestField(field, value)
+    },
+    80,
+  )
 
   return (
     <PanelHeaderContainer className="px-0">
@@ -200,8 +196,10 @@ const PanelHeader = () => {
           </Label>
           <Input
             id="request-url"
-            onChange={({ target }) => setLocalUrl(target.value)}
-            value={localUrl ?? ''}
+            onChange={({ target }) => {
+              debouncedUpdateRequestField('url', target.value)
+            }}
+            defaultValue={request.url}
             placeholder="https://api.example.com/"
             className="font-semibold shrink mr-16 border-0 shadow-none focus-visible:ring-0 pl-0 placeholder:text-muted-foreground/40"
           />
