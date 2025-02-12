@@ -226,7 +226,12 @@ export function SortableTree({
       clonedItems[activeIndex] = { ...activeTreeItem, depth, parentId }
 
       const sortedItems = arrayMove(clonedItems, activeIndex, overIndex)
-      const newItems = buildTree(sortedItems)
+      let newItems = buildTree(sortedItems)
+
+      if (parentId) {
+        // open folder
+        newItems = setProperty(newItems, parentId, 'isOpen', () => true)
+      }
 
       setItems(newItems)
     }
