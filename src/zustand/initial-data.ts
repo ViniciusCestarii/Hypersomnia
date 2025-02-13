@@ -201,6 +201,22 @@ Get Brazil PIB data from IBGE API.
           },
         },
       },
+      {
+        id: 'fa000186-7198-4b35-8d5b-a229c5de38e5',
+        name: 'Get Hypersomnia HTML',
+        request: {
+          url: 'https://hypersomnia.vercel.app',
+          doc: `# CORS Warning
+
+## Blocked by Browser: 
+
+Browsers enforce CORS policies to prevent unauthorized cross-origin requests. This means that if you try to make requests of websites that do not have CORS enabled, the browser will block the request.
+          `,
+          options: {
+            method: 'get',
+          },
+        },
+      },
     ],
   },
 ]
