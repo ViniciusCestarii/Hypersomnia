@@ -7,6 +7,7 @@ import Collection from './collection'
 import CreateCollection from './create-collection'
 import { Search } from 'lucide-react'
 import ClearableInput from '@/components/ui/clearable-input'
+import ImportCollectionModal from './collection-import-modal'
 
 const CollectionList = () => {
   const collections = useHypersomniaStore((state) => state.collections)
@@ -42,6 +43,7 @@ const CollectionList = () => {
           />
         </div>
         <CreateCollection />
+        <ImportCollectionModal />
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {filteredCollections.map((collection) => (

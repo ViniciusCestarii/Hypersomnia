@@ -29,6 +29,16 @@ export function CollectionDropdownMenu({
   collection,
 }: CollectionDropdownMenuProps) {
   const [deleteCollectionOpen, setDeleteCollectionOpen] = useState(false)
+
+  const handleExport = () => {
+    const dataStr = JSON.stringify(collection, null, 2)
+    const blob = new Blob([dataStr], { type: 'application/json' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `${collection.id}-collection.json`
+    link.click()
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -60,7 +70,7 @@ export function CollectionDropdownMenu({
               <FolderInput className="mr-2 h-4 w-4" />
               <span>Import</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExport}>
               <FolderOutput className="mr-2 h-4 w-4" />
               <span>Export</span>
             </DropdownMenuItem>
