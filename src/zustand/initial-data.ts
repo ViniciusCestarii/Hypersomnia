@@ -205,7 +205,7 @@ Get Brazil PIB data from IBGE API.
         id: 'fa000186-7198-4b35-8d5b-a229c5de38e5',
         name: 'Get Hypersomnia HTML',
         request: {
-          url: 'https://hypersomnia.vercel.app',
+          url: 'https://hypersomnia.vercel.app/home',
           doc: `# CORS Warning
 
 ## Blocked by Browser: 
