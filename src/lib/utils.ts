@@ -199,10 +199,6 @@ export const updateRequestInFileSystem = (
   })
 }
 
-export const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text)
-}
-
 export const findSystemNodeByPath = (
   fileSystem: FileSystemNode[],
   path: string[],
@@ -229,6 +225,10 @@ export const findSystemNodeByPath = (
   }
 
   return findNode(fileSystem, path)
+}
+
+export const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text)
 }
 
 export const getRequestWithQueryParams = (

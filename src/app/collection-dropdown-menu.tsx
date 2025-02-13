@@ -20,6 +20,8 @@ import {
 import { Collection } from '@/types'
 import CollectionConfirmDeleteModal from './collection-confirm-delete-modal'
 import { useState } from 'react'
+import useHypersomniaStore from '@/zustand/hypersomnia-store'
+import { createSlug } from '@/lib/utils'
 
 interface CollectionDropdownMenuProps {
   collection: Collection
@@ -28,7 +30,29 @@ interface CollectionDropdownMenuProps {
 export function CollectionDropdownMenu({
   collection,
 }: CollectionDropdownMenuProps) {
+  const collections = useHypersomniaStore((state) => state.collections)
+  const createCollection = useHypersomniaStore(
+    (state) => state.createCollection,
+  )
   const [deleteCollectionOpen, setDeleteCollectionOpen] = useState(false)
+
+  const handleDuplicate = () => {
+    let collectionTitle = `${collection.title} (Copy)`
+    let count = 1
+
+    while (collections.some((c) => c.title === collectionTitle)) {
+      collectionTitle = `${collection.title} (Copy) ${count}`
+      count++
+    }
+
+    const collectionCopy: Collection = JSON.parse(JSON.stringify(collection))
+
+    createCollection({
+      ...collectionCopy,
+      id: createSlug(collectionTitle),
+      title: collectionTitle,
+    })
+  }
 
   const handleExport = () => {
     const dataStr = JSON.stringify(collection, null, 2)
@@ -59,7 +83,7 @@ export function CollectionDropdownMenu({
               <Pencil className="mr-2 h-4 w-4" />
               <span>Rename</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleDuplicate}>
               <Copy className="mr-2 h-4 w-4" />
               <span>Duplicate</span>
             </DropdownMenuItem>
