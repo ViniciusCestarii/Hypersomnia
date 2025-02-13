@@ -66,7 +66,7 @@ const ImportCollectionModal = () => {
         }
 
         while (collections.some((c) => c.id === json.id)) {
-          json.id += '-New'
+          json.id += '-new'
           json.title += ' New'
         }
 
