@@ -35,6 +35,25 @@ export const initialCollections: Collection[] = [
     description: 'Description',
     fileSystem: [
       {
+        id: '6444b39f-2622-44a3-93a2-995687047720',
+        name: 'Your Local Endpoint',
+        request: {
+          url: 'http://localhost:3000',
+          options: {
+            method: 'get',
+          },
+          doc: `# Localhost
+
+To use Hypersomnia with your local server, you need to ensure that your server is configured to accept requests from origin hypersomnia.vercel.app.
+
+Sadly, it's CORS configuration.
+          
+## Run Hypersomnia Locally
+
+Hypersomnia is a Next.js open-source application. You can clone the [repository](https://github.com/ViniciusCestarii/Hypersomnia) and run it locally.`,
+        },
+      },
+      {
         id: 'b17cd125-a12a-49e3-b974-ee7bb70ba5ff',
         name: 'Get User Post by Id',
         request: {
