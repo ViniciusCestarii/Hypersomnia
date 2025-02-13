@@ -89,7 +89,10 @@ const RequestResponsePanel = () => {
           )}
           {typeof timeTaken !== 'undefined' && (
             <span className="mx-2 text-nowrap">
-              {(timeTaken?.toFixed(0) ?? 0) + 'ms'}
+              {(timeTaken?.toFixed(0) ?? 0) + 'ms'}{' '}
+              <span title="So fast that it may be cached!">
+                {timeTaken && timeTaken < 8 && '🚀'}
+              </span>
             </span>
           )}
         </>
