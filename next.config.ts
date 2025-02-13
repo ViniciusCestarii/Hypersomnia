@@ -1,11 +1,11 @@
 import withBundleAnalyzer from '@next/bundle-analyzer'
+import { NextConfig } from 'next'
 
 const withBundleAnalyzerWithConfig = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 })
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   experimental: {
     turbo: {},
   },
