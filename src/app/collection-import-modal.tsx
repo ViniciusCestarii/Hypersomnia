@@ -66,8 +66,8 @@ const ImportCollectionModal = () => {
         }
 
         while (collections.some((c) => c.id === json.id)) {
-          json.id += '-copy'
-          json.title += ' Copy'
+          json.id += '-New'
+          json.title += ' New'
         }
 
         createCollection(json)
