@@ -86,7 +86,7 @@ const useFetch = ({ url, options, enabled = true }: UseFetchProps) => {
           })
         }
       } else if (isLatestRequest) {
-        console.log('Err:', err)
+        console.error('Err:', err)
         setRequestFetchResult({
           data: null,
           error: err as Error,

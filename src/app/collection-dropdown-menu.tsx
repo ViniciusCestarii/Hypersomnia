@@ -4,7 +4,6 @@ import {
   FolderInput,
   FolderOutput,
   Pencil,
-  Settings,
   Trash2,
 } from 'lucide-react'
 
@@ -23,6 +22,7 @@ import { useState } from 'react'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { createSlug } from '@/lib/utils'
 import RenameCollection from './rename-collection'
+import ImportCollection from './import-collection'
 
 interface CollectionDropdownMenuProps {
   collection: Collection
@@ -37,6 +37,7 @@ export function CollectionDropdownMenu({
   )
   const [deleteCollectionOpen, setDeleteCollectionOpen] = useState(false)
   const [renameCollectionOpen, setRenameCollectionOpen] = useState(false)
+  const [importCollectionOpen, setImportCollectionOpen] = useState(false)
 
   const handleDuplicate = () => {
     let collectionTitle = `${collection.title} (Copy)`
@@ -92,7 +93,7 @@ export function CollectionDropdownMenu({
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setImportCollectionOpen(true)}>
               <FolderInput className="mr-2 h-4 w-4" />
               <span>Import</span>
             </DropdownMenuItem>
@@ -116,14 +117,19 @@ export function CollectionDropdownMenu({
         </DropdownMenuContent>
       </DropdownMenu>
       <RenameCollection
+        collection={collection}
         open={renameCollectionOpen}
         onOpenChange={setRenameCollectionOpen}
+      />
+      <ImportCollection
         collection={collection}
+        open={importCollectionOpen}
+        onOpenChange={setImportCollectionOpen}
       />
       <CollectionConfirmDeleteModal
         collection={collection}
-        onOpenChange={setDeleteCollectionOpen}
         open={deleteCollectionOpen}
+        onOpenChange={setDeleteCollectionOpen}
       />
     </>
   )
