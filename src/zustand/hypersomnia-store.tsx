@@ -25,6 +25,7 @@ type HypersomniaStore = {
   createCollection: (collection: Collection) => void
   deleteCollection: (id: Collection['id']) => void
   updateCollection: (collection: Collection) => void
+  updateCollectionById: (id: Collection['id'], collection: Collection) => void
   selectCollection: (id: string) => void
   selectedRequestPath: string[] | null
   selectedRequestPathString: string | null
@@ -95,6 +96,20 @@ const hypersomniaStateCreator: StateCreator<HypersomniaStore> = (set) => ({
       return {
         collections: updatedCollections,
         selectedCollection: collection,
+      }
+    }),
+  updateCollectionById: (id, updatedCollection) =>
+    set((state) => {
+      const updatedCollections = state.collections.map((coll) =>
+        coll.id === id ? updatedCollection : coll,
+      )
+
+      return {
+        collections: updatedCollections,
+        selectedCollection:
+          state.selectedCollection?.id === id
+            ? updatedCollection
+            : state.selectedCollection,
       }
     }),
   selectRequest: (path) => {

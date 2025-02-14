@@ -22,6 +22,7 @@ import CollectionConfirmDeleteModal from './collection-confirm-delete-modal'
 import { useState } from 'react'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import { createSlug } from '@/lib/utils'
+import RenameCollection from './rename-collection'
 
 interface CollectionDropdownMenuProps {
   collection: Collection
@@ -35,6 +36,7 @@ export function CollectionDropdownMenu({
     (state) => state.createCollection,
   )
   const [deleteCollectionOpen, setDeleteCollectionOpen] = useState(false)
+  const [renameCollectionOpen, setRenameCollectionOpen] = useState(false)
 
   const handleDuplicate = () => {
     let collectionTitle = `${collection.title} (Copy)`
@@ -79,7 +81,7 @@ export function CollectionDropdownMenu({
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setRenameCollectionOpen(true)}>
               <Pencil className="mr-2 h-4 w-4" />
               <span>Rename</span>
             </DropdownMenuItem>
@@ -98,10 +100,10 @@ export function CollectionDropdownMenu({
               <FolderOutput className="mr-2 h-4 w-4" />
               <span>Export</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            {/* <DropdownMenuItem>
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -113,6 +115,11 @@ export function CollectionDropdownMenu({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <RenameCollection
+        open={renameCollectionOpen}
+        onOpenChange={setRenameCollectionOpen}
+        collection={collection}
+      />
       <CollectionConfirmDeleteModal
         collection={collection}
         onOpenChange={setDeleteCollectionOpen}
