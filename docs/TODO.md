@@ -27,7 +27,7 @@
 
 ----
 
-- [ ] Store state open of folders
+- [X] Store state open of folders
 
 - [X] D&D to reorder folders and requests
 

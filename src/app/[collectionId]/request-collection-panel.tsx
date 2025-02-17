@@ -218,7 +218,7 @@ const CollectionOptionsButton = () => {
             </DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        {/* <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-xs">
             <span>Import</span>
@@ -231,7 +231,7 @@ const CollectionOptionsButton = () => {
             <File className="mr-1 size-3" />
             <span>From File</span>
           </DropdownMenuItem>
-        </DropdownMenuGroup>
+        </DropdownMenuGroup> */}
       </DropdownMenuContent>
     </DropdownMenu>
   )
