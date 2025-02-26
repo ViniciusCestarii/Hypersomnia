@@ -6,6 +6,7 @@ import { ThemeProvider } from './theme-provider'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { ThemeToggleButton } from '@/components/ui/theme-toggle-button'
 import Link from 'next/link'
+import ServiceWorker from '@/components/serviceWorker'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        <ServiceWorker />
         <NuqsAdapter>
           <ThemeProvider
             attribute="class"
