@@ -17,8 +17,10 @@ import {
   cn,
   createNewFolder,
   createNewRequest,
+  curlToHypersomniaRequest,
   filterNodes,
   formatKeyShortcut,
+  generateNewRequestTemplate,
 } from '@/lib/utils'
 import useHypersomniaStore from '@/zustand/hypersomnia-store'
 import {
@@ -42,6 +44,8 @@ import { keyShortcuts } from '@/lib/keyboard-shortcuts'
 import { TreeItems } from '@/components/ui/dnd/types'
 import { FileSystemNode } from '@/types'
 import ClearableInput from '@/components/ui/clearable-input'
+import { useState } from 'react'
+import ImportRequestFromCurlModal from './import-request-from-curl'
 
 const checkIfFolderIsOpen = (item: FileSystemNode): boolean => {
   if (typeof item.isOpen !== 'undefined') {
@@ -172,68 +176,79 @@ const RequestCollectionPanel = () => {
 const CollectionOptionsButton = () => {
   useKeyCombination([keyShortcuts.createRequest], createNewRequest)
   useKeyCombination([keyShortcuts.createFolder], createNewFolder)
+  const [openImportCurlModal, setOpenImportCurlModal] = useState(false)
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          aria-label="create folder/request"
-          title="create folder/request"
-          size="icon"
-          variant="ghost"
-          className="rounded-none flex-shrink-0"
-        >
-          <Plus size={16} />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel className="text-xs">
-            <span>Create</span>
-          </DropdownMenuLabel>
-          <DropdownMenuItem
-            inset
-            className="text-xs"
-            onClick={() => {
-              createNewFolder()
-            }}
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            aria-label="create folder/request"
+            title="create folder/request"
+            size="icon"
+            variant="ghost"
+            className="rounded-none flex-shrink-0"
           >
-            <Folder className="mr-1 size-3" />
-            <span>New Folder</span>
-            <DropdownMenuShortcut>
-              {formatKeyShortcut(keyShortcuts.createFolder)}
-            </DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            inset
-            className="text-xs"
-            onClick={() => {
-              createNewRequest()
-            }}
-          >
-            <ArrowUpDown className="mr-1 size-3" />
-            <span>New HTTP request</span>
-            <DropdownMenuShortcut>
-              {formatKeyShortcut(keyShortcuts.createRequest)}
-            </DropdownMenuShortcut>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        {/* <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuLabel className="text-xs">
-            <span>Import</span>
-          </DropdownMenuLabel>
-          <DropdownMenuItem inset className="text-xs">
-            <Terminal className="mr-1 size-3" />
-            <span>From Curl</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem inset className="text-xs">
+            <Plus size={16} />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="text-xs">
+              <span>Create</span>
+            </DropdownMenuLabel>
+            <DropdownMenuItem
+              inset
+              className="text-xs"
+              onClick={() => {
+                createNewFolder()
+              }}
+            >
+              <Folder className="mr-1 size-3" />
+              <span>New Folder</span>
+              <DropdownMenuShortcut>
+                {formatKeyShortcut(keyShortcuts.createFolder)}
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              inset
+              className="text-xs"
+              onClick={() => {
+                createNewRequest()
+              }}
+            >
+              <ArrowUpDown className="mr-1 size-3" />
+              <span>New HTTP request</span>
+              <DropdownMenuShortcut>
+                {formatKeyShortcut(keyShortcuts.createRequest)}
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="text-xs">
+              <span>Import</span>
+            </DropdownMenuLabel>
+            <DropdownMenuItem
+              inset
+              className="text-xs"
+              onClick={() => setOpenImportCurlModal(true)}
+            >
+              <Terminal className="mr-1 size-3" />
+              <span>From Curl</span>
+            </DropdownMenuItem>
+            {/* <DropdownMenuItem inset className="text-xs">
             <File className="mr-1 size-3" />
             <span>From File</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup> */}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          </DropdownMenuItem> */}
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <ImportRequestFromCurlModal
+        onOpenChange={setOpenImportCurlModal}
+        open={openImportCurlModal}
+      />
+    </>
   )
 }
 
