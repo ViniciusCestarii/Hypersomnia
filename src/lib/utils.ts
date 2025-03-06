@@ -748,6 +748,90 @@ export const hypersomniaRequestToCurl = (
   return curlCommand
 }
 
+export const curlToHypersomniaRequest = (
+  curlCommand: string,
+): HypersomniaRequest => {
+  const request: HypersomniaRequest = {
+    url: '',
+    options: {
+      method: 'get',
+      timeout: undefined,
+      responseType: 'json',
+    },
+  }
+
+  const methodRegex = / (?:--request|-X)\s+(\w+)/i
+  const methodMatch = curlCommand.match(methodRegex)
+  if (methodMatch) {
+    request.options.method = methodMatch[1].toLowerCase() as MethodType
+  }
+
+  const urlFromFlagRegex = /--url\s+['"]([^'"]+)['"]/i
+  const urlFromFlagMatch = curlCommand.match(urlFromFlagRegex)
+  if (urlFromFlagMatch) {
+    request.url = urlFromFlagMatch[1]
+  } else {
+    const urlOriginalRegex = /curl\s+(?:-X\s+\w+\s+)?['"]([^'"]+)['"]/i
+    const urlOriginalMatch = curlCommand.match(urlOriginalRegex)
+    if (urlOriginalMatch) {
+      request.url = urlOriginalMatch[1]
+    }
+  }
+
+  const headerRegex = /(?:-H|--header)\s+['"]([^:]+):\s*([^'"]+)['"]/g
+  const headers: RequestHeaders[] = []
+  let headerMatch
+  while ((headerMatch = headerRegex.exec(curlCommand)) !== null) {
+    headers.push({
+      key: headerMatch[1].trim(),
+      value: headerMatch[2].trim(),
+      id: generateUUID(),
+      enabled: true,
+    })
+  }
+  request.headers = headers
+
+  const bodyRegex = /(?:-d|--data)\s+'([^']+)'/g
+  const bodyMatch = curlCommand.match(bodyRegex)
+  if (bodyMatch) {
+    let content = bodyMatch[bodyMatch.length - 1]
+    if (content.startsWith('-d')) {
+      content = content.slice(3)
+    }
+    if (content.startsWith('--data')) {
+      content = content.slice(6)
+    }
+
+    content = content.trim().slice(1, -1) // remove quotes
+    request.body = {
+      type: 'json', // default body type
+      content,
+    }
+  }
+
+  const fileRegex = /--data-binary\s+['"]@([^'"]+)['"]/
+  const fileMatch = curlCommand.match(fileRegex)
+  if (fileMatch) {
+    request.body = {
+      type: 'file',
+      content: fileMatch[1],
+    }
+  }
+
+  const timeoutRegex = /--max-time\s+(\d+)/
+  const timeoutMatch = curlCommand.match(timeoutRegex)
+  if (timeoutMatch) {
+    request.options.timeout = parseInt(timeoutMatch[1], 10)
+  }
+
+  const outputRegex = /--output\s+-/
+  if (curlCommand.match(outputRegex)) {
+    request.options.responseType = 'stream'
+  }
+
+  return request
+}
+
 export function createSlug(str: string) {
   return slugify(str)
 }
